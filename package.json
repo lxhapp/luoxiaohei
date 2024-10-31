@@ -1,0 +1,22 @@
+{
+  "name": "luoxiaohei",
+  "description": "🌸 Luo Xiaohei - your favourite anime cat!",
+  "version": "261024",
+  "author": "Melishy",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.6",
+    "discord-gamecord": "^4.4.2",
+    "discord.js": "^14.16.2",
+    "dotenv": "^16.4.5",
+    "figlet": "^1.7.0",
+    "got": "^14.4.2",
+    "request": "^2.88.2",
+    "url": "^0.11.4"
+  },
+  "main": "index.js",
+  "keywords": [
+    "Luo Xiaohei"
+  ]
+}
