@@ -36,7 +36,7 @@ class MainClient extends Client {
         activities: [
           {
             name: "meow",
-            state: "🌸 currently updating",
+            state: "≽^•⩊•^≼",
             type: ActivityType.Custom,
           },
         ],
