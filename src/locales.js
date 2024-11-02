@@ -161,6 +161,8 @@ export const en = {
   itemPurchasedDescription: "You bought {amount}x {item} for {price}¥",
   anonymousEnabled: "You are now anonymous on the leaderboard",
   anonymousDisabled: "You are no longer anonymous on the leaderboard",
+  servercount: "Server Count",
+  membercount: "Member Count",
 };
 
 export const ru = {
@@ -330,6 +332,8 @@ export const ru = {
   itemPurchasedDescription: "Вы успешно купили {amount}x {item} за {price}¥",
   anonymousEnabled: "Вы теперь анонимны на таблице лидеров",
   anonymousDisabled: "Вы больше не анонимны на таблице лидеров",
+  servercount: "Количество серверов",
+  membercount: "Количество участников",
 };
 
 export const uk = {
@@ -493,10 +497,12 @@ export const uk = {
   itemSold: "Предмет проданий",
   soldAmount: "Количество",
   soldPrice: "Цена",
-  itemSoldDescription: "Ти продал(-а) {amount}x {item} за {price}¥",
-  itemPurchasedDescription: "Ви успішно купили {amount}x {item} за {price}¥",
+  itemSoldDescription: "{amount}x {item} було продано за {price}¥",
+  itemPurchasedDescription: "{amount}x {item} було куплено за {price}¥",
   anonymousEnabled: "Ви тепер анонімний на таблиці лідерів",
   anonymousDisabled: "Ви більше не анонімний на таблиці лідерів",
+  servercount: "Кількість серверів",
+  membercount: "Кількість учасників",
 };
 
 export const ja = {
@@ -666,4 +672,6 @@ export const ja = {
   itemPurchasedDescription: "{amount}x {item}を{price}¥で購入しました",
   anonymousEnabled: "リーダーボードで匿名になりました",
   anonymousDisabled: "リーダーボードでの匿名状態が解除されました",
+  servercount: "サーバー数",
+  membercount: "メンバー数",
 };

@@ -1,7 +1,7 @@
 {
   "name": "luoxiaohei",
   "description": "🌸 Luo Xiaohei - your favourite anime cat!",
-  "version": "261024",
+  "version": "21124",
   "author": "Melishy",
   "license": "MIT",
   "type": "module",
@@ -12,6 +12,7 @@
     "dotenv": "^16.4.5",
     "figlet": "^1.7.0",
     "got": "^14.4.2",
+    "punycode.js": "^2.3.1",
     "request": "^2.88.2",
     "url": "^0.11.4"
   },

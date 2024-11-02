@@ -4,9 +4,6 @@ import {
   AttachmentBuilder,
 } from "discord.js";
 import figlet from "figlet";
-import { promisify } from "util";
-
-const figletAsync = promisify(figlet.text);
 
 export const beta = false;
 export const cooldown = 30;
@@ -27,7 +24,7 @@ export const data = new SlashCommandBuilder()
         uk: "Вкажіть текст для початку перетворення",
         ja: "変換を開始するテキストを指定します",
       })
-      .setMaxLength(64)
+      .setMaxLength(512)
       .setMinLength(1)
       .setRequired(true)
   )
@@ -42,7 +39,7 @@ export const data = new SlashCommandBuilder()
         uk: "http://www.figlet.org/examples.html | Вкажіть шріфт для початку перетворення",
         ja: "http://www.figlet.org/examples.html | 変換を開始するフォントを指定します",
       })
-      .setMaxLength(64)
+      .setMaxLength(32)
       .setMinLength(1)
   )
   .setContexts(
@@ -59,7 +56,7 @@ export async function run({ interaction, client }) {
   try {
     const text = interaction.options.getString("text");
     let font = interaction.options.getString("font") || "Standard";
-    
+
     // Capitalize first letter of font name
     font = font.charAt(0).toUpperCase() + font.slice(1).toLowerCase();
 
@@ -71,7 +68,7 @@ export async function run({ interaction, client }) {
       });
     }
 
-    const asciiArt = await figletAsync(text, {
+    const asciiArt = await figlet(text, {
       font: font,
       horizontalLayout: "default",
       verticalLayout: "default",

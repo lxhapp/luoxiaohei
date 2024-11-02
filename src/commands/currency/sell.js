@@ -47,7 +47,7 @@ export const data = new SlashCommandBuilder()
 
 export async function run({ interaction, client }) {
   await interaction.deferReply();
-  const itemName = interaction.options.getString("item");
+  const itemName = interaction.options.getString("item").trim();
   const amount = interaction.options.getInteger("amount") || 1;
 
   const { data: userItems, error: userItemError } = await supabase

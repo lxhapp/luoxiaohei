@@ -47,7 +47,7 @@ export const data = new SlashCommandBuilder()
 
 export async function run({ interaction, client }) {
   await interaction.deferReply();
-  const itemName = interaction.options.getString("item");
+  const itemName = interaction.options.getString("item").trim();
   let amount = interaction.options.getInteger("amount") || 1;
 
   // Find the item in the shop

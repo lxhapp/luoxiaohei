@@ -4,6 +4,7 @@ import { supabase } from "../db/main.js";
 export const name = Events.ClientReady;
 export const once = true;
 export async function execute(client) {
+  console.log(`Logged in as ${client.user.tag}`)
   try {
     // Check if the users table exists
     const { data, error } = await supabase
@@ -13,7 +14,9 @@ export async function execute(client) {
 
     if (error) {
       if (error.code === "42P01") {
-        console.error("The 'users' table does not exist. Please create it manually using the following SQL:");
+        console.error(
+          "The 'users' table does not exist. Please create it manually using the following SQL:"
+        );
         console.error(`
 CREATE TABLE public.users (
   user_id TEXT PRIMARY KEY,
@@ -38,8 +41,6 @@ CREATE TABLE public.users (
 
     // Populate the client's currency cache
     storedBalances.forEach((b) => client.currency.set(b.user_id, b));
-
-    console.log(`Logged in as ${client.user.tag}`);
   } catch (error) {
     console.error(error);
     if (error.code === "28P01") {

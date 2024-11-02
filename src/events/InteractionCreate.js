@@ -7,26 +7,54 @@ export const name = Events.InteractionCreate;
 export async function execute(interaction) {
   if (!interaction || !interaction.isChatInputCommand()) return;
 
-  const command = interaction.client.commands.get(interaction.commandName);
-
-  if (!command) {
-    console.error(`No command matching ${interaction.commandName} was found`);
-    return;
-  }
-
-  const { locale } = interaction;
-
-  if (await checkBetaAccess(interaction, command, locale)) return;
-  if (await checkCooldown(interaction, command, locale)) return;
-
   try {
+    const command = interaction.client.commands.get(interaction.commandName);
+
+    if (!command) {
+      console.error(`No command matching ${interaction.commandName} was found`);
+      return;
+    }
+
+    if (!interaction.isRepliable()) {
+      console.log("Interaction is no longer valid");
+      return;
+    }
+
+    const { locale } = interaction;
+
+    if (await checkBetaAccess(interaction, command, locale)) return;
+    if (await checkCooldown(interaction, command, locale)) return;
+
     const logMessage = buildLogMessage(interaction);
     console.log(
       `${interaction.user.id} | ${interaction.user.tag} ~ ${logMessage}`
     );
-    await command.run({ interaction, client: interaction.client });
+
+    // Add timeout to prevent hanging
+    const commandPromise = command.run({
+      interaction,
+      client: interaction.client,
+    });
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Command timeout")), 30000)
+    );
+
+    await Promise.race([commandPromise, timeoutPromise]);
   } catch (error) {
-    await handleCommandError(interaction, error, locale);
+    console.error("Command execution error:", error);
+    try {
+      await handleCommandError(interaction, error, interaction.locale);
+    } catch (followUpError) {
+      console.error("Error sending error message:", followUpError);
+    }
+
+    // Clean up cooldown on error
+    const timestamps = interaction.client.cooldowns.get(
+      interaction.commandName
+    );
+    if (timestamps) {
+      timestamps.delete(interaction.user.id);
+    }
   }
 }
 
@@ -82,6 +110,26 @@ async function checkBetaAccess(interaction, command, locale) {
 async function checkCooldown(interaction, command, locale) {
   const { cooldowns } = interaction.client;
 
+  // Clean up expired cooldowns first
+  if (cooldowns.has(command.data.name)) {
+    const timestamps = cooldowns.get(command.data.name);
+    const now = Date.now();
+    // Clean up any expired entries
+    [...timestamps.entries()].forEach(([userId, timestamp]) => {
+      const cooldownAmount =
+        (command.cooldown ?? DEFAULT_COOLDOWN_DURATION) * 1000;
+      if (now > timestamp + cooldownAmount) {
+        timestamps.delete(userId);
+      }
+    });
+
+    // If map is empty after cleanup, delete it
+    if (timestamps.size === 0) {
+      cooldowns.delete(command.data.name);
+    }
+  }
+
+  // Initialize cooldown collection if needed
   if (!cooldowns.has(command.data.name)) {
     cooldowns.set(command.data.name, new Collection());
   }
@@ -114,7 +162,6 @@ async function checkCooldown(interaction, command, locale) {
   }
 
   timestamps.set(interaction.user.id, now);
-  setTimeout(() => timestamps.delete(interaction.user.id), cooldownAmount);
   return false;
 }
 

@@ -23,6 +23,7 @@ import {
   REST,
   Routes,
   SlashCommandBuilder,
+  Events,
 } from "discord.js";
 import { supabase } from "./db/main.js";
 
@@ -35,7 +36,7 @@ class MainClient extends Client {
         activities: [
           {
             name: "meow",
-            state: "🎋 にゃーん",
+            state: "🌸 currently updating",
             type: ActivityType.Custom,
           },
         ],
@@ -70,7 +71,9 @@ class MainClient extends Client {
         .maybeSingle();
 
       if (connectionError) {
-        throw new Error(`Failed to connect to Supabase: ${connectionError.message}`);
+        throw new Error(
+          `Failed to connect to Supabase: ${connectionError.message}`
+        );
       }
 
       // Fetch user data
