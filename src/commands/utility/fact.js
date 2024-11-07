@@ -23,12 +23,6 @@ export const data = new SlashCommandBuilder()
   )
   .setIntegrationTypes([0, 1]);
 export async function run({ interaction }) {
-  await interaction.deferReply({
-    allowedMentions: {
-      repliedUser: false,
-    },
-    flags: [4096],
-  });
   get(
     {
       url: "https://api.api-ninjas.com/v1/facts",

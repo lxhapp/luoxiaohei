@@ -31,12 +31,6 @@ export const data = new SlashCommandBuilder()
   .setContexts(InteractionContextType.Guild)
   .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages);
 export async function run({ interaction, client }) {
-  await interaction.deferReply({
-    allowedMentions: {
-      repliedUser: false,
-    },
-    flags: [4096],
-  });
   const { locale } = interaction;
   const embed = new EmbedBuilder().setColor("#212226");
   if (

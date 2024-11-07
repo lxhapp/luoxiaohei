@@ -30,6 +30,11 @@ export async function execute(interaction) {
       `${interaction.user.id} | ${interaction.user.tag} ~ ${logMessage}`
     );
 
+    await interaction.deferReply().catch((err) => {
+      console.error("Failed to defer reply:", err);
+      return;
+    });
+
     // Add timeout to prevent hanging
     const commandPromise = command.run({
       interaction,

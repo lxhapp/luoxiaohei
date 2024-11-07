@@ -32,12 +32,6 @@ export const data = new SlashCommandBuilder()
   )
   .setIntegrationTypes([0, 1]);
 export async function run({ interaction, client }) {
-  await interaction.deferReply({
-    allowedMentions: {
-      repliedUser: false,
-    },
-    flags: [4096],
-  });
   const { locale } = interaction;
   const question = interaction.options.getString("question");
   const words = [

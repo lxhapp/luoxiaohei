@@ -47,12 +47,6 @@ export const data = new SlashCommandBuilder()
   )
   .setIntegrationTypes([0, 1]);
 export async function run({ interaction, client }) {
-  await interaction.deferReply({
-    allowedMentions: {
-      repliedUser: false,
-    },
-    flags: [4096],
-  });
   const val1 = interaction.options.getInteger("1");
   const val2 = interaction.options.getInteger("2");
   const { locale } = interaction;

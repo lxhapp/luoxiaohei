@@ -21,12 +21,6 @@ export const data = new SlashCommandBuilder()
   )
   .setIntegrationTypes([0, 1]);
 export async function run({ interaction, client }) {
-  await interaction.deferReply({
-    allowedMentions: {
-      repliedUser: false,
-    },
-    flags: [4096],
-  });
   const launchTimestamp = Math.floor(Date.now() - client.uptime);
   let totalSeconds = client.uptime / 1000;
   let days = Math.floor(totalSeconds / 86400);

@@ -29,12 +29,6 @@ export const data = new SlashCommandBuilder()
       .setRequired(true)
   );
 export async function run({ interaction, client }) {
-  await interaction.deferReply({
-    allowedMentions: {
-      repliedUser: false,
-    },
-    flags: [4096],
-  });
   const { locale } = interaction;
   const ticks = interaction.options.getInteger("ticks");
   const tickmenu = new StringSelectMenuBuilder()

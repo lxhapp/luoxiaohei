@@ -46,7 +46,6 @@ export const data = new SlashCommandBuilder()
   .setIntegrationTypes([0, 1]);
 
 export async function run({ interaction, client }) {
-  await interaction.deferReply();
   const itemName = interaction.options.getString("item").trim();
   const amount = interaction.options.getInteger("amount") || 1;
 

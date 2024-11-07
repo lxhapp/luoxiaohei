@@ -86,8 +86,6 @@ export const data = new SlashCommandBuilder()
 export async function run({ interaction, client }) {
   const { guild, options, locale } = interaction;
 
-  await interaction.deferReply({ ephemeral: true });
-
   const embed = new EmbedBuilder().setColor("#212226");
 
   if (

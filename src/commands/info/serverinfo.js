@@ -19,12 +19,6 @@ export const data = new SlashCommandBuilder()
   })
   .setContexts(InteractionContextType.Guild);
 export async function run({ interaction, client }) {
-  await interaction.deferReply({
-    allowedMentions: {
-      repliedUser: false,
-    },
-    flags: [4096],
-  });
   const { guild, locale } = interaction;
   const { name, createdTimestamp } = guild;
 

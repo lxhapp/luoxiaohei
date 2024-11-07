@@ -51,7 +51,6 @@ export const data = new SlashCommandBuilder()
 
 export async function run({ interaction, client }) {
   const { locale } = interaction;
-  await interaction.deferReply();
 
   try {
     const text = interaction.options.getString("text");

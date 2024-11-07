@@ -39,11 +39,6 @@ export const data = new SlashCommandBuilder()
 export async function run({ interaction, client }) {
   try {
 
-    await interaction.deferReply().catch((err) => {
-      console.error("Failed to defer reply:", err);
-      return; // Exit if we can't defer
-    });
-
     const user = interaction.options.getUser("user") || interaction.user;
 
     // Fetch user balance from Supabase

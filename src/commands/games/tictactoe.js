@@ -23,12 +23,6 @@ export const data = new SlashCommandBuilder()
       .setRequired(true)
   );
 export async function run({ interaction, client }) {
-  await interaction.deferReply({
-    allowedMentions: {
-      repliedUser: false,
-    },
-    flags: [4096],
-  });
   const { options, locale } = interaction;
   const user = options.getUser("user");
   if (user.bot) {

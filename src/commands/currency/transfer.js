@@ -50,8 +50,6 @@ export const data = new SlashCommandBuilder()
   .setIntegrationTypes([0, 1]);
 
 export async function run({ interaction, client }) {
-  await interaction.deferReply();
-
   const transferAmount = interaction.options.getInteger("amount");
   const transferTarget = interaction.options.getUser("user");
 
@@ -67,19 +65,46 @@ export async function run({ interaction, client }) {
     );
   }
 
-  // Check sender's balance
-  const { data: sender, error: senderError } = await supabase
-    .from('users')
-    .select('balance')
-    .eq('user_id', interaction.user.id)
+  // Check if sender exists, if not create them
+  let { data: sender, error: senderError } = await supabase
+    .from("users")
+    .select("balance")
+    .eq("user_id", interaction.user.id)
     .single();
 
   if (senderError) {
-    console.error('Error fetching sender balance:', senderError);
-    return interaction.editReply(client.getLocale(interaction.locale, "transferError"));
+    // If user doesn't exist, create them
+    const { data: newUser, error: createError } = await supabase
+      .from("users")
+      .insert([{ user_id: interaction.user.id, balance: 0 }])
+      .select()
+      .single();
+
+    if (createError) {
+      console.error("Error creating user:", createError);
+      return interaction.editReply(
+        client.getLocale(interaction.locale, "transferError")
+      );
+    }
+
+    sender = newUser;
   }
 
-  if (!sender || transferAmount > sender.balance) {
+  // Check if recipient exists, if not create them
+  const { data: recipient, error: recipientError } = await supabase
+    .from("users")
+    .select("balance")
+    .eq("user_id", transferTarget.id)
+    .single();
+
+  if (recipientError) {
+    // If recipient doesn't exist, create them
+    await supabase
+      .from("users")
+      .insert([{ user_id: transferTarget.id, balance: 0 }]);
+  }
+
+  if (transferAmount > sender.balance) {
     return interaction.editReply(
       client.getLocale(interaction.locale, "transferInsufficientBalance")
     );
@@ -120,15 +145,17 @@ export async function run({ interaction, client }) {
 
     if (confirmation.customId === "transfer_confirm") {
       // Perform the transfer
-      const { data, error } = await supabase.rpc('transfer_balance', {
+      const { data, error } = await supabase.rpc("transfer_balance", {
         from_user_id: interaction.user.id,
         to_user_id: transferTarget.id,
-        amount: transferAmount
+        amount: transferAmount,
       });
 
       if (error) {
         console.error("Transfer error:", error);
-        return interaction.editReply(client.getLocale(interaction.locale, "transferError"));
+        return interaction.editReply(
+          client.getLocale(interaction.locale, "transferError")
+        );
       }
 
       const successEmbed = new EmbedBuilder()

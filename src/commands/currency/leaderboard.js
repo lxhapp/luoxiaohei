@@ -54,12 +54,11 @@ export async function run({ interaction, client }) {
 }
 
 async function showLeaderboard(interaction, client) {
-  await interaction.deferReply();
 
   // Fetch top 10 users from Supabase, excluding those with 0 balance
   const { data: leaderboardData, error } = await supabase
     .from("users")
-    .select("user_id, balance, is_anonymous")
+    .select("user_id, balance, is_anonymous, verified")
     .gt("balance", 0) // This line filters out users with 0 or less balance
     .order("balance", { ascending: false })
     .limit(10);
@@ -90,7 +89,9 @@ async function showLeaderboard(interaction, client) {
     name: entry.is_anonymous
       ? ":detective: Anonymous"
       : users[index]
-      ? users[index].username
+      ? entry.verified
+        ? `${users[index].username} <:verified:1298973121839235143>`
+        : users[index].username
       : "?",
   }));
 
@@ -111,7 +112,6 @@ async function showLeaderboard(interaction, client) {
 }
 
 async function handleToggleAnonymous(interaction, client) {
-  await interaction.deferReply({ ephemeral: true });
 
   const userId = interaction.user.id;
 

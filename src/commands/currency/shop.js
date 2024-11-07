@@ -23,8 +23,6 @@ export const data = new SlashCommandBuilder()
   .setIntegrationTypes([0, 1]);
 
 export async function run({ interaction, client }) {
-  await interaction.deferReply();
-
   // Fetch all enabled items from the currency_shop table
   const { data: items, error } = await supabase
     .from('currency_shop')
