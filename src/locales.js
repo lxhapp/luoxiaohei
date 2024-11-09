@@ -163,6 +163,43 @@ export const en = {
   anonymousDisabled: "You are no longer anonymous on the leaderboard",
   servercount: "Server Count",
   membercount: "Member Count",
+  no_reason: "No reason provided",
+  cannot_ban_user:
+    "<:cross:1281580669373382686> I cannot ban this user. Please check my permissions.",
+  cannot_ban_higher_role:
+    "<:cross:1281580669373382686> You cannot ban someone with an equal or higher role.",
+  banned_dm_title: "You have been banned",
+  banned_dm_description: "You have been banned from {server}\nReason: {reason}",
+  ban_success:
+    "<:check:1281579844089675810> Successfully banned {user}\nReason: {reason}\nDeleted messages from the last {days} days",
+  ban_failed:
+    "<:cross:1281580669373382686> Failed to ban the user. Please check my permissions and try again",
+  user_not_in_server:
+    "<:cross:1281580669373382686> This user is not in the server",
+  cannot_kick_user:
+    "<:cross:1281580669373382686> I cannot kick this user. Please check my permissions",
+  cannot_kick_higher_role:
+    "<:cross:1281580669373382686> You cannot kick someone with an equal or higher role",
+  kicked_dm_title: "You have been kicked",
+  kicked_dm_description: "You have been kicked from {server}\nReason: {reason}",
+  kick_success:
+    "<:check:1281579844089675810> Successfully kicked {user}\nReason: {reason}",
+  kick_failed:
+    "<:cross:1281580669373382686> Failed to kick the user. Please check my permissions and try again",
+  invalid_duration_format:
+    "<:cross:1281580669373382686> Invalid duration format. Use format like: 1m, 1h, 1d",
+  duration_too_long:
+    "<:cross:1281580669373382686> Timeout duration cannot exceed 28 days",
+  cannot_timeout_user:
+    "<:cross:1281580669373382686> I cannot timeout this user",
+  cannot_timeout_higher_role:
+    "<:cross:1281580669373382686> You cannot timeout a member with a higher or equal role",
+  timeout_dm_title: "You have been timed out",
+  timeout_dm_description:
+    "You have been timed out in {server}\nDuration: {duration}\nReason: {reason}",
+  timeout_success:
+    "<:check:1281579844089675810> Successfully timed out {user} for {duration}\nReason: {reason}",
+  timeout_failed: "<:cross:1281580669373382686> Failed to timeout the user",
 };
 
 export const ru = {
@@ -334,6 +371,36 @@ export const ru = {
   anonymousDisabled: "Вы больше не анонимны на таблице лидеров",
   servercount: "Количество серверов",
   membercount: "Количество участников",
+  cannot_ban_user:
+    "<:cross:1281580669373382686> Я не могу забанить этого пользователя. Пожалуйста, проверьте мои права",
+  cannot_ban_higher_role:
+    "<:cross:1281580669373382686> Вы не можете забанить кого-то с равной или более высокой ролью",
+  ban_success:
+    "<:check:1281579844089675810> Успешно забанен {user}\nПричина: {reason}\nУдалены сообщения за последние {days} дней",
+  ban_failed:
+    "<:cross:1281580669373382686> Не удалось забанить пользователя. Пожалуйста, проверьте мои права и попробуйте снова",
+  user_not_in_server:
+    "<:cross:1281580669373382686> Этот пользователь не находится на сервере",
+  cannot_kick_user:
+    "<:cross:1281580669373382686> Я не могу выгнать этого пользователя. Пожалуйста, проверьте мои права",
+  cannot_kick_higher_role:
+    "<:cross:1281580669373382686> Вы не можете выгнать кого-то с равной или более высокой ролью",
+  kick_success:
+    "<:check:1281579844089675810> Успешно выгнали {user}\nПричина: {reason}",
+  kick_failed:
+    "<:cross:1281580669373382686> Не удалось выгнать пользователя. Пожалуйста, проверьте мои права и попробуйте снова",
+  invalid_duration_format:
+    "<:cross:1281580669373382686> Неверный формат длительности. Используйте формат: 1m, 1h, 1d",
+  duration_too_long:
+    "<:cross:1281580669373382686> Длительность таймаута не может превышать 28 дней",
+  cannot_timeout_user:
+    "<:cross:1281580669373382686> Я не могу ограничить этого пользователя",
+  cannot_timeout_higher_role:
+    "<:cross:1281580669373382686> Вы не можете ограничить участника с более высокой или равной ролью",
+  timeout_success:
+    "<:check:1281579844089675810> Пользователь {user} успешно ограничен на {duration}\nПричина: {reason}",
+  timeout_failed:
+    "<:cross:1281580669373382686> Не удалось ограничить пользователя",
 };
 
 export const uk = {
@@ -503,6 +570,36 @@ export const uk = {
   anonymousDisabled: "Ви більше не анонімний на таблиці лідерів",
   servercount: "Кількість серверів",
   membercount: "Кількість учасників",
+  cannot_ban_user:
+    "<:cross:1281580669373382686> Я не можу заблокувати цього користувача. Будь ласка, перевірте мої дозволи",
+  cannot_ban_higher_role:
+    "<:cross:1281580669373382686> Ви не можете заблокувати когось з рівною або вищою роллю",
+  ban_success:
+    "<:check:1281579844089675810> Успішно заблоковано {user}\nПричина: {reason}\nВидалені повідомлення за останні {days} днів",
+  ban_failed:
+    "<:cross:1281580669373382686> Не вдалося заблокувати користувача. Будь ласка, перевірте мої дозволи та спробуйте ще раз",
+  user_not_in_server:
+    "<:cross:1281580669373382686> Цей користувач не знаходиться на сервері",
+  cannot_kick_user:
+    "<:cross:1281580669373382686> Я не можу викинути цього користувача. Будь ласка, перевірте мої права",
+  cannot_kick_higher_role:
+    "<:cross:1281580669373382686> Ви не можете викинути когось з рівною або вищою роллю",
+  kick_success:
+    "<:check:1281579844089675810> Успішно викинуто {user}\nПричина: {reason}",
+  kick_failed:
+    "<:cross:1281580669373382686> Не вдалося викинути користувача. Будь ласка, перевірте мої права та спробуйте знову",
+  invalid_duration_format:
+    "<:cross:1281580669373382686> Невірний формат тривалості. Використовуйте формат: 1m, 1h, 1d",
+  duration_too_long:
+    "<:cross:1281580669373382686> Тривалість обмеження не може перевищувати 28 днів",
+  cannot_timeout_user:
+    "<:cross:1281580669373382686> Я не можу обмежити цього користувача",
+  cannot_timeout_higher_role:
+    "<:cross:1281580669373382686> Ви не можете обмежити учасника з вищою або рівною роллю",
+  timeout_success:
+    "<:check:1281579844089675810> Користувач {user} успішно обмежений на {duration}\nПричина: {reason}",
+  timeout_failed:
+    "<:cross:1281580669373382686> Не вдалося обмежити користувача",
 };
 
 export const ja = {
@@ -674,4 +771,34 @@ export const ja = {
   anonymousDisabled: "リーダーボードでの匿名状態が解除されました",
   servercount: "サーバー数",
   membercount: "メンバー数",
+  cannot_ban_user:
+    "<:cross:1281580669373382686> このユーザーをバンすることはできません。私の権限を確認してください。",
+  cannot_ban_higher_role:
+    "<:cross:1281580669373382686> 同じかそれ以上の役割を持つユーザーをバンすることはできません。",
+  ban_success:
+    "<:check:1281579844089675810> {user}を正常にバンしました\n理由: {reason}\n最後の{days}日のメッセージを削除しました",
+  ban_failed:
+    "<:cross:1281580669373382686> ユーザーのバンに失敗しました。私の権限を確認して、もう一度お試しください。",
+  user_not_in_server:
+    "<:cross:1281580669373382686> このユーザーはサーバーにいません",
+  cannot_kick_user:
+    "<:cross:1281580669373382686> このユーザーをキックすることはできません。私の権限を確認してください",
+  cannot_kick_higher_role:
+    "<:cross:1281580669373382686> 同じかそれ以上の役割を持つユーザーをキックすることはできません",
+  kick_success:
+    "<:check:1281579844089675810> {user}を正常にキックしました\n理由: {reason}",
+  kick_failed:
+    "<:cross:1281580669373382686> ユーザーのキックに失敗しました。私の権限を確認して、もう一度お試しください",
+  invalid_duration_format:
+    "<:cross:1281580669373382686> 無効な期間形式です。1m、1h、1dのような形式を使用してください",
+  duration_too_long:
+    "<:cross:1281580669373382686> タイムアウト期間は28日を超えることはできません",
+  cannot_timeout_user:
+    "<:cross:1281580669373382686> このユーザーをタイムアウトすることはできません",
+  cannot_timeout_higher_role:
+    "<:cross:1281580669373382686> より高いまたは同等の役職を持つメンバーをタイムアウトすることはできません",
+  timeout_success:
+    "<:check:1281579844089675810> {user}を{duration}の間タイムアウトしました\n理由: {reason}",
+  timeout_failed:
+    "<:cross:1281580669373382686> ユーザーのタイムアウトに失敗しました",
 };

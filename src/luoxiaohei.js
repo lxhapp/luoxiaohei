@@ -27,6 +27,65 @@ import {
 } from "discord.js";
 import { supabase } from "./db/main.js";
 
+class RateLimiter {
+  constructor(maxRetries = 3, initialDelay = 1000) {
+    this.maxRetries = maxRetries;
+    this.initialDelay = initialDelay;
+    this.attempts = new Map();
+    this.locks = new Map();
+  }
+
+  async acquire(key) {
+    while (this.locks.get(key)) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    this.locks.set(key, true);
+  }
+
+  release(key) {
+    this.locks.delete(key);
+  }
+
+  calculateDelay(attempt) {
+    return Math.min(this.initialDelay * Math.pow(2, attempt), 10000); // Max 10s delay
+  }
+
+  async execute(key, operation) {
+    try {
+      await this.acquire(key);
+
+      let attempt = this.attempts.get(key) || 0;
+      let lastError;
+
+      while (attempt < this.maxRetries) {
+        try {
+          const result = await operation();
+          this.attempts.set(key, 0); // Reset attempts on success
+          return result;
+        } catch (error) {
+          lastError = error;
+          attempt++;
+          this.attempts.set(key, attempt);
+
+          if (attempt < this.maxRetries) {
+            const delay = this.calculateDelay(attempt - 1);
+            console.warn(
+              `Retry attempt ${attempt}/${this.maxRetries} for ${key} after ${delay}ms`
+            );
+            await new Promise((resolve) => setTimeout(resolve, delay));
+          }
+        }
+      }
+
+      throw new Error(
+        `Operation failed after ${this.maxRetries} retries. Last error: ${lastError.message}`
+      );
+    } finally {
+      this.release(key);
+    }
+  }
+}
+
 class MainClient extends Client {
   constructor() {
     super({
@@ -44,6 +103,7 @@ class MainClient extends Client {
       },
     });
 
+    this.rateLimiter = new RateLimiter(3, 1000);
     this.commands = new Collection();
     this.cooldowns = new Collection();
     this.rest = new REST().setToken(process.env.token);
@@ -62,62 +122,67 @@ class MainClient extends Client {
   }
 
   async addBalance(id, amount) {
+    const operationKey = `addBalance:${id}`;
+
     try {
-      // Check Supabase connection
-      const { error: connectionError } = await this.supabase
-        .from("users")
-        .select("count")
-        .limit(1)
-        .maybeSingle();
-
-      if (connectionError) {
-        throw new Error(
-          `Failed to connect to Supabase: ${connectionError.message}`
-        );
-      }
-
-      // Fetch user data
-      let { data: userData, error: fetchError } = await this.supabase
-        .from("users")
-        .select("*")
-        .eq("user_id", id)
-        .maybeSingle();
-
-      if (fetchError) {
-        throw new Error(`Failed to fetch user data: ${fetchError.message}`);
-      }
-
-      let newBalance;
-      if (!userData) {
-        // Create new user
-        newBalance = amount;
-        const { data, error } = await this.supabase
+      return await this.rateLimiter.execute(operationKey, async () => {
+        // Check Supabase connection
+        const { error: connectionError } = await this.supabase
           .from("users")
-          .insert({ user_id: id, balance: newBalance })
-          .select()
-          .single();
+          .select("count")
+          .limit(1)
+          .maybeSingle();
 
-        if (error) {
-          throw new Error(`Failed to create new user: ${error.message}`);
+        if (connectionError) {
+          throw new Error(
+            `Failed to connect to Supabase: ${connectionError.message}`
+          );
         }
-        userData = data;
-      } else {
-        // Update existing user
-        newBalance = userData.balance + amount;
-        const { data, error } = await this.supabase
+
+        // Fetch user data
+        let { data: userData, error: fetchError } = await this.supabase
           .from("users")
-          .update({ balance: newBalance })
+          .select("*")
           .eq("user_id", id)
-          .select()
-          .single();
+          .maybeSingle();
 
-        if (error) {
-          throw new Error(`Failed to update user balance: ${error.message}`);
+        if (fetchError) {
+          throw new Error(`Failed to fetch user data: ${fetchError.message}`);
         }
-        userData = data;
-      }
-      this.currency.set(id, userData);
-      return userData;
+
+        let newBalance;
+        if (!userData) {
+          // Create new user
+          newBalance = amount;
+          const { data, error } = await this.supabase
+            .from("users")
+            .insert({ user_id: id, balance: newBalance })
+            .select()
+            .single();
+
+          if (error) {
+            throw new Error(`Failed to create new user: ${error.message}`);
+          }
+          userData = data;
+        } else {
+          // Update existing user
+          newBalance = userData.balance + amount;
+          const { data, error } = await this.supabase
+            .from("users")
+            .update({ balance: newBalance })
+            .eq("user_id", id)
+            .select()
+            .single();
+
+          if (error) {
+            throw new Error(`Failed to update user balance: ${error.message}`);
+          }
+          userData = data;
+        }
+
+        this.currency.set(id, userData);
+        return userData;
+      });
     } catch (error) {
       console.error("Error in addBalance:", error);
       throw error;
