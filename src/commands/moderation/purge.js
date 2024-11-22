@@ -32,39 +32,55 @@ export const data = new SlashCommandBuilder()
   .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages);
 export async function run({ interaction, client }) {
   const { locale } = interaction;
-  const embed = new EmbedBuilder().setColor("#212226");
-  if (
-    !interaction.guild.members.me.permissions.has(
-      PermissionsBitField.Flags.ManageMessages
-    )
-  ) {
+  const embed = new EmbedBuilder().setColor(client.embedColor);
+
+  // Check for both required permissions
+  const requiredPermissions = [
+    PermissionsBitField.Flags.ManageMessages,
+    PermissionsBitField.Flags.ViewChannel
+  ];
+
+  const missingPermissions = requiredPermissions.filter(
+    perm => !interaction.guild.members.me.permissions.has(perm)
+  );
+
+  if (missingPermissions.length > 0) {
     embed.setDescription(client.getLocale(locale, "purge_noperms"));
     return await interaction.editReply({
       embeds: [embed],
     });
   }
 
-  const amount = interaction.options.getNumber("amount");
-  const fetchedMessages = await interaction.channel.messages.fetch({
-    limit: amount,
-  });
-  await interaction.channel.bulkDelete(fetchedMessages, true);
+  try {
+    const amount = interaction.options.getNumber("amount");
+    const fetchedMessages = await interaction.channel.messages.fetch({
+      limit: amount,
+    });
 
-  interaction.channel.send({
-    embeds: [
-      new EmbedBuilder()
-        .setColor("#212226")
-        .setDescription(
-          fetchedMessages === 0
-            ? client.getLocale(locale, "purge_nomsgs")
-            : client
-                .getLocale(locale, "purgeSuccess")
-                .replace("${fetchedMessages}", amount)
-        )
-        .setAuthor({
-          name: interaction.user.tag,
-          iconURL: interaction.user.displayAvatarURL(),
-        }),
-    ],
-  });
+    if (fetchedMessages.size === 0) {
+      embed.setDescription(client.getLocale(locale, "purge_nomsgs"));
+      return await interaction.editReply({
+        embeds: [embed],
+      });
+    }
+
+    await interaction.channel.bulkDelete(fetchedMessages, true);
+
+    return interaction.channel.send({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(client.embedColor)
+          .setDescription(
+            client.getLocale(locale, "purgeSuccess")
+              .replace("${fetchedMessages}", fetchedMessages.size)
+          )
+          .setAuthor({
+            name: interaction.user.tag,
+            iconURL: interaction.user.displayAvatarURL(),
+          }),
+      ],
+    });
+  } catch (error) {
+    console.error('Purge error:', error);
+  }
 }

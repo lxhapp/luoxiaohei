@@ -200,6 +200,44 @@ export const en = {
   timeout_success:
     "<:check:1281579844089675810> Successfully timed out {user} for {duration}\nReason: {reason}",
   timeout_failed: "<:cross:1281580669373382686> Failed to timeout the user",
+  selectItemToBuy: "Select an item to purchase from the dropdown menu",
+  shopTimeout: "Shop interaction timed out. Please try again.",
+  shopError:
+    "An error occurred while fetching shop items. Please try again later.",
+  shopEmpty: "There are no items available in the shop right now.",
+  errorCreatingUser:
+    "<:cross:1281580669373382686> An error occurred while creating your user profile. Please try again later.",
+  errorFetchingUserData:
+    "<:cross:1281580669373382686> An error occurred while fetching your user data. Please try again later.",
+  errorUpdatingUserData:
+    "<:cross:1281580669373382686> An error occurred while updating your settings. Please try again later.",
+  shopSelectPlaceholder: "Select items to purchase (you can select multiple)",
+  confirmPurchase: "Confirm Purchase",
+  totalCost: "Total Cost",
+  selectQuantity:
+    "<:ellipsis:1281582569116143656> How many **{item}** would you like to buy?\nQuantity: {quantity}\nTotal Cost: {cost}¥",
+  confirmItem: "Confirm Purchase",
+  skipItem: "Skip Item",
+  buyMore: "Buy More Items",
+  finishShopping: "Finish Shopping",
+  itemPurchasedAskMore:
+    "<:check:1281579844089675810> Successfully purchased {quantity}x **{item}**!\nWould you like to buy more items?",
+  shoppingComplete: "<:check:1281579844089675810> Thank you for shopping!",
+  shopTimeout:
+    "<:cross:1281580669373382686> Shop interaction timed out. Please try again.",
+  shopError:
+    "<:cross:1281580669373382686> An error occurred while fetching shop items. Please try again later.",
+  shopEmpty:
+    "<:cross:1281580669373382686> There are no items available in the shop right now.",
+  buyOne: "Buy 1",
+  buyFive: "Buy 5",
+  buyTen: "Buy 10",
+  buyMax: "Buy Max",
+  selectQuantityPreset:
+    "<:ellipsis:1281582569116143656> How many **{item}** would you like to buy?\nCost per item: {cost}¥",
+  inventoryFull:
+    "<:cross:1281580669373382686> Your inventory is full! You can't carry any more items.",
+  slotsAvailable: "{slots} slots available",
 };
 
 export const ru = {
@@ -361,7 +399,7 @@ export const ru = {
   notEnoughItems:
     "<:cross:1281580669373382686> У вас недостаточно этого предмета для продажи",
   saleError:
-    "Произошла ошибка при продаже предмета. Пожалуйста, попробуйте позже",
+    "Произошла ошибка при продаже предмета. Пожалуйста, попробуйте пізніше",
   itemSold: "Предмет продан",
   soldAmount: "Количество",
   soldPrice: "Цена",
@@ -401,6 +439,46 @@ export const ru = {
     "<:check:1281579844089675810> Пользователь {user} успешно ограничен на {duration}\nПричина: {reason}",
   timeout_failed:
     "<:cross:1281580669373382686> Не удалось ограничить пользователя",
+  selectItemToBuy: "Выберите предмет для покупки из выпадающего меню",
+  shopTimeout:
+    "Время взаимодействия с магазином истекло. Пожалуйста, попробуйте снова.",
+  shopError:
+    "Произошла ошибка при получении предметов магазина. Пожалуйста, попробуйте позже.",
+  shopEmpty: "В магазине сейчас нет доступных предметов.",
+  errorCreatingUser:
+    "<:cross:1281580669373382686> Произошла ошибка при создании вашего профиля пользователя. Пожалуйста, попробуйте позже.",
+  errorFetchingUserData:
+    "<:cross:1281580669373382686> Произошла ошибка при получении ваших данных. Пожалуйста, попробуйте позже.",
+  errorUpdatingUserData:
+    "<:cross:1281580669373382686> Произошла ошибка при обновлении ваших настроек. Пожалуйста, попробуйте позже.",
+  shopSelectPlaceholder:
+    "Выберите предметы для покупки (можно выбрать несколько)",
+  confirmPurchase: "Подтвердить покупку",
+  totalCost: "Общая стоимость",
+  selectQuantity:
+    "<:ellipsis:1281582569116143656> Сколько **{item}** вы хотите купить?\nКоличество: {quantity}\nОбщая стоимость: {cost}¥",
+  confirmItem: "Подтвердить покупку",
+  skipItem: "Пропустить предмет",
+  buyMore: "Купить больше предметов",
+  finishShopping: "Завершить покупки",
+  itemPurchasedAskMore:
+    "<:check:1281579844089675810> Успешно куплено {quantity}x **{item}**!\nХотите купить что-нибудь еще?",
+  shoppingComplete: "<:check:1281579844089675810> Спасибо за покупки!",
+  shopTimeout:
+    "<:cross:1281580669373382686> Время взаимодействия с магазином истекло. Пожалуйста, попробуйте снова.",
+  shopError:
+    "<:cross:1281580669373382686> Произошла ошибка при получении предметов магазина. Пожалуйста, попробуйте позже.",
+  shopEmpty:
+    "<:cross:1281580669373382686> В магазине сейчас нет доступных предметов.",
+  buyOne: "Купить 1",
+  buyFive: "Купить 5",
+  buyTen: "Купить 10",
+  buyMax: "Купить максимум",
+  selectQuantityPreset:
+    "<:ellipsis:1281582569116143656> Сколько **{item}** вы хотите купить?\nЦена за штуку: {cost}¥",
+  inventoryFull:
+    "<:cross:1281580669373382686> Ваш инвентарь заполнен! Вы не можете перенести больше предметов.",
+  slotsAvailable: "{slots} доступных слотов",
 };
 
 export const uk = {
@@ -600,6 +678,44 @@ export const uk = {
     "<:check:1281579844089675810> Користувач {user} успішно обмежений на {duration}\nПричина: {reason}",
   timeout_failed:
     "<:cross:1281580669373382686> Не вдалося обмежити користувача",
+  selectItemToBuy: "Виберіть предмет для покупки з випадаючого меню",
+  shopTimeout: "Час взаємодії з магазином минув. Будь ласка, спробуйте ще раз.",
+  shopError:
+    "Сталася помилка при отриманні предметів магазину. Будь ласка, спробуйте пізніше.",
+  shopEmpty: "У магазині зараз немає доступних предметів.",
+  errorCreatingUser:
+    "<:cross:1281580669373382686> Сталася помилка під час створення вашого профілю користувача. Будь ласка, спробуйте пізніше.",
+  errorFetchingUserData:
+    "<:cross:1281580669373382686> Сталася помилка під час отримання ваших даних. Будь ласка, спробуйте пізніше.",
+  errorUpdatingUserData:
+    "<:cross:1281580669373382686> Сталася помилка під час оновлення ваших налаштувань. Будь ласка, спробуйте пізніше.",
+  shopSelectPlaceholder: "Виберіть предмети для покупки (можна вибрати кілька)",
+  confirmPurchase: "Підтвердити покупку",
+  totalCost: "Загальна вартість",
+  selectQuantity:
+    "<:ellipsis:1281582569116143656> Скільки **{item}** ви хочете купити?\nКількість: {quantity}\nЗагальна вартість: {cost}¥",
+  confirmItem: "Підтвердити покупку",
+  skipItem: "Пропустити предмет",
+  buyMore: "Купити ще предмети",
+  finishShopping: "Завершити покупки",
+  itemPurchasedAskMore:
+    "<:check:1281579844089675810> Успішно придбано {quantity}x **{item}**!\nБажаєте купити ще предмети?",
+  shoppingComplete: "<:check:1281579844089675810> Дякуємо за покупки!",
+  shopTimeout:
+    "<:cross:1281580669373382686> Час взаємодії з магазином минув. Будь ласка, спробуйте ще раз.",
+  shopError:
+    "<:cross:1281580669373382686> Сталася помилка при отриманні предметів магазину. Будь ласка, спробуйте пізніше.",
+  shopEmpty:
+    "<:cross:1281580669373382686> У магазині зараз немає доступних предметів.",
+  buyOne: "Купити 1",
+  buyFive: "Купити 5",
+  buyTen: "Купити 10",
+  buyMax: "Купити максимум",
+  selectQuantityPreset:
+    "<:ellipsis:1281582569116143656> Скільки **{item}** ви хочете купити?\nЦіна за штуку: {cost}¥",
+  inventoryFull:
+    "<:cross:1281580669373382686> Ваш інвентар заповнений! Ви не можете перенести більше предметів.",
+  slotsAvailable: "{slots} слотів доступно",
 };
 
 export const ja = {
@@ -801,4 +917,45 @@ export const ja = {
     "<:check:1281579844089675810> {user}を{duration}の間タイムアウトしました\n理由: {reason}",
   timeout_failed:
     "<:cross:1281580669373382686> ユーザーのタイムアウトに失敗しました",
+  selectItemToBuy:
+    "ドロップダウンメニューから購入するアイテムを選択してください",
+  shopTimeout:
+    "ショップとのやり取りがタイムアウトしました。もう一度お試しください。",
+  shopError:
+    "ショップアイテムの取得中にエラーが発生しました。後でもう一度お試しください。",
+  shopEmpty: "現在ショップで利用可能なアイテムはありません。",
+  errorCreatingUser:
+    "<:cross:1281580669373382686> ユーザープロフィールの作成中にエラーが発生しました。後でもう一度お試しください。",
+  errorFetchingUserData:
+    "<:cross:1281580669373382686> ユーザーデータの取得中にエラーが発生しました。後でもう一度お試しください。",
+  errorUpdatingUserData:
+    "<:cross:1281580669373382686> 設定の更新中にエラーが発生しました。後でもう一度お試しください。",
+  shopSelectPlaceholder: "購入するアイテムを選択（複数選択可能）",
+  confirmPurchase: "購入を確認",
+  totalCost: "合計金額",
+  selectQuantity:
+    "<:ellipsis:1281582569116143656> **{item}**をいくつ購入しますか？\n数量: {quantity}\n合計金額: {cost}¥",
+  confirmItem: "購入を確定",
+  skipItem: "このアイテムをスキップ",
+  buyMore: "他のアイテムを購入",
+  finishShopping: "買い物を終了",
+  itemPurchasedAskMore:
+    "<:check:1281579844089675810> {quantity}個の**{item}**を購入しました！\n他のアイテムも購入しますか？",
+  shoppingComplete:
+    "<:check:1281579844089675810> お買い物ありがとうございました！",
+  shopTimeout:
+    "<:cross:1281580669373382686> ショップとのやり取りがタイムアウトしました。もう一度お試しください。",
+  shopError:
+    "<:cross:1281580669373382686> ショップアイテムの取得中にエラーが発生しました。後でもう一度お試しください。",
+  shopEmpty:
+    "<:cross:1281580669373382686> 現在ショップで利用可能なアイテムはありません。",
+  buyOne: "1個購入",
+  buyFive: "5個購入",
+  buyTen: "10個購入",
+  buyMax: "最大数購入",
+  selectQuantityPreset:
+    "<:ellipsis:1281582569116143656> **{item}**をいくつ購入しますか？\n1個あたりの価格: {cost}¥",
+  inventoryFull:
+    "<:cross:1281580669373382686> あなたのインベントリがいっぱいです！もうこれ以上アイテムを持つことはできません。",
+  slotsAvailable: "{slots} スロットが利用可能",
 };

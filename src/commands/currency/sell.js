@@ -57,7 +57,7 @@ export async function run({ interaction, client }) {
   if (userItemError) {
     console.error("Error fetching user items:", userItemError);
     const embed = new EmbedBuilder()
-      .setColor("#212226")
+      .setColor(client.embedColor)
       .setDescription(client.getLocale(interaction.locale, "databaseError"));
     return interaction.editReply({ embeds: [embed] });
   }
@@ -68,14 +68,14 @@ export async function run({ interaction, client }) {
 
   if (!userItem) {
     const embed = new EmbedBuilder()
-      .setColor("#212226")
+      .setColor(client.embedColor)
       .setDescription(client.getLocale(interaction.locale, "itemNotInInventory"));
     return interaction.editReply({ embeds: [embed] });
   }
 
   if (userItem.amount < amount) {
     const embed = new EmbedBuilder()
-      .setColor("#212226")
+      .setColor(client.embedColor)
       .setDescription(client.getLocale(interaction.locale, "notEnoughItems"));
     return interaction.editReply({ embeds: [embed] });
   }
@@ -96,13 +96,13 @@ export async function run({ interaction, client }) {
   if (saleError) {
     console.error("Error during sale:", saleError);
     const embed = new EmbedBuilder()
-      .setColor("#212226")
+      .setColor(client.embedColor)
       .setDescription(client.getLocale(interaction.locale, "saleError"));
     return interaction.editReply({ embeds: [embed] });
   }
 
   const successEmbed = new EmbedBuilder()
-    .setColor("#212226")
+    .setColor(client.embedColor)
     .setTitle(client.getLocale(interaction.locale, "itemSold"))
     .setDescription(
       client

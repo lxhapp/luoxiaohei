@@ -41,7 +41,7 @@ export async function run({ interaction, client }) {
     "😂",
   ];
   const answerEmbed = new EmbedBuilder()
-    .setColor("#212226")
+    .setColor(client.embedColor)
     .setAuthor({
       name: `My Talking Ben`,
     })

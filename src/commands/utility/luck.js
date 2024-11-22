@@ -55,7 +55,7 @@ export async function run({ interaction, client }) {
     const result = getRandom(val2, val1);
     if (random === result) {
       const luckembed = new EmbedBuilder()
-        .setColor("#212226")
+        .setColor(client.embedColor)
         .setDescription(client.getLocale(locale, "luckyrandom"))
         .addFields({
           name: client.getLocale(locale, "random"),
@@ -76,7 +76,7 @@ export async function run({ interaction, client }) {
       });
     } else {
       const luckembed = new EmbedBuilder()
-        .setColor("#212226")
+        .setColor(client.embedColor)
         .setDescription(client.getLocale(locale, "unluckyrandom"))
         .addFields({
           name: client.getLocale(locale, "random"),
@@ -101,7 +101,7 @@ export async function run({ interaction, client }) {
     const result = getRandom(val1, val2);
     if (random === result) {
       const luckembed = new EmbedBuilder()
-        .setColor("#212226")
+        .setColor(client.embedColor)
         .setDescription(client.getLocale(locale, "luckyrandom"))
         .addFields({
           name: client.getLocale(locale, "random"),
@@ -126,7 +126,7 @@ export async function run({ interaction, client }) {
           name: interaction.user.username,
           iconURL: interaction.user.displayAvatarURL(),
         })
-        .setColor("#212226")
+        .setColor(client.embedColor)
         .setDescription(client.getLocale(locale, "unluckyrandom"))
         .addFields({
           name: client.getLocale(locale, "random"),

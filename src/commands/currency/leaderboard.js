@@ -96,7 +96,7 @@ async function showLeaderboard(interaction, client) {
   }));
 
   const embed = new EmbedBuilder()
-    .setColor("#212226")
+    .setColor(client.embedColor)
     .setTitle(client.getLocale(interaction.locale, "ldTitle"))
     .setDescription(client.getLocale(interaction.locale, "ldDescription"))
     .addFields(
@@ -112,17 +112,39 @@ async function showLeaderboard(interaction, client) {
 }
 
 async function handleToggleAnonymous(interaction, client) {
-
   const userId = interaction.user.id;
 
-  // Fetch current user data
-  const { data: userData, error: fetchError } = await supabase
+  // First, try to fetch current user data
+  let { data: userData, error: fetchError } = await supabase
     .from("users")
     .select("is_anonymous")
     .eq("user_id", userId)
     .single();
 
-  if (fetchError) {
+  // If user doesn't exist, create a new user record
+  if (fetchError && fetchError.code === 'PGRST116') {
+    const { data: newUser, error: createError } = await supabase
+      .from("users")
+      .insert([
+        {
+          user_id: userId,
+          balance: 0,
+          is_anonymous: false,
+          verified: false
+        }
+      ])
+      .select()
+      .single();
+
+    if (createError) {
+      console.error("Error creating user:", createError);
+      return interaction.editReply(
+        client.getLocale(interaction.locale, "errorCreatingUser")
+      );
+    }
+
+    userData = newUser;
+  } else if (fetchError) {
     console.error("Error fetching user data:", fetchError);
     return interaction.editReply(
       client.getLocale(interaction.locale, "errorFetchingUserData")
@@ -148,6 +170,6 @@ async function handleToggleAnonymous(interaction, client) {
     ? "anonymousEnabled"
     : "anonymousDisabled";
   return interaction.editReply(
-    client.getLocale(interaction.locale, responseKey)
+    client.getLocale(interaction.locale, "responseKey")
   );
 }

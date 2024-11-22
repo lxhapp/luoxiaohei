@@ -30,7 +30,7 @@ export async function run({ interaction, client }) {
   if (baseVerif === 4) baseVerif = client.getLocale(locale, `veryhigh`);
 
   const sinfoEmbed = new EmbedBuilder()
-    .setColor("#212226")
+    .setColor(client.embedColor)
     .setAuthor({
       name: name,
       iconURL: guild.iconURL(),

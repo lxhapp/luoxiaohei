@@ -37,7 +37,7 @@ export const data = new SlashCommandBuilder()
 export async function run({ interaction, client }) {
   const { locale } = interaction;
   const embed = new EmbedBuilder()
-    .setColor("#212226")
+    .setColor(client.embedColor)
     .addFields({
       name: client.getLocale(locale, "host"),
       value: `${hostname()}`,

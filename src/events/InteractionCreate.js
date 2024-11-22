@@ -1,6 +1,4 @@
 import { Events, EmbedBuilder, Collection } from "discord.js";
-
-const DEFAULT_COLOR = "#212226";
 const DEFAULT_COOLDOWN_DURATION = 3;
 
 export const name = Events.InteractionCreate;
@@ -32,7 +30,7 @@ export async function execute(interaction) {
 
     await interaction.deferReply().catch((err) => {
       console.error("Failed to defer reply:", err);
-      return;
+      throw err;
     });
 
     // Add timeout to prevent hanging
@@ -48,7 +46,24 @@ export async function execute(interaction) {
   } catch (error) {
     console.error("Command execution error:", error);
     try {
-      await handleCommandError(interaction, error, interaction.locale);
+      if (!interaction.deferred && !interaction.replied) {
+        await interaction.reply({ 
+          embeds: [
+            new EmbedBuilder()
+              .setColor(interaction.client.embedColor)
+              .setDescription(interaction.client.getLocale(interaction.locale, "interr"))
+          ], 
+          ephemeral: true 
+        });
+      } else {
+        await interaction.editReply({ 
+          embeds: [
+            new EmbedBuilder()
+              .setColor(interaction.client.embedColor)
+              .setDescription(interaction.client.getLocale(interaction.locale, "interr"))
+          ]
+        });
+      }
     } catch (followUpError) {
       console.error("Error sending error message:", followUpError);
     }
@@ -103,7 +118,7 @@ async function checkBetaAccess(interaction, command, locale) {
   if (command.beta && interaction.user.id !== "1053012080812359750") {
     if (!interaction.replied && !interaction.deferred) return true;
     const embed = new EmbedBuilder()
-      .setColor(DEFAULT_COLOR)
+      .setColor(interaction.client.embedColor)
       .setDescription(interaction.client.getLocale(locale, "beta"));
 
     await interaction.editReply({ embeds: [embed], ephemeral: true });
@@ -149,7 +164,7 @@ async function checkCooldown(interaction, command, locale) {
     if (now < expirationTime) {
       const expiredTimestamp = Math.round(expirationTime / 1000);
       const embed = new EmbedBuilder()
-        .setColor(DEFAULT_COLOR)
+        .setColor(interaction.client.embedColor)
         .setDescription(
           interaction.client
             .getLocale(locale, "cooldown")
@@ -175,7 +190,7 @@ async function handleCommandError(interaction, error, locale) {
   console.error(error);
 
   const embed = new EmbedBuilder()
-    .setColor(DEFAULT_COLOR)
+    .setColor(interaction.client.embedColor)
     .setDescription(interaction.client.getLocale(locale, "interr"));
 
   if (interaction.replied || interaction.deferred) {

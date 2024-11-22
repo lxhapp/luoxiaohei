@@ -31,7 +31,7 @@ export async function run({ interaction, client }) {
   let seconds = Math.floor(totalSeconds % 60);
 
   const embed = new EmbedBuilder()
-    .setColor("#212226")
+    .setColor(client.embedColor)
     .setDescription(`**${days}d ${hours}h ${minutes}m ${seconds}s**`)
     .setTimestamp(launchTimestamp);
 

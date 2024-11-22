@@ -111,7 +111,7 @@ export async function run({ interaction, client }) {
   }
 
   const embed = new EmbedBuilder()
-    .setColor("#212226")
+    .setColor(client.embedColor)
     .setTitle(client.getLocale(interaction.locale, "transferConfirmTitle"))
     .setDescription(
       client
@@ -159,7 +159,7 @@ export async function run({ interaction, client }) {
       }
 
       const successEmbed = new EmbedBuilder()
-        .setColor("#212226")
+        .setColor(client.embedColor)
         .setDescription(
           client
             .getLocale(interaction.locale, "transferSuccess")
@@ -170,7 +170,7 @@ export async function run({ interaction, client }) {
       await confirmation.update({ embeds: [successEmbed], components: [] });
     } else if (confirmation.customId === "transfer_cancel") {
       const cancelEmbed = new EmbedBuilder()
-        .setColor("#212226")
+        .setColor(client.embedColor)
         .setDescription(
           client.getLocale(interaction.locale, "transferCancelled")
         );
@@ -180,7 +180,7 @@ export async function run({ interaction, client }) {
   } catch (error) {
     console.error("Transfer error:", error);
     const errorEmbed = new EmbedBuilder()
-      .setColor("#212226")
+      .setColor(client.embedColor)
       .setDescription(client.getLocale(interaction.locale, "interr"));
 
     await interaction.editReply({ embeds: [errorEmbed], components: [] });

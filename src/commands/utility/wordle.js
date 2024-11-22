@@ -101,7 +101,7 @@ export async function run({ interaction, client }) {
             try {
               const data = JSON.parse(body);
               const embed = new EmbedBuilder()
-                .setColor("#212226")
+                .setColor(client.embedColor)
                 .setAuthor({ name: `ID ${data.id}` })
                 .addFields({
                   name: client.getLocale(locale, "solution"),
@@ -135,7 +135,7 @@ export async function run({ interaction, client }) {
           } else {
             console.error("got an invalid status code:", response.statusCode);
             const embed = new EmbedBuilder()
-              .setColor("#212226")
+              .setColor(client.embedColor)
               .setDescription(client.getLocale(locale, "wordleErr"))
               .setFooter({ text: `${response.statusCode}` });
             interaction.editReply({
@@ -160,7 +160,7 @@ export async function run({ interaction, client }) {
             try {
               const data = JSON.parse(body);
               const embed = new EmbedBuilder()
-                .setColor("#212226")
+                .setColor(client.embedColor)
                 .setAuthor({ name: `ID ${data.id}` })
                 .addFields({
                   name: client.getLocale(locale, "solution"),
@@ -194,7 +194,7 @@ export async function run({ interaction, client }) {
           } else {
             console.error("got an invalid status code:", response.statusCode);
             const embed = new EmbedBuilder()
-              .setColor("#212226")
+              .setColor(client.embedColor)
               .setDescription(client.getLocale(locale, "wordleErr"))
               .setFooter({ text: `${response.statusCode}` });
             interaction.editReply({

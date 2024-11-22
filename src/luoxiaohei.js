@@ -23,7 +23,6 @@ import {
   REST,
   Routes,
   SlashCommandBuilder,
-  Events,
 } from "discord.js";
 import { supabase } from "./db/main.js";
 
@@ -69,9 +68,6 @@ class RateLimiter {
 
           if (attempt < this.maxRetries) {
             const delay = this.calculateDelay(attempt - 1);
-            console.warn(
-              `Retry attempt ${attempt}/${this.maxRetries} for ${key} after ${delay}ms`
-            );
             await new Promise((resolve) => setTimeout(resolve, delay));
           }
         }
@@ -106,6 +102,7 @@ class MainClient extends Client {
     this.rateLimiter = new RateLimiter(3, 1000);
     this.commands = new Collection();
     this.cooldowns = new Collection();
+    this.embedColor = "#111216";
     this.rest = new REST().setToken(process.env.token);
 
     this.getLocale = new Collection();

@@ -149,7 +149,7 @@ export async function run({ interaction, client }) {
 
     // Create timeout success embed
     const timeoutEmbed = new EmbedBuilder()
-      .setColor("#212226")
+      .setColor(client.embedColor)
       .setDescription(
         client
           .getLocale(locale, "timeout_success")
@@ -163,7 +163,7 @@ export async function run({ interaction, client }) {
   } catch (error) {
     console.error("Timeout execution error:", error);
     const errorEmbed = new EmbedBuilder()
-      .setColor("#212226")
+      .setColor(client.embedColor)
       .setDescription(client.getLocale(locale, "timeout_failed"));
     return interaction.editReply({ embeds: [errorEmbed] });
   }

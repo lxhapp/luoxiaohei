@@ -79,7 +79,7 @@ export async function run({ interaction, client }) {
   if (targetMember) {
     if (!targetMember.bannable) {
       const errorEmbed = new EmbedBuilder()
-        .setColor("#212226")
+        .setColor(client.embedColor)
         .setDescription(client.getLocale(locale, "cannot_ban_user"));
       return interaction.editReply({ embeds: [errorEmbed] });
     }
@@ -90,7 +90,7 @@ export async function run({ interaction, client }) {
         interaction.member.roles.highest.position
       ) {
         const errorEmbed = new EmbedBuilder()
-          .setColor("#212226")
+          .setColor(client.embedColor)
           .setDescription(client.getLocale(locale, "cannot_ban_higher_role"));
         return interaction.editReply({ embeds: [errorEmbed] });
       }
@@ -98,10 +98,10 @@ export async function run({ interaction, client }) {
   }
 
   // Try to DM the user if enabled
-  if (sendDM) {
+  if (sendDM && !interaction.user.bot) {
     try {
       const dmEmbed = new EmbedBuilder()
-        .setColor("#212226")
+        .setColor(client.embedColor)
         .setTitle(client.getLocale(locale, "banned_dm_title"))
         .setDescription(
           client
@@ -119,14 +119,14 @@ export async function run({ interaction, client }) {
 
   // Execute the ban
   try {
-    await interaction.guild.members.ban(targetUser.id, {
-      deleteMessageSeconds: deleteDays * 24 * 60 * 60,
-      reason: `[${reason}] - ${interaction.user.tag} (${interaction.user.id})`,
+    await interaction.guild.bans.create(targetUser.id, {
+      reason: reason,
+      deleteMessageDays: deleteDays
     });
 
     // Create ban success embed
     const banEmbed = new EmbedBuilder()
-      .setColor("#212226")
+      .setColor(client.embedColor)
       .setDescription(
         client
           .getLocale(locale, "ban_success")
@@ -140,7 +140,7 @@ export async function run({ interaction, client }) {
   } catch (error) {
     console.error("Ban execution error:", error);
     const errorEmbed = new EmbedBuilder()
-      .setColor("#212226")
+      .setColor(client.embedColor)
       .setDescription(client.getLocale(locale, "ban_failed"));
     return interaction.editReply({ embeds: [errorEmbed] });
   }

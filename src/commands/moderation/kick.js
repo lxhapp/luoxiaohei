@@ -65,7 +65,7 @@ export async function run({ interaction, client }) {
   // Check if user exists in the server
   if (!targetMember) {
     const errorEmbed = new EmbedBuilder()
-      .setColor("#212226")
+      .setColor(client.embedColor)
       .setDescription(client.getLocale(locale, "user_not_in_server"));
     return interaction.editReply({ embeds: [errorEmbed] });
   }
@@ -73,7 +73,7 @@ export async function run({ interaction, client }) {
   // Check if user is kickable
   if (!targetMember.kickable) {
     const errorEmbed = new EmbedBuilder()
-      .setColor("#212226")
+      .setColor(client.embedColor)
       .setDescription(client.getLocale(locale, "cannot_kick_user"));
     return interaction.editReply({ embeds: [errorEmbed] });
   }
@@ -85,7 +85,7 @@ export async function run({ interaction, client }) {
       interaction.member.roles.highest.position
     ) {
       const errorEmbed = new EmbedBuilder()
-        .setColor("#212226")
+        .setColor(client.embedColor)
         .setDescription(client.getLocale(locale, "cannot_kick_higher_role"));
       return interaction.editReply({ embeds: [errorEmbed] });
     }
@@ -95,7 +95,7 @@ export async function run({ interaction, client }) {
   if (sendDM) {
     try {
       const dmEmbed = new EmbedBuilder()
-        .setColor("#212220")
+        .setColor(client.embedColor)
         .setTitle(client.getLocale(locale, "kicked_dm_title"))
         .setDescription(
           client
@@ -119,7 +119,7 @@ export async function run({ interaction, client }) {
 
     // Create kick success embed
     const kickEmbed = new EmbedBuilder()
-      .setColor("#212226")
+      .setColor(client.embedColor)
       .setDescription(
         client
           .getLocale(locale, "kick_success")
@@ -132,7 +132,7 @@ export async function run({ interaction, client }) {
   } catch (error) {
     console.error("Kick execution error:", error);
     const errorEmbed = new EmbedBuilder()
-      .setColor("#212226")
+      .setColor(client.embedColor)
       .setDescription(client.getLocale(locale, "kick_failed"));
     return interaction.editReply({ embeds: [errorEmbed] });
   }

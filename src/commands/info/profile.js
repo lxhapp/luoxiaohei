@@ -31,7 +31,7 @@ export async function run({ interaction, client }) {
 
   if (!user) {
     const embed = new EmbedBuilder()
-      .setColor("#212226")
+      .setColor(client.embedColor)
       .setDescription(client.getLocale(locale, "userNotFound"));
 
     return interaction.editReply({ embeds: [embed], ephemeral: true });

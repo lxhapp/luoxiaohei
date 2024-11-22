@@ -83,7 +83,7 @@ export async function run({ interaction, client }) {
 
     if (!data?.data?.children?.length) {
       const embed = new EmbedBuilder()
-        .setColor("#212226")
+        .setColor(client.embedColor)
         .setTitle("No Content")
         .setDescription("http.cat")
         .setImage("https://http.cat/images/204.jpg")
@@ -100,7 +100,7 @@ export async function run({ interaction, client }) {
 
     if (!imagePosts.length) {
       const embed = new EmbedBuilder()
-        .setColor("#212226")
+        .setColor(client.embedColor)
         .setTitle("No Content")
         .setDescription("http.cat")
         .setImage("https://http.cat/images/204.jpg")
@@ -114,7 +114,7 @@ export async function run({ interaction, client }) {
     const post = imagePosts[Math.floor(Math.random() * imagePosts.length)].data;
 
     const embed = new EmbedBuilder()
-      .setColor("#212226")
+      .setColor(client.embedColor)
       .setURL(`https://reddit.com${post.permalink}`)
       .setTitle(post.title)
       .setDescription(

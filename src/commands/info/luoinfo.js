@@ -39,7 +39,7 @@ export async function run({ interaction, client }) {
 
   if (!user) {
     const embed = new EmbedBuilder()
-      .setColor("#212226")
+      .setColor(client.embedColor)
       .setDescription(client.getLocale(locale, "userNotFound"));
 
     return interaction.editReply({ embeds: [embed], ephemeral: true });
@@ -64,7 +64,7 @@ export async function run({ interaction, client }) {
   const balance = userData?.balance || 0;
 
   const userinfoEmbed = new EmbedBuilder()
-    .setColor("#212226")
+    .setColor(client.embedColor)
     .setTitle(
       `${user.tag} ${isVerified ? "<:verified:1298973121839235143>" : ""}`
     )

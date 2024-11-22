@@ -36,13 +36,20 @@ export const data = new SlashCommandBuilder()
 export async function run({ interaction, client }) {
   const targetUser = interaction.options.getUser("user") || interaction.user;
 
+  // Fetch inventory items
   const { data: items, error } = await supabase
     .from('user_items')
     .select(`
       amount,
-      currency_shop(id, name)
+      currency_shop(
+        id,
+        name,
+        cost
+      )
     `)
-    .eq('user_id', targetUser.id);
+    .eq('user_id', targetUser.id)
+    .gt('amount', 0)
+    .order('amount', { ascending: false });
 
   if (error) {
     console.error('Error fetching inventory:', error);
@@ -50,36 +57,44 @@ export async function run({ interaction, client }) {
   }
 
   if (!items || items.length === 0) {
-    return interaction.editReply(
-      client.getLocale(interaction.locale, "inventoryEmpty")
-    );
+    return interaction.editReply(client.getLocale(interaction.locale, "inventoryEmpty"));
   }
 
+  // Create embed
   const embed = new EmbedBuilder()
-    .setColor("#212226")
+    .setColor(client.embedColor)
     .setTitle(
-      client
-        .getLocale(interaction.locale, "inventoryTitle")
+      client.getLocale(interaction.locale, "inventoryTitle")
         .replace("{user}", targetUser.username)
     )
     .setThumbnail(targetUser.displayAvatarURL({ dynamic: true }));
 
+  // Add items to embed
   let totalItems = 0;
-  items.forEach((item) => {
-    embed.addFields({
-      name: `${item.currency_shop.name}`,
-      value: `x${item.amount}`,
-      inline: true,
-    });
-    totalItems += item.amount;
+  items.forEach(item => {
+    if (item.currency_shop && item.amount > 0) {
+      const amount = parseInt(item.amount);
+      embed.addFields({
+        name: item.currency_shop.name,
+        value: `x${amount}`,
+        inline: true
+      });
+      totalItems += amount;
+    }
   });
 
-  // Add inventory size information
+  // Add inventory size info
+  const maxSlots = 24;
+  const availableSlots = maxSlots - totalItems;
+  const sizeText = availableSlots === 0
+    ? `${totalItems}/${maxSlots} (${client.getLocale(interaction.locale, "inventoryFull")})`
+    : `${totalItems}/${maxSlots} (${client.getLocale(interaction.locale, "slotsAvailable").replace("{slots}", availableSlots)})`;
+
   embed.addFields({
     name: client.getLocale(interaction.locale, "inventorySize"),
-    value: `${totalItems}/24`,
-    inline: false,
+    value: sizeText,
+    inline: false
   });
 
   return interaction.editReply({ embeds: [embed] });
-}
+} 

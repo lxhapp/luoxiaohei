@@ -24,7 +24,7 @@ export const data = new SlashCommandBuilder()
   .setIntegrationTypes([0, 1]);
 export async function run({ interaction, client }) {
   const { locale } = interaction;
-  const catembed = new EmbedBuilder().setColor("#212226");
+  const catembed = new EmbedBuilder().setColor(client.embedColor);
   request(
     {
       url: url,

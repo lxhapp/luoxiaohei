@@ -26,7 +26,7 @@ export const data = new SlashCommandBuilder()
 export async function run({ interaction, client }) {
   const { locale } = interaction;
   const invembed = new EmbedBuilder()
-    .setColor("#212226")
+    .setColor(client.embedColor)
     .setThumbnail(
       "https://cdn.discordapp.com/icons/1269712356963909766/57bfcefb7b254ebd2b2dd57c1aade05c.webp"
     )

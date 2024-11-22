@@ -41,7 +41,7 @@ export async function run({ interaction, client }) {
         0
       );
       const embed = new EmbedBuilder()
-        .setColor("#212226")
+        .setColor(client.embedColor)
         .addFields({
           name: client.getLocale(locale, "servercount"),
           value: `${totalGuilds}`,

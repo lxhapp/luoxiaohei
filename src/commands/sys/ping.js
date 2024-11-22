@@ -23,7 +23,7 @@ export const data = new SlashCommandBuilder()
 export async function run({ interaction, client }) {
   const { locale } = interaction;
   const pingembed = new EmbedBuilder()
-    .setColor("#212226")
+    .setColor(client.embedColor)
     .setDescription(client.getLocale(locale, `pinging`));
 
   const sent = await interaction.followUp({

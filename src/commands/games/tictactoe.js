@@ -27,7 +27,7 @@ export async function run({ interaction, client }) {
   const user = options.getUser("user");
   if (user.bot) {
     const embed = new EmbedBuilder()
-      .setColor("#212226")
+      .setColor(client.embedColor)
       .setDescription(client.getLocale(locale, "gameApp"));
     await interaction.editReply({
       embeds: [embed],
@@ -38,7 +38,7 @@ export async function run({ interaction, client }) {
 
   if (user === interaction.user) {
     const embed = new EmbedBuilder()
-      .setColor("#212226")
+      .setColor(client.embedColor)
       .setDescription(client.getLocale(locale, "gameYS"));
     await interaction.editReply({
       embeds: [embed],

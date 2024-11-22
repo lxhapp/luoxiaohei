@@ -38,7 +38,7 @@ export async function run({ interaction }) {
         interaction.editReply({
           embeds: [
             new EmbedBuilder()
-              .setColor("#212226")
+              .setColor(client.embedColor)
               .setDescription(
                 `<:luo:1270401166731382867> ${JSON.parse(body)[0].fact}`
               ),

@@ -82,7 +82,7 @@ export async function run({ interaction, client }) {
     if (i.user === interaction.user) {
       const selection = i.values[0];
       const embed = new EmbedBuilder()
-        .setColor("#212226")
+        .setColor(client.embedColor)
         .setAuthor({
           name: interaction.user.tag,
           iconURL: interaction.user.displayAvatarURL(),

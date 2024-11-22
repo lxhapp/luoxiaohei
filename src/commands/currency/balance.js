@@ -35,7 +35,6 @@ export const data = new SlashCommandBuilder()
   )
   .setIntegrationTypes([0, 1]);
 
-// In your balance command:
 export async function run({ interaction, client }) {
   try {
 
@@ -111,104 +110,5 @@ export async function run({ interaction, client }) {
         console.error("Failed to send error message:", err);
       }
     }
-  }
-}
-
-// In your InteractionCreate.js:
-async function handleCommandError(interaction, error, locale) {
-  console.warn(`Error executing command: ${error.message}`);
-  console.error(error);
-
-  const embed = new EmbedBuilder()
-    .setColor(DEFAULT_COLOR)
-    .setDescription(interaction.client.getLocale(locale, "interr"));
-
-  try {
-    if (!interaction.isRepliable()) {
-      console.log("Interaction is no longer valid for error handling");
-      return;
-    }
-
-    if (interaction.deferred) {
-      await interaction
-        .editReply({ embeds: [embed], ephemeral: true })
-        .catch((err) => console.error("Failed to edit reply with error:", err));
-    } else if (!interaction.replied) {
-      await interaction
-        .reply({ embeds: [embed], ephemeral: true })
-        .catch((err) => console.error("Failed to send error reply:", err));
-    } else {
-      await interaction
-        .followUp({ embeds: [embed], ephemeral: true })
-        .catch((err) => console.error("Failed to follow up with error:", err));
-    }
-  } catch (followUpError) {
-    console.error("Error sending error message:", followUpError);
-  }
-}
-
-export async function execute(interaction) {
-  if (!interaction || !interaction.isChatInputCommand()) return;
-
-  try {
-    const command = interaction.client.commands.get(interaction.commandName);
-
-    if (!command) {
-      console.error(`No command matching ${interaction.commandName} was found`);
-      return;
-    }
-
-    const { locale } = interaction;
-
-    if (await checkBetaAccess(interaction, command, locale)) return;
-    if (await checkCooldown(interaction, command, locale)) return;
-
-    const logMessage = buildLogMessage(interaction);
-    console.log(
-      `${interaction.user.id} | ${interaction.user.tag} ~ ${logMessage}`
-    );
-
-    // Add timeout handling
-    const timeoutDuration = 15000; // 15 seconds
-    const commandPromise = command.run({
-      interaction,
-      client: interaction.client,
-    });
-
-    try {
-      await Promise.race([
-        commandPromise,
-        new Promise((_, reject) =>
-          setTimeout(
-            () => reject(new Error("Command timeout")),
-            timeoutDuration
-          )
-        ),
-      ]);
-    } catch (error) {
-      if (error.message === "Command timeout") {
-        console.error("Command timed out");
-        if (interaction.isRepliable()) {
-          try {
-            const embed = new EmbedBuilder()
-              .setColor(DEFAULT_COLOR)
-              .setDescription(
-                interaction.client.getLocale(locale, "commandTimeout")
-              );
-
-            if (interaction.deferred) {
-              await interaction.editReply({ embeds: [embed], ephemeral: true });
-            } else if (!interaction.replied) {
-              await interaction.reply({ embeds: [embed], ephemeral: true });
-            }
-          } catch (err) {
-            console.error("Failed to send timeout message:", err);
-          }
-        }
-      }
-      throw error;
-    }
-  } catch (error) {
-    await handleCommandError(interaction, error, interaction.locale);
   }
 }
