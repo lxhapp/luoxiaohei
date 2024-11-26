@@ -104,17 +104,17 @@ export async function run({ interaction, client }) {
                 .setColor(client.embedColor)
                 .setAuthor({ name: `ID ${data.id}` })
                 .addFields({
-                  name: client.getLocale(locale, "solution"),
+                  name: client.getLocale(locale, "wordle.solution"),
                   value: `${data.solution}`,
                   inline: true,
                 })
                 .addFields({
-                  name: client.getLocale(locale, "printdate"),
+                  name: client.getLocale(locale, "wordle.printdate"),
                   value: `${data.print_date}`,
                   inline: true,
                 })
                 .addFields({
-                  name: client.getLocale(locale, "dayssincelaunch"),
+                  name: client.getLocale(locale, "wordle.dayssincelaunch"),
                   value: `${data.days_since_launch}`.replace(
                     "undefined",
                     "**-**"
@@ -122,7 +122,7 @@ export async function run({ interaction, client }) {
                   inline: true,
                 })
                 .addFields({
-                  name: client.getLocale(locale, "editor"),
+                  name: client.getLocale(locale, "wordle.editor"),
                   value: `${data.editor}`.replace("undefined", "**-**"),
                   inline: true,
                 });
@@ -136,7 +136,7 @@ export async function run({ interaction, client }) {
             console.error("got an invalid status code:", response.statusCode);
             const embed = new EmbedBuilder()
               .setColor(client.embedColor)
-              .setDescription(client.getLocale(locale, "wordleErr"))
+              .setDescription(client.getLocale(locale, "wordle.err"))
               .setFooter({ text: `${response.statusCode}` });
             interaction.editReply({
               embeds: [embed],
@@ -163,17 +163,17 @@ export async function run({ interaction, client }) {
                 .setColor(client.embedColor)
                 .setAuthor({ name: `ID ${data.id}` })
                 .addFields({
-                  name: client.getLocale(locale, "solution"),
+                  name: client.getLocale(locale, "wordle.solution"),
                   value: `${data.solution}`,
                   inline: true,
                 })
                 .addFields({
-                  name: client.getLocale(locale, "printdate"),
+                  name: client.getLocale(locale, "wordle.printdate"),
                   value: `${data.print_date}`,
                   inline: true,
                 })
                 .addFields({
-                  name: client.getLocale(locale, "dayssincelaunch"),
+                  name: client.getLocale(locale, "wordle.dayssincelaunch"),
                   value: `${data.days_since_launch}`.replace(
                     "undefined",
                     "**-**"
@@ -181,7 +181,7 @@ export async function run({ interaction, client }) {
                   inline: true,
                 })
                 .addFields({
-                  name: client.getLocale(locale, "editor"),
+                  name: client.getLocale(locale, "wordle.editor"),
                   value: `${data.editor}`.replace("undefined", "**-**"),
                   inline: true,
                 });
@@ -192,11 +192,14 @@ export async function run({ interaction, client }) {
               console.error(parseError);
             }
           } else {
-            console.error("got an invalid status code:", response.statusCode);
             const embed = new EmbedBuilder()
               .setColor(client.embedColor)
-              .setDescription(client.getLocale(locale, "wordleErr"))
-              .setFooter({ text: `${response.statusCode}` });
+              .setDescription(
+                client
+                  .getLocale(locale, "wordle.err")
+                  .replace("{code}", `${response.statusCode}`)
+              )
+              .setImage(`https://http.cat/${response.statusCode}.jpg`);
             interaction.editReply({
               embeds: [embed],
             });

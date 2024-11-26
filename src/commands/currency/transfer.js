@@ -53,16 +53,14 @@ export async function run({ interaction, client }) {
   const transferAmount = interaction.options.getInteger("amount");
   const transferTarget = interaction.options.getUser("user");
 
+  const { locale } = interaction;
+
   if (transferTarget.bot) {
-    return interaction.editReply(
-      client.getLocale(interaction.locale, "transferBot")
-    );
+    return interaction.editReply(client.getLocale(locale, "transfer.bot"));
   }
 
   if (transferTarget.id === interaction.user.id) {
-    return interaction.editReply(
-      client.getLocale(interaction.locale, "transferSameUser")
-    );
+    return interaction.editReply(client.getLocale(locale, "transfer.sameUser"));
   }
 
   // Check if sender exists, if not create them
@@ -82,9 +80,7 @@ export async function run({ interaction, client }) {
 
     if (createError) {
       console.error("Error creating user:", createError);
-      return interaction.editReply(
-        client.getLocale(interaction.locale, "transferError")
-      );
+      return interaction.editReply(client.getLocale(locale, "transfer.error"));
     }
 
     sender = newUser;
@@ -106,16 +102,16 @@ export async function run({ interaction, client }) {
 
   if (transferAmount > sender.balance) {
     return interaction.editReply(
-      client.getLocale(interaction.locale, "transferInsufficientBalance")
+      client.getLocale(locale, "transfer.insufficientBalance")
     );
   }
 
   const embed = new EmbedBuilder()
     .setColor(client.embedColor)
-    .setTitle(client.getLocale(interaction.locale, "transferConfirmTitle"))
+    .setTitle(client.getLocale(locale, "transfer.confirmTitle"))
     .setDescription(
       client
-        .getLocale(interaction.locale, "transferConfirmDescription")
+        .getLocale(locale, "transfer.confirmDescription")
         .replace("{amount}", transferAmount)
         .replace("{user}", transferTarget.toString())
     );
@@ -123,11 +119,11 @@ export async function run({ interaction, client }) {
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId("transfer_confirm")
-      .setLabel(client.getLocale(interaction.locale, "yes"))
+      .setLabel(client.getLocale(locale, "transfer.yes"))
       .setStyle(ButtonStyle.Success),
     new ButtonBuilder()
       .setCustomId("transfer_cancel")
-      .setLabel(client.getLocale(interaction.locale, "no"))
+      .setLabel(client.getLocale(locale, "transfer.no"))
       .setStyle(ButtonStyle.Danger)
   );
 
@@ -154,7 +150,7 @@ export async function run({ interaction, client }) {
       if (error) {
         console.error("Transfer error:", error);
         return interaction.editReply(
-          client.getLocale(interaction.locale, "transferError")
+          client.getLocale(locale, "transfer.error")
         );
       }
 
@@ -162,7 +158,7 @@ export async function run({ interaction, client }) {
         .setColor(client.embedColor)
         .setDescription(
           client
-            .getLocale(interaction.locale, "transferSuccess")
+            .getLocale(locale, "transfer.success")
             .replace("{amount}", transferAmount)
             .replace("{user}", transferTarget.toString())
         );
@@ -171,9 +167,7 @@ export async function run({ interaction, client }) {
     } else if (confirmation.customId === "transfer_cancel") {
       const cancelEmbed = new EmbedBuilder()
         .setColor(client.embedColor)
-        .setDescription(
-          client.getLocale(interaction.locale, "transferCancelled")
-        );
+        .setDescription(client.getLocale(locale, "transfer.cancelled"));
 
       await confirmation.update({ embeds: [cancelEmbed], components: [] });
     }
@@ -181,7 +175,7 @@ export async function run({ interaction, client }) {
     console.error("Transfer error:", error);
     const errorEmbed = new EmbedBuilder()
       .setColor(client.embedColor)
-      .setDescription(client.getLocale(interaction.locale, "interr"));
+      .setDescription(client.getLocale(locale, "InteractionCreate.error"));
 
     await interaction.editReply({ embeds: [errorEmbed], components: [] });
   }

@@ -1,4 +1,3 @@
-import { createClient } from "@supabase/supabase-js";
 import {
   SlashCommandBuilder,
   InteractionContextType,
@@ -36,8 +35,8 @@ export const data = new SlashCommandBuilder()
   .setIntegrationTypes([0, 1]);
 
 export async function run({ interaction, client }) {
+  const { locale } = interaction;
   try {
-
     const user = interaction.options.getUser("user") || interaction.user;
 
     // Fetch user balance from Supabase
@@ -50,9 +49,7 @@ export async function run({ interaction, client }) {
     if (error && error.code !== "PGRST116") {
       console.error("Error fetching user balance:", error);
       if (interaction.isRepliable()) {
-        return interaction.editReply(
-          client.getLocale(interaction.locale, "balanceError")
-        );
+        return interaction.editReply(client.getLocale(locale, "balance.error"));
       }
       return;
     }
@@ -69,7 +66,7 @@ export async function run({ interaction, client }) {
         console.error("Error creating new user:", insertError);
         if (interaction.isRepliable()) {
           return interaction.editReply(
-            client.getLocale(interaction.locale, "balanceError")
+            client.getLocale(locale, "balance.error")
           );
         }
         return;
@@ -79,11 +76,11 @@ export async function run({ interaction, client }) {
 
     const balance = dbUser ? dbUser.balance : 0;
 
-    const embed = new EmbedBuilder().setColor("#212226").setDescription(
+    const embed = new EmbedBuilder().setColor(client.embedColor).setDescription(
       client
         .getLocale(
-          interaction.locale,
-          user.id === interaction.user.id ? "viewSelfBalance" : "viewBalance"
+          locale,
+          user.id === interaction.user.id ? "balance.selfview" : "balance.view"
         )
         .replace("{user}", `<@${user.id}>`)
         .replace("{balance}", balance.toString())
@@ -103,9 +100,7 @@ export async function run({ interaction, client }) {
     console.error("Balance command error:", error);
     if (interaction.isRepliable()) {
       try {
-        await interaction.editReply(
-          client.getLocale(interaction.locale, "balanceError")
-        );
+        await interaction.editReply(client.getLocale(locale, "balance.error"));
       } catch (err) {
         console.error("Failed to send error message:", err);
       }

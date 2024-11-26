@@ -22,7 +22,7 @@ export const data = new SlashCommandBuilder()
     InteractionContextType.PrivateChannel
   )
   .setIntegrationTypes([0, 1]);
-export async function run({ interaction }) {
+export async function run({ interaction, client }) {
   get(
     {
       url: "https://api.api-ninjas.com/v1/facts",

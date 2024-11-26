@@ -33,35 +33,35 @@ export async function run({ interaction, client }) {
   const ticks = interaction.options.getInteger("ticks");
   const tickmenu = new StringSelectMenuBuilder()
     .setCustomId("tickmenu")
-    .setPlaceholder(client.getLocale(locale, `timeplaceholder`))
+    .setPlaceholder(client.getLocale(locale, `timestamp.placeholder`))
     .addOptions(
       new StringSelectMenuOptionBuilder()
         .setLabel("0:00")
-        .setDescription(client.getLocale(locale, `time_1desc`))
+        .setDescription(client.getLocale(locale, `timestamp.time_1desc`))
         .setValue(`<t:${ticks}:t>`),
       new StringSelectMenuOptionBuilder()
         .setLabel("0:00:00")
-        .setDescription(client.getLocale(locale, `time_2desc`))
+        .setDescription(client.getLocale(locale, `timestamp.time_2desc`))
         .setValue(`<t:${ticks}:T>`),
       new StringSelectMenuOptionBuilder()
         .setLabel("01.01.1970")
-        .setDescription(client.getLocale(locale, `time_3desc`))
+        .setDescription(client.getLocale(locale, `timestamp.time_3desc`))
         .setValue(`<t:${ticks}:d>`),
       new StringSelectMenuOptionBuilder()
-        .setLabel(client.getLocale(locale, `time_1label`))
-        .setDescription(client.getLocale(locale, `time_4desc`))
+        .setLabel(client.getLocale(locale, `timestamp.time_1label`))
+        .setDescription(client.getLocale(locale, `timestamp.time_4desc`))
         .setValue(`<t:${ticks}:D>`),
       new StringSelectMenuOptionBuilder()
-        .setLabel(client.getLocale(locale, `time_2label`))
-        .setDescription(client.getLocale(locale, `time_5desc`))
+        .setLabel(client.getLocale(locale, `timestamp.time_2label`))
+        .setDescription(client.getLocale(locale, `timestamp.time_5desc`))
         .setValue(`<t:${ticks}:f>`),
       new StringSelectMenuOptionBuilder()
-        .setLabel(client.getLocale(locale, `time_3label`))
-        .setDescription(client.getLocale(locale, `time_6desc`))
+        .setLabel(client.getLocale(locale, `timestamp.time_3label`))
+        .setDescription(client.getLocale(locale, `timestamp.time_6desc`))
         .setValue(`<t:${ticks}:F>`),
       new StringSelectMenuOptionBuilder()
-        .setLabel(client.getLocale(locale, `time_4label`))
-        .setDescription(client.getLocale(locale, `time_7desc`))
+        .setLabel(client.getLocale(locale, `timestamp.time_4label`))
+        .setDescription(client.getLocale(locale, `timestamp.time_7desc`))
         .setValue(`<t:${ticks}:R>`)
     );
 

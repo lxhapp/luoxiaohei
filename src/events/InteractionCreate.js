@@ -3,78 +3,59 @@ const DEFAULT_COOLDOWN_DURATION = 3;
 
 export const name = Events.InteractionCreate;
 export async function execute(interaction) {
-  if (!interaction || !interaction.isChatInputCommand()) return;
+  if (!interaction?.isChatInputCommand()) return;
+
+  const { client, commandName, user } = interaction;
+  const command = client.commands.get(commandName);
 
   try {
-    const command = interaction.client.commands.get(interaction.commandName);
-
+    // Validate command exists
     if (!command) {
-      console.error(`No command matching ${interaction.commandName} was found`);
-      return;
+      console.error(`No command matching ${commandName} was found`);
+      return await sendErrorResponse(interaction, "command_not_found");
     }
 
+    // Check interaction validity
     if (!interaction.isRepliable()) {
       console.log("Interaction is no longer valid");
-      return;
+      return await sendErrorResponse(interaction, "interaction_invalid");
     }
 
-    const { locale } = interaction;
+    // Check beta access and cooldown
+    if (await checkBetaAccess(interaction, command)) return;
+    if (await checkCooldown(interaction, command)) return;
 
-    if (await checkBetaAccess(interaction, command, locale)) return;
-    if (await checkCooldown(interaction, command, locale)) return;
+    // Log command usage
+    console.log(`${user.id} | ${user.tag} ~ ${buildLogMessage(interaction)}`);
 
-    const logMessage = buildLogMessage(interaction);
-    console.log(
-      `${interaction.user.id} | ${interaction.user.tag} ~ ${logMessage}`
-    );
+    // Defer reply
+    await interaction.deferReply();
 
-    await interaction.deferReply().catch((err) => {
-      console.error("Failed to defer reply:", err);
-      throw err;
-    });
-
-    // Add timeout to prevent hanging
-    const commandPromise = command.run({
-      interaction,
-      client: interaction.client,
-    });
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Command timeout")), 30000)
-    );
-
-    await Promise.race([commandPromise, timeoutPromise]);
+    // Execute command with timeout
+    await executeCommandWithTimeout(interaction, command);
   } catch (error) {
     console.error("Command execution error:", error);
-    try {
-      if (!interaction.deferred && !interaction.replied) {
-        await interaction.reply({ 
-          embeds: [
-            new EmbedBuilder()
-              .setColor(interaction.client.embedColor)
-              .setDescription(interaction.client.getLocale(interaction.locale, "interr"))
-          ], 
-          ephemeral: true 
-        });
-      } else {
-        await interaction.editReply({ 
-          embeds: [
-            new EmbedBuilder()
-              .setColor(interaction.client.embedColor)
-              .setDescription(interaction.client.getLocale(interaction.locale, "interr"))
-          ]
-        });
-      }
-    } catch (followUpError) {
-      console.error("Error sending error message:", followUpError);
-    }
+    await handleCommandError(interaction);
+    cleanupCooldown(interaction);
+  }
+}
 
-    // Clean up cooldown on error
-    const timestamps = interaction.client.cooldowns.get(
-      interaction.commandName
-    );
-    if (timestamps) {
-      timestamps.delete(interaction.user.id);
+async function executeCommandWithTimeout(interaction, command) {
+  const commandPromise = command.run({
+    interaction,
+    client: interaction.client,
+  });
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Command timeout")), 30000)
+  );
+
+  try {
+    await Promise.race([commandPromise, timeoutPromise]);
+  } catch (error) {
+    if (error.message === "Command timeout") {
+      await sendErrorResponse(interaction, "timeout");
     }
+    throw error;
   }
 }
 
@@ -114,12 +95,17 @@ function buildLogMessage(interaction) {
   return message;
 }
 
-async function checkBetaAccess(interaction, command, locale) {
+async function checkBetaAccess(interaction, command) {
   if (command.beta && interaction.user.id !== "1053012080812359750") {
     if (!interaction.replied && !interaction.deferred) return true;
     const embed = new EmbedBuilder()
       .setColor(interaction.client.embedColor)
-      .setDescription(interaction.client.getLocale(locale, "beta"));
+      .setDescription(
+        interaction.client.getLocale(
+          interaction.locale,
+          "InteractionCreate.beta"
+        )
+      );
 
     await interaction.editReply({ embeds: [embed], ephemeral: true });
     return true;
@@ -127,7 +113,7 @@ async function checkBetaAccess(interaction, command, locale) {
   return false;
 }
 
-async function checkCooldown(interaction, command, locale) {
+async function checkCooldown(interaction, command) {
   const { cooldowns } = interaction.client;
 
   // Clean up expired cooldowns first
@@ -167,7 +153,7 @@ async function checkCooldown(interaction, command, locale) {
         .setColor(interaction.client.embedColor)
         .setDescription(
           interaction.client
-            .getLocale(locale, "cooldown")
+            .getLocale(interaction.locale, "InteractionCreate.cooldown")
             .replace("${command.data.name}", command.data.name)
             .replace("<t:${expiredTimestamp}:R>", `<t:${expiredTimestamp}:R>`)
         );
@@ -185,17 +171,63 @@ async function checkCooldown(interaction, command, locale) {
   return false;
 }
 
-async function handleCommandError(interaction, error, locale) {
+async function handleCommandError(interaction) {
   console.warn(`Error executing command: ${error.message}`);
   console.error(error);
 
   const embed = new EmbedBuilder()
     .setColor(interaction.client.embedColor)
-    .setDescription(interaction.client.getLocale(locale, "interr"));
+    .setDescription(
+      interaction.client.getLocale(
+        interaction.locale,
+        "InteractionCreate.error.generic"
+      )
+    );
 
   if (interaction.replied || interaction.deferred) {
     await interaction.followUp({ embeds: [embed], ephemeral: true });
   } else {
     await interaction.editReply({ embeds: [embed], ephemeral: true });
+  }
+}
+
+async function sendErrorResponse(interaction, errorType) {
+  const embed = new EmbedBuilder()
+    .setColor(interaction.client.embedColor)
+    .setDescription(
+      interaction.client.getLocale(
+        interaction.locale,
+        `InteractionCreate.error.${errorType}`
+      )
+    );
+
+  if (interaction.replied || interaction.deferred) {
+    await interaction.followUp({ embeds: [embed], ephemeral: true });
+  } else {
+    await interaction.editReply({ embeds: [embed], ephemeral: true });
+  }
+}
+
+function cleanupCooldown(interaction) {
+  const { cooldowns } = interaction.client;
+
+  // Clean up expired cooldowns first
+  if (cooldowns.has(interaction.commandName)) {
+    const timestamps = cooldowns.get(interaction.commandName);
+    const now = Date.now();
+    // Clean up any expired entries
+    [...timestamps.entries()].forEach(([userId, timestamp]) => {
+      const cooldownAmount =
+        (interaction.client.commands.get(interaction.commandName).cooldown ??
+          DEFAULT_COOLDOWN_DURATION) * 1000;
+      if (now > timestamp + cooldownAmount) {
+        timestamps.delete(userId);
+      }
+    });
+
+    // If map is empty after cleanup, delete it
+    if (timestamps.size === 0) {
+      cooldowns.delete(interaction.commandName);
+    }
   }
 }

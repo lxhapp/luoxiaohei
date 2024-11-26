@@ -66,22 +66,55 @@ export const data = new SlashCommandBuilder()
 export async function run({ interaction, client }) {
   const { locale } = interaction;
   const targetUser = interaction.options.getUser("user");
-  const targetMember = await interaction.guild.members
-    .fetch(targetUser.id)
-    .catch(() => null);
   const reason =
     interaction.options.getString("reason") ||
     client.getLocale(locale, "no_reason");
   const deleteDays = interaction.options.getInteger("days") ?? 1;
   const sendDM = interaction.options.getBoolean("dm") ?? true;
 
-  // Check if user is bannable
+  if (!interaction.guild) {
+    return interaction.editReply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(client.embedColor)
+          .setDescription(client.getLocale(locale, "guild_only")),
+      ],
+    });
+  }
+
+  if (targetUser.id === interaction.user.id) {
+    return interaction.editReply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(client.embedColor)
+          .setDescription(client.getLocale(locale, "cannot_ban_self")),
+      ],
+    });
+  }
+
+  if (targetUser.id === client.user.id) {
+    return interaction.editReply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(client.embedColor)
+          .setDescription(client.getLocale(locale, "cannot_ban_bot")),
+      ],
+    });
+  }
+
+  const targetMember = await interaction.guild.members
+    .fetch(targetUser.id)
+    .catch(() => null);
+
   if (targetMember) {
     if (!targetMember.bannable) {
-      const errorEmbed = new EmbedBuilder()
-        .setColor(client.embedColor)
-        .setDescription(client.getLocale(locale, "cannot_ban_user"));
-      return interaction.editReply({ embeds: [errorEmbed] });
+      return interaction.editReply({
+        embeds: [
+          new EmbedBuilder()
+            .setColor(client.embedColor)
+            .setDescription(client.getLocale(locale, "cannot_ban_user")),
+        ],
+      });
     }
 
     if (interaction.guild.ownerId !== interaction.user.id) {
@@ -89,26 +122,44 @@ export async function run({ interaction, client }) {
         targetMember.roles.highest.position >=
         interaction.member.roles.highest.position
       ) {
-        const errorEmbed = new EmbedBuilder()
-          .setColor(client.embedColor)
-          .setDescription(client.getLocale(locale, "cannot_ban_higher_role"));
-        return interaction.editReply({ embeds: [errorEmbed] });
+        return interaction.editReply({
+          embeds: [
+            new EmbedBuilder()
+              .setColor(client.embedColor)
+              .setDescription(
+                client.getLocale(locale, "cannot_ban_higher_role")
+              ),
+          ],
+        });
       }
     }
   }
 
-  // Try to DM the user if enabled
-  if (sendDM && !interaction.user.bot) {
+  if (sendDM && !targetUser.bot) {
     try {
       const dmEmbed = new EmbedBuilder()
         .setColor(client.embedColor)
-        .setTitle(client.getLocale(locale, "banned_dm_title"))
-        .setDescription(
-          client
-            .getLocale(locale, "banned_dm_description")
-            .replace("{server}", interaction.guild.name)
-            .replace("{reason}", reason)
-        )
+        .setAuthor({
+          name: client.getLocale(locale, "banned_dm_title"),
+          iconURL: interaction.guild.iconURL({ dynamic: true }) || null,
+        })
+        .addFields([
+          {
+            name: client.getLocale(locale, "server"),
+            value: interaction.guild.name,
+            inline: true,
+          },
+          {
+            name: client.getLocale(locale, "moderator"),
+            value: interaction.user.tag,
+            inline: true,
+          },
+          {
+            name: client.getLocale(locale, "reason"),
+            value: reason,
+            inline: false,
+          },
+        ])
         .setTimestamp();
 
       await targetUser.send({ embeds: [dmEmbed] }).catch(() => null);
@@ -121,27 +172,54 @@ export async function run({ interaction, client }) {
   try {
     await interaction.guild.bans.create(targetUser.id, {
       reason: reason,
-      deleteMessageDays: deleteDays
+      deleteMessageSeconds: deleteDays * 24 * 60 * 60,
     });
 
     // Create ban success embed
     const banEmbed = new EmbedBuilder()
       .setColor(client.embedColor)
-      .setDescription(
-        client
-          .getLocale(locale, "ban_success")
-          .replace("{user}", targetUser.tag)
-          .replace("{reason}", reason)
-          .replace("{days}", deleteDays)
-      )
-      .setTimestamp();
+      .setAuthor({
+        name: client.getLocale(locale, "ban_success_title"),
+        iconURL: interaction.guild.iconURL({ dynamic: true }) || null,
+      })
+      .addFields([
+        {
+          name: client.getLocale(locale, "banned_user"),
+          value: `${targetUser.tag} (${targetUser.id})`,
+          inline: true,
+        },
+        {
+          name: client.getLocale(locale, "banned_by"),
+          value: interaction.user.tag,
+          inline: true,
+        },
+        {
+          name: client.getLocale(locale, "message_deletion"),
+          value: `${deleteDays} ${client.getLocale(locale, "days")}`,
+          inline: true,
+        },
+        {
+          name: client.getLocale(locale, "reason"),
+          value: reason,
+          inline: false,
+        },
+      ])
+      .setThumbnail(targetUser.displayAvatarURL({ dynamic: true }))
+      .setTimestamp()
+      .setFooter({
+        text: client.getLocale(locale, "server_moderation"),
+        iconURL: client.user.displayAvatarURL(),
+      });
 
     return interaction.editReply({ embeds: [banEmbed] });
   } catch (error) {
     console.error("Ban execution error:", error);
-    const errorEmbed = new EmbedBuilder()
-      .setColor(client.embedColor)
-      .setDescription(client.getLocale(locale, "ban_failed"));
-    return interaction.editReply({ embeds: [errorEmbed] });
+    return interaction.editReply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(client.embedColor)
+          .setDescription(client.getLocale(locale, "ban_failed")),
+      ],
+    });
   }
 }

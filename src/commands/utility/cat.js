@@ -35,7 +35,7 @@ export async function run({ interaction, client }) {
         if (Array.isArray(body)) {
           body.forEach((catObject) => {
             catembed.setImage(catObject.url);
-            catembed.setTitle(client.getLocale(locale, `cattitle`));
+            catembed.setTitle(client.getLocale(locale, `cat.title`));
             catembed.setTimestamp();
             catembed.setAuthor({
               name: interaction.user.username,
@@ -53,7 +53,7 @@ export async function run({ interaction, client }) {
           return;
         } else if (typeof body === "object") {
           catembed.setImage(body.url);
-          catembed.setTitle(client.getLocale(locale, `cattitle`));
+          catembed.setTitle(client.getLocale(locale, `cat.title`));
           catembed.setTimestamp();
           catembed.setAuthor({
             name: interaction.user.username,
@@ -69,7 +69,7 @@ export async function run({ interaction, client }) {
           });
           return;
         } else {
-          catembed.setDescription(client.getLocale(locale, `catfail`));
+          catembed.setDescription(client.getLocale(locale, `cat.errors.fail`));
           interaction.editReply({
             embeds: [catembed],
             allowedMentions: {
@@ -81,7 +81,7 @@ export async function run({ interaction, client }) {
           return;
         }
       } else {
-        catembed.setDescription(client.getLocale(locale, `catfail`));
+        catembed.setDescription(client.getLocale(locale, `cat.errors.fail`));
         interaction.editReply({
           embeds: [catembed],
           allowedMentions: {

@@ -24,7 +24,7 @@ export async function run({ interaction, client }) {
   const { locale } = interaction;
   const pingembed = new EmbedBuilder()
     .setColor(client.embedColor)
-    .setDescription(client.getLocale(locale, `pinging`));
+    .setDescription(client.getLocale(locale, `ping.pinging`));
 
   const sent = await interaction.followUp({
     embeds: [pingembed],
@@ -33,7 +33,7 @@ export async function run({ interaction, client }) {
   pingembed.setDescription(
     `🌸 **${
       sent.createdTimestamp - interaction.createdTimestamp
-    }${client.getLocale(locale, "ms")}**`
+    }${client.getLocale(locale, "ping.ms")}**`
   );
   interaction.editReply({
     embeds: [pingembed],

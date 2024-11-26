@@ -35,7 +35,7 @@ export async function run({ interaction, client }) {
         if (Array.isArray(body)) {
           body.forEach((dogObject) => {
             dogembed.setImage(dogObject.message);
-            dogembed.setTitle(client.getLocale(locale, `dogtitle`));
+            dogembed.setTitle(client.getLocale(locale, `dog.title`));
             dogembed.setTimestamp();
             dogembed.setAuthor({
               name: interaction.user.username,
@@ -54,7 +54,7 @@ export async function run({ interaction, client }) {
           return;
         } else if (typeof body === "object") {
           dogembed.setImage(body.message);
-          dogembed.setTitle(client.getLocale(locale, `dogtitle`));
+          dogembed.setTitle(client.getLocale(locale, `dog.title`));
           dogembed.setTimestamp();
           dogembed.setAuthor({
             name: interaction.user.username,
@@ -71,7 +71,7 @@ export async function run({ interaction, client }) {
           });
           return;
         } else {
-          dogembed.setDescription(client.getLocale(locale, `dogfail`));
+          dogembed.setDescription(client.getLocale(locale, `dog.errors.fail`));
           interaction.editReply({
             embeds: [dogembed],
             allowedMentions: {
@@ -84,7 +84,7 @@ export async function run({ interaction, client }) {
           return;
         }
       } else {
-        dogembed.setDescription(client.getLocale(locale, `dogfail`));
+        dogembed.setDescription(client.getLocale(locale, `dog.errors.fail`));
         interaction.editReply({
           embeds: [dogembed],
           allowedMentions: {

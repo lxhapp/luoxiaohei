@@ -28,7 +28,7 @@ export async function run({ interaction, client }) {
   if (user.bot) {
     const embed = new EmbedBuilder()
       .setColor(client.embedColor)
-      .setDescription(client.getLocale(locale, "gameApp"));
+      .setDescription(client.getLocale(locale, "rps.gameApp"));
     await interaction.editReply({
       embeds: [embed],
       ephemeral: true,
@@ -39,7 +39,7 @@ export async function run({ interaction, client }) {
   if (user === interaction.user) {
     const embed = new EmbedBuilder()
       .setColor(client.embedColor)
-      .setDescription(client.getLocale(locale, "gameYS"));
+      .setDescription(client.getLocale(locale, "rps.sameUser"));
     await interaction.editReply({
       embeds: [embed],
       ephemeral: true,
@@ -56,9 +56,9 @@ export async function run({ interaction, client }) {
       description: client.getLocale(locale, "rpsDesc"),
     },
     buttons: {
-      rock: client.getLocale(locale, "rpsR"),
-      paper: client.getLocale(locale, "rpsP"),
-      scissors: client.getLocale(locale, "rpsS"),
+      rock: client.getLocale(locale, "rps.rock"),
+      paper: client.getLocale(locale, "rps.paper"),
+      scissors: client.getLocale(locale, "rps.scissors"),
     },
     emojis: {
       rock: `🪨`,
@@ -68,11 +68,11 @@ export async function run({ interaction, client }) {
     mentionUser: false,
     timeoutTime: 60000,
     buttonStyle: `PRIMARY`,
-    pickMessage: client.getLocale(locale, "rpsPick"),
-    winMessage: client.getLocale(locale, "rpsWin"),
-    tieMessage: client.getLocale(locale, "gameTie"),
-    timeoutMessage: client.getLocale(locale, "rps"),
-    playerOnlyMessage: client.getLocale(locale, "gameOnPOnly"),
+    pickMessage: client.getLocale(locale, "rps.pick"),
+    winMessage: client.getLocale(locale, "rps.win"),
+    tieMessage: client.getLocale(locale, "rps.tie"),
+    timeoutMessage: client.getLocale(locale, "rps.timeout"),
+    playerOnlyMessage: client.getLocale(locale, "rps.onPOnly"),
   });
 
   game.startGame();

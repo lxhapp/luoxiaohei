@@ -5,6 +5,31 @@ import {
   InteractionContextType,
 } from "discord.js";
 
+const AUTOMOD_RULES = {
+  'flagged-words': {
+    triggerType: 4,
+    triggerMetadata: {
+      presets: [1, 2, 3], // Profanity, Sexual Content, Slurs
+    }
+  },
+  'spam-messages': {
+    triggerType: 3,
+    triggerMetadata: {}
+  },
+  'mention-spam': {
+    triggerType: 5,
+    triggerMetadata: (amount) => ({
+      mentionTotalLimit: amount
+    })
+  },
+  'keyword': {
+    triggerType: 1,
+    triggerMetadata: (word) => ({
+      keywordFilter: [word]
+    })
+  }
+};
+
 export const beta = false;
 export const cooldown = 4;
 
@@ -52,7 +77,7 @@ export const data = new SlashCommandBuilder()
           .setDescriptionLocalizations({
             ru: "Количество упоминаний для срабатывания правила",
             uk: "Кількість згадувань для спрацювання правила",
-            ja: "特定の量のメンションを含むメッセージをブロックするためにはメンションの量が必要です",
+            ja: "メンションの制限数",
           })
           .setRequired(true)
           .setMinValue(2)
@@ -66,7 +91,7 @@ export const data = new SlashCommandBuilder()
       .setDescriptionLocalizations({
         ru: "Заблокировать заданное ключевое слово на сервере",
         uk: "Блокувати задане ключове слово на сервері",
-        ja: "指定されたキーワードをサーバーでブロックする",
+        ja: "指定されたキーワードをブロックする",
       })
       .addStringOption((option) =>
         option
@@ -75,7 +100,7 @@ export const data = new SlashCommandBuilder()
           .setDescriptionLocalizations({
             ru: "Указанное слово, которое вы хотите заблокировать",
             uk: "Вказане слово, яке потрібно заблокувати",
-            ja: "指定されたキーワードをサーバーでブロックするためにはキーワードの値が必要です",
+            ja: "ブロックしたいキーワード",
           })
           .setRequired(true)
       )
@@ -86,131 +111,72 @@ export const data = new SlashCommandBuilder()
 export async function run({ interaction, client }) {
   const { guild, options, locale } = interaction;
 
-  const embed = new EmbedBuilder().setColor("#212226");
-
-  if (
-    !guild.members.me.permissions.has(PermissionsBitField.Flags.ManageGuild)
-  ) {
-    embed.setDescription(client.getLocale(locale, "automod_noperms"));
-    return await interaction.editReply({ embeds: [embed] });
-  }
-
-  const subcommand = options.getSubcommand();
+  // Check bot permissions
+  if (!await checkBotPermissions(guild, interaction, client)) return;
 
   try {
-    let rule;
-    switch (subcommand) {
-      case "flagged-words":
-        rule = await createFlaggedWordsRule(guild, interaction);
-        break;
-      case "spam-messages":
-        rule = await createSpamMessagesRule(guild, interaction);
-        break;
-      case "mention-spam":
-        rule = await createMentionSpamRule(guild, interaction, options);
-        break;
-      case "keyword":
-        rule = await createKeywordRule(guild, interaction, options);
-        break;
-    }
-
-    if (rule) {
-      embed.setDescription(client.getLocale(locale, `automod_success1`));
-    } else {
-      embed.setDescription(client.getLocale(locale, "automod_ison"));
-    }
+    const subcommand = options.getSubcommand();
+    const rule = await createAutoModRule(guild, interaction, subcommand);
+    
+    await sendResponse(interaction, client, rule ? 'success' : 'alreadyExists');
   } catch (error) {
     console.error("Error creating AutoMod rule:", error);
-    embed.setDescription(client.getLocale(locale, "automod_error"));
+    await sendResponse(interaction, client, 'error');
   }
+}
+
+async function checkBotPermissions(guild, interaction, client) {
+  if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ManageGuild)) {
+    await sendResponse(interaction, client, 'noPermission');
+    return false;
+  }
+  return true;
+}
+
+async function createAutoModRule(guild, interaction, subcommand) {
+  const ruleConfig = AUTOMOD_RULES[subcommand];
+  if (!ruleConfig) return null;
+
+  const baseRule = {
+    name: `${capitalizeFirstLetter(subcommand)} - ${interaction.user.tag} (${interaction.user.id})`,
+    creatorId: interaction.client.user.id,
+    enabled: true,
+    eventType: 1,
+    triggerType: ruleConfig.triggerType,
+    triggerMetadata: typeof ruleConfig.triggerMetadata === 'function' 
+      ? ruleConfig.triggerMetadata(getOptionValue(interaction, subcommand))
+      : ruleConfig.triggerMetadata,
+    actions: [{
+      type: 1,
+      metadata: {
+        channel: interaction.channel,
+        durationSeconds: 10,
+      },
+    }],
+  };
+
+  return await guild.autoModerationRules.create(baseRule);
+}
+
+function getOptionValue(interaction, subcommand) {
+  switch (subcommand) {
+    case 'mention-spam':
+      return interaction.options.getInteger('amount');
+    case 'keyword':
+      return interaction.options.getString('word');
+    default:
+      return null;
+  }
+}
+
+async function sendResponse(interaction, client, type) {
+  const embed = new EmbedBuilder()
+    .setColor(client.embedColor)
+    .setDescription(client.getLocale(interaction.locale, `automod.${type}`));
 
   await interaction.editReply({ embeds: [embed] });
 }
 
-async function createFlaggedWordsRule(guild, interaction) {
-  return await guild.autoModerationRules.create({
-    name: `Flagged Words - ${interaction.user.tag} (${interaction.user.id})`,
-    creatorId: interaction.client.user.id,
-    enabled: true,
-    eventType: 1,
-    triggerType: 4,
-    triggerMetadata: {
-      presets: [1, 2, 3],
-    },
-    actions: [
-      {
-        type: 1,
-        metadata: {
-          channel: interaction.channel,
-          durationSeconds: 10,
-        },
-      },
-    ],
-  });
-}
-
-async function createSpamMessagesRule(guild, interaction) {
-  return await guild.autoModerationRules.create({
-    name: `Spam Messages - ${interaction.user.tag} (${interaction.user.id})`,
-    creatorId: interaction.client.user.id,
-    enabled: true,
-    eventType: 1,
-    triggerType: 3,
-    triggerMetadata: {},
-    actions: [
-      {
-        type: 1,
-        metadata: {
-          channel: interaction.channel,
-          durationSeconds: 10,
-        },
-      },
-    ],
-  });
-}
-
-async function createMentionSpamRule(guild, interaction, options) {
-  const amount = options.getInteger("amount");
-  return await guild.autoModerationRules.create({
-    name: `Mention Spam - ${interaction.user.tag} (${interaction.user.id})`,
-    creatorId: interaction.client.user.id,
-    enabled: true,
-    eventType: 1,
-    triggerType: 5,
-    triggerMetadata: {
-      mentionTotalLimit: amount,
-    },
-    actions: [
-      {
-        type: 1,
-        metadata: {
-          channel: interaction.channel,
-          durationSeconds: 10,
-        },
-      },
-    ],
-  });
-}
-
-async function createKeywordRule(guild, interaction, options) {
-  const word = options.getString("word");
-  return await guild.autoModerationRules.create({
-    name: `Keyword - ${interaction.user.tag} (${interaction.user.id})`,
-    creatorId: interaction.client.user.id,
-    enabled: true,
-    eventType: 1,
-    triggerType: 1,
-    triggerMetadata: {
-      keywordFilter: [word],
-    },
-    actions: [
-      {
-        type: 1,
-        metadata: {
-          channel: interaction.channel,
-          durationSeconds: 10,
-        },
-      },
-    ],
-  });
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }

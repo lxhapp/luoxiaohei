@@ -10,7 +10,7 @@
 
 import dotenv from "dotenv";
 dotenv.config();
-import * as locales from "./locales.js";
+import strings from "./strings.js";
 import { readdirSync } from "fs";
 import path from "path";
 import { fileURLToPath, pathToFileURL } from "url";
@@ -106,12 +106,29 @@ class MainClient extends Client {
     this.rest = new REST().setToken(process.env.token);
 
     this.getLocale = new Collection();
-    this.getLocale = function (code, str) {
-      if (locales[code] && locales[code][str]) {
-        return locales[code][str];
-      } else if (locales.en[str]) {
-        return locales.en[str];
-      } else return str;
+    this.getLocale = function (code, path) {
+      try {
+        const parts = path.split(".");
+
+        // Navigate through the nested structure
+        let current = strings;
+        for (const part of parts.slice(0, -1)) {
+          current = current[part];
+          if (!current) return path;
+        }
+
+        const translations = current[parts[parts.length - 1]];
+        if (!translations) return path;
+
+        // Return requested language or fall back to English
+        return translations[code] || translations.en || path;
+      } catch (error) {
+        console.error(
+          `Locale error for path "${path}" and code "${code}":`,
+          error
+        );
+        return path;
+      }
     };
 
     this.currency = new Collection();

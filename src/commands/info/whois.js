@@ -34,7 +34,7 @@ export async function run({ interaction, client }) {
   if (!user) {
     const embed = new EmbedBuilder()
       .setColor(client.embedColor)
-      .setDescription(client.getLocale(locale, "userNotFound"));
+      .setDescription(client.getLocale(locale, "whois.userNotFound"));
 
     return interaction.editReply({ embeds: [embed], ephemeral: true });
   }
@@ -50,22 +50,22 @@ export async function run({ interaction, client }) {
     })
     .setThumbnail(icon)
     .addFields({
-      name: client.getLocale(locale, `member`),
+      name: client.getLocale(locale, `whois.member`),
       value: `${user}`,
       inline: true,
     })
     .addFields({
-      name: client.getLocale(locale, `roles`),
+      name: client.getLocale(locale, `whois.roles`),
       value: `${member.roles.cache.map((r) => r).join(` `)}`,
       inline: false,
     })
     .addFields({
-      name: client.getLocale(locale, `joinedAt`),
+      name: client.getLocale(locale, `whois.joinedAt`),
       value: `<t:${parseInt(member.joinedAt / 1000)}:R>`,
       inline: true,
     })
     .addFields({
-      name: client.getLocale(locale, `createdAt`),
+      name: client.getLocale(locale, `whois.createdAt`),
       value: `<t:${parseInt(user.createdAt / 1000)}:R>`,
       inline: true,
     })

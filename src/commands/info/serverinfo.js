@@ -23,60 +23,60 @@ export async function run({ interaction, client }) {
   const { name, createdTimestamp } = guild;
 
   let baseVerif = guild.verificationLevel;
-  if (baseVerif === 0) baseVerif = client.getLocale(locale, `nope`);
-  if (baseVerif === 1) baseVerif = client.getLocale(locale, `low`);
-  if (baseVerif === 2) baseVerif = client.getLocale(locale, `mid`);
-  if (baseVerif === 3) baseVerif = client.getLocale(locale, `high`);
-  if (baseVerif === 4) baseVerif = client.getLocale(locale, `veryhigh`);
+  if (baseVerif === 0) baseVerif = client.getLocale(locale, `serverinfo.nope`);
+  if (baseVerif === 1) baseVerif = client.getLocale(locale, `serverinfo.low`);
+  if (baseVerif === 2) baseVerif = client.getLocale(locale, `serverinfo.mid`);
+  if (baseVerif === 3) baseVerif = client.getLocale(locale, `serverinfo.high`);
+  if (baseVerif === 4) baseVerif = client.getLocale(locale, `serverinfo.veryhigh`);
 
   const sinfoEmbed = new EmbedBuilder()
     .setColor(client.embedColor)
     .setAuthor({
       name: name,
-      iconURL: guild.iconURL(),
+      iconURL: guild.iconURL() || null,
     })
-    .setThumbnail(guild.iconURL())
+    .setThumbnail(guild.iconURL() || null)
     .setFooter({
       text: `ID: ${guild.id}`,
     })
     .setTimestamp()
     .addFields({
-      name: client.getLocale(locale, `name`),
+      name: client.getLocale(locale, `serverinfo.name`),
       value: `${name}`,
       inline: false,
     })
     .addFields({
-      name: client.getLocale(locale, `srvCreation`),
+      name: client.getLocale(locale, `serverinfo.creation`),
       value: `<t:${parseInt(createdTimestamp / 1000)}:R>`,
       inline: true,
     })
     .addFields({
-      name: client.getLocale(locale, `owner`),
+      name: client.getLocale(locale, `serverinfo.owner`),
       value: `<@${guild.ownerId}>`,
       inline: true,
     })
     .addFields({
-      name: client.getLocale(locale, `members`),
+      name: client.getLocale(locale, `serverinfo.members`),
       value: `${guild.memberCount}`,
       inline: true,
     })
     .addFields({
-      name: client.getLocale(locale, `roles`),
+      name: client.getLocale(locale, `serverinfo.roles`),
       value: `${guild.roles.cache.size}`,
       inline: true,
     })
     .addFields({
-      name: client.getLocale(locale, `emoji`),
+      name: client.getLocale(locale, `serverinfo.emojis`),
       value: `${guild.emojis.cache.size}`,
       inline: true,
     })
     .addFields({
-      name: client.getLocale(locale, `veriflvl`),
+      name: client.getLocale(locale, `serverinfo.veriflvl`),
       value: `${baseVerif}`,
       inline: true,
     })
     .addFields({
-      name: client.getLocale(locale, `boosts`),
+      name: client.getLocale(locale, `serverinfo.boosts`),
       value: `${guild.premiumSubscriptionCount}`,
       inline: true,
     });

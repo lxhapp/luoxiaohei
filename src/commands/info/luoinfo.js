@@ -40,7 +40,7 @@ export async function run({ interaction, client }) {
   if (!user) {
     const embed = new EmbedBuilder()
       .setColor(client.embedColor)
-      .setDescription(client.getLocale(locale, "userNotFound"));
+      .setDescription(client.getLocale(locale, "luoinfo.userNotFound"));
 
     return interaction.editReply({ embeds: [embed], ephemeral: true });
   }
@@ -54,7 +54,7 @@ export async function run({ interaction, client }) {
   if (error && error.code !== "PGRST116") {
     console.error("Error fetching user data:", error);
     return interaction.editReply({
-      content: client.getLocale(locale, "databaseError"),
+      content: client.getLocale(locale, "luoinfo.databaseError"),
       ephemeral: true,
     });
   }
@@ -76,7 +76,7 @@ export async function run({ interaction, client }) {
         inline: true,
       },
       {
-        name: client.getLocale(locale, "isRegistered"),
+        name: client.getLocale(locale, "luoinfo.isRegistered"),
         value: isRegistered
           ? "<:check:1281579844089675810>"
           : "<:cross:1281580669373382686>",
@@ -86,7 +86,7 @@ export async function run({ interaction, client }) {
 
   if (isRegistered) {
     userinfoEmbed.addFields({
-      name: client.getLocale(locale, "balance"),
+      name: client.getLocale(locale, "luoinfo.balance"),
       value: `**${balance}¥**`,
       inline: true,
     });

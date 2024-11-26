@@ -45,7 +45,7 @@ export async function run({ interaction, client }) {
   );
 
   if (missingPermissions.length > 0) {
-    embed.setDescription(client.getLocale(locale, "purge_noperms"));
+    embed.setDescription(client.getLocale(locale, "purge.noperms"));
     return await interaction.editReply({
       embeds: [embed],
     });
@@ -58,7 +58,7 @@ export async function run({ interaction, client }) {
     });
 
     if (fetchedMessages.size === 0) {
-      embed.setDescription(client.getLocale(locale, "purge_nomsgs"));
+      embed.setDescription(client.getLocale(locale, "purge.nomsgs"));
       return await interaction.editReply({
         embeds: [embed],
       });
@@ -71,7 +71,7 @@ export async function run({ interaction, client }) {
         new EmbedBuilder()
           .setColor(client.embedColor)
           .setDescription(
-            client.getLocale(locale, "purgeSuccess")
+            client.getLocale(locale, "purge.success")
               .replace("${fetchedMessages}", fetchedMessages.size)
           )
           .setAuthor({

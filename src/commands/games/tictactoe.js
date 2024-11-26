@@ -28,7 +28,7 @@ export async function run({ interaction, client }) {
   if (user.bot) {
     const embed = new EmbedBuilder()
       .setColor(client.embedColor)
-      .setDescription(client.getLocale(locale, "gameApp"));
+      .setDescription(client.getLocale(locale, "tictactoe.gameApp"));
     await interaction.editReply({
       embeds: [embed],
       ephemeral: true,
@@ -39,7 +39,7 @@ export async function run({ interaction, client }) {
   if (user === interaction.user) {
     const embed = new EmbedBuilder()
       .setColor(client.embedColor)
-      .setDescription(client.getLocale(locale, "gameYS"));
+      .setDescription(client.getLocale(locale, "tictactoe.sameUser"));
     await interaction.editReply({
       embeds: [embed],
       ephemeral: true,
@@ -52,10 +52,10 @@ export async function run({ interaction, client }) {
     isSlashGame: true,
     opponent: user,
     embed: {
-      title: client.getLocale(locale, "tttTitle"),
+      title: client.getLocale(locale, "tictactoe.title"),
       color: `#212226`,
-      statusTitle: client.getLocale(locale, "tttStatus"),
-      overTitle: client.getLocale(locale, "tttGOver"),
+      statusTitle: client.getLocale(locale, "tictactoe.status"),
+      overTitle: client.getLocale(locale, "tictactoe.over"),
     },
     emojis: {
       xButton: `❌`,
@@ -66,11 +66,11 @@ export async function run({ interaction, client }) {
     timeoutTime: 60000,
     xButtonStyle: `SUCCESS`,
     oButtonStyle: `SUCCESS`,
-    turnMessage: client.getLocale(locale, "tttTurn"),
-    winMessage: client.getLocale(locale, "tttWin"),
-    tieMessage: client.getLocale(locale, "gameTie"),
-    timeoutMessage: client.getLocale(locale, "tttTimeout"),
-    playerOnlyMessage: client.getLocale(locale, "gameOnPOnly"),
+    turnMessage: client.getLocale(locale, "tictactoe.turn"),
+    winMessage: client.getLocale(locale, "tictactoe.win"),
+    tieMessage: client.getLocale(locale, "tictactoe.tie"),
+    timeoutMessage: client.getLocale(locale, "tictactoe.timeout"),
+    playerOnlyMessage: client.getLocale(locale, "tictactoe.onPOnly"),
   });
 
   game.startGame();

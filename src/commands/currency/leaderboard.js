@@ -48,13 +48,12 @@ export async function run({ interaction, client }) {
   if (subcommand === "anonymous") {
     return handleToggleAnonymous(interaction, client);
   } else {
-    // Default to showing the leaderboard for 'list' or if no subcommand is specified
     return showLeaderboard(interaction, client);
   }
 }
 
 async function showLeaderboard(interaction, client) {
-
+  const { locale } = interaction;
   // Fetch top 10 users from Supabase, excluding those with 0 balance
   const { data: leaderboardData, error } = await supabase
     .from("users")
@@ -65,14 +64,12 @@ async function showLeaderboard(interaction, client) {
 
   if (error) {
     console.error("Error fetching leaderboard:", error);
-    return interaction.editReply(
-      client.getLocale(interaction.locale, "ldError")
-    );
+    return interaction.editReply(client.getLocale(locale, "leaderboard.error"));
   }
 
   if (!leaderboardData || leaderboardData.length === 0) {
     return interaction.editReply(
-      client.getLocale(interaction.locale, "ldNoUsersFound")
+      client.getLocale(locale, "leaderboard.noUsersFound")
     );
   }
 
@@ -97,8 +94,8 @@ async function showLeaderboard(interaction, client) {
 
   const embed = new EmbedBuilder()
     .setColor(client.embedColor)
-    .setTitle(client.getLocale(interaction.locale, "ldTitle"))
-    .setDescription(client.getLocale(interaction.locale, "ldDescription"))
+    .setTitle(client.getLocale(locale, "leaderboard.title"))
+    .setDescription(client.getLocale(locale, "leaderboard.description"))
     .addFields(
       formattedLeaderboard.map((user) => ({
         name: `#${user.position} - ${user.name}`,
@@ -113,6 +110,7 @@ async function showLeaderboard(interaction, client) {
 
 async function handleToggleAnonymous(interaction, client) {
   const userId = interaction.user.id;
+  const { locale } = interaction;
 
   // First, try to fetch current user data
   let { data: userData, error: fetchError } = await supabase
@@ -122,7 +120,7 @@ async function handleToggleAnonymous(interaction, client) {
     .single();
 
   // If user doesn't exist, create a new user record
-  if (fetchError && fetchError.code === 'PGRST116') {
+  if (fetchError && fetchError.code === "PGRST116") {
     const { data: newUser, error: createError } = await supabase
       .from("users")
       .insert([
@@ -130,8 +128,8 @@ async function handleToggleAnonymous(interaction, client) {
           user_id: userId,
           balance: 0,
           is_anonymous: false,
-          verified: false
-        }
+          verified: false,
+        },
       ])
       .select()
       .single();
@@ -139,7 +137,7 @@ async function handleToggleAnonymous(interaction, client) {
     if (createError) {
       console.error("Error creating user:", createError);
       return interaction.editReply(
-        client.getLocale(interaction.locale, "errorCreatingUser")
+        client.getLocale(locale, "leaderboard.errorCreatingUser")
       );
     }
 
@@ -147,7 +145,7 @@ async function handleToggleAnonymous(interaction, client) {
   } else if (fetchError) {
     console.error("Error fetching user data:", fetchError);
     return interaction.editReply(
-      client.getLocale(interaction.locale, "errorFetchingUserData")
+      client.getLocale(locale, "leaderboard.errorFetchingUserData")
     );
   }
 
@@ -162,14 +160,12 @@ async function handleToggleAnonymous(interaction, client) {
   if (updateError) {
     console.error("Error updating user data:", updateError);
     return interaction.editReply(
-      client.getLocale(interaction.locale, "errorUpdatingUserData")
+      client.getLocale(locale, "leaderboard.errorUpdatingUserData")
     );
   }
 
   const responseKey = newAnonymousState
-    ? "anonymousEnabled"
-    : "anonymousDisabled";
-  return interaction.editReply(
-    client.getLocale(interaction.locale, "responseKey")
-  );
+    ? "leaderboard.anonymous.enabled"
+    : "leaderboard.anonymous.disabled";
+  return interaction.editReply(client.getLocale(locale, responseKey));
 }

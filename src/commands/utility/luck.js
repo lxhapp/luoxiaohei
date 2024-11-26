@@ -56,14 +56,14 @@ export async function run({ interaction, client }) {
     if (random === result) {
       const luckembed = new EmbedBuilder()
         .setColor(client.embedColor)
-        .setDescription(client.getLocale(locale, "luckyrandom"))
+        .setDescription(client.getLocale(locale, "luck.luckyrandom"))
         .addFields({
-          name: client.getLocale(locale, "random"),
+          name: client.getLocale(locale, "luck.random"),
           value: `${random}`,
           inline: true,
         })
         .addFields({
-          name: client.getLocale(locale, "result"),
+          name: client.getLocale(locale, "luck.result"),
           value: `${result}`,
           inline: true,
         });
@@ -77,14 +77,14 @@ export async function run({ interaction, client }) {
     } else {
       const luckembed = new EmbedBuilder()
         .setColor(client.embedColor)
-        .setDescription(client.getLocale(locale, "unluckyrandom"))
+        .setDescription(client.getLocale(locale, "luck.unluckyrandom"))
         .addFields({
-          name: client.getLocale(locale, "random"),
+          name: client.getLocale(locale, "luck.random"),
           value: `${random}`,
           inline: true,
         })
         .addFields({
-          name: client.getLocale(locale, "result"),
+          name: client.getLocale(locale, "luck.result"),
           value: `${result}`,
           inline: true,
         });
@@ -102,14 +102,14 @@ export async function run({ interaction, client }) {
     if (random === result) {
       const luckembed = new EmbedBuilder()
         .setColor(client.embedColor)
-        .setDescription(client.getLocale(locale, "luckyrandom"))
+        .setDescription(client.getLocale(locale, "luck.luckyrandom"))
         .addFields({
-          name: client.getLocale(locale, "random"),
+          name: client.getLocale(locale, "luck.random"),
           value: `${random}`,
           inline: true,
         })
         .addFields({
-          name: client.getLocale(locale, "result"),
+          name: client.getLocale(locale, "luck.result"),
           value: `${result}`,
           inline: true,
         });
@@ -127,14 +127,14 @@ export async function run({ interaction, client }) {
           iconURL: interaction.user.displayAvatarURL(),
         })
         .setColor(client.embedColor)
-        .setDescription(client.getLocale(locale, "unluckyrandom"))
+        .setDescription(client.getLocale(locale, "luck.unluckyrandom"))
         .addFields({
-          name: client.getLocale(locale, "random"),
+          name: client.getLocale(locale, "luck.random"),
           value: `${random}`,
           inline: true,
         })
         .addFields({
-          name: client.getLocale(locale, "result"),
+          name: client.getLocale(locale, "luck.result"),
           value: `${result}`,
           inline: true,
         });

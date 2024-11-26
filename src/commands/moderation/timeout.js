@@ -63,22 +63,59 @@ export const data = new SlashCommandBuilder()
 
 export async function run({ interaction, client }) {
   const { locale } = interaction;
+
+  // Check if command is used in a guild
+  if (!interaction.guild) {
+    return interaction.editReply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(client.embedColor)
+          .setDescription(client.getLocale(locale, "timeout.guild_only")),
+      ],
+    });
+  }
+
   const targetUser = interaction.options.getUser("user");
-  const targetMember = await interaction.guild.members
-    .fetch(targetUser.id)
-    .catch(() => null);
   const reason =
     interaction.options.getString("reason") ||
-    client.getLocale(locale, "no_reason");
+    client.getLocale(locale, "timeout.reason.none");
   const sendDM = interaction.options.getBoolean("dm") ?? true;
   const duration = interaction.options.getString("duration");
+
+  // Check if trying to timeout self
+  if (targetUser.id === interaction.user.id) {
+    return interaction.editReply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(client.embedColor)
+          .setDescription(
+            client.getLocale(locale, "timeout.errors.cannotTimeoutSelf")
+          ),
+      ],
+    });
+  }
+
+  // Check if trying to timeout the bot
+  if (targetUser.id === client.user.id) {
+    return interaction.editReply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(client.embedColor)
+          .setDescription(
+            client.getLocale(locale, "timeout.errors.cannotTimeoutBot")
+          ),
+      ],
+    });
+  }
 
   // Parse duration
   const durationMs = parseDuration(duration);
   if (!durationMs) {
     const errorEmbed = new EmbedBuilder()
       .setColor("#212226")
-      .setDescription(client.getLocale(locale, "invalid_duration_format"));
+      .setDescription(
+        client.getLocale(locale, "timeout.errors.invalidDurationFormat")
+      );
     return interaction.editReply({ embeds: [errorEmbed] });
   }
 
@@ -86,15 +123,22 @@ export async function run({ interaction, client }) {
   if (durationMs > 2419200000) {
     const errorEmbed = new EmbedBuilder()
       .setColor("#212226")
-      .setDescription(client.getLocale(locale, "duration_too_long"));
+      .setDescription(
+        client.getLocale(locale, "timeout.errors.durationTooLong")
+      );
     return interaction.editReply({ embeds: [errorEmbed] });
   }
 
   // Check if user exists in the server
+  const targetMember = await interaction.guild.members
+    .fetch(targetUser.id)
+    .catch(() => null);
   if (!targetMember) {
     const errorEmbed = new EmbedBuilder()
       .setColor("#212226")
-      .setDescription(client.getLocale(locale, "user_not_in_server"));
+      .setDescription(
+        client.getLocale(locale, "timeout.errors.userNotInServer")
+      );
     return interaction.editReply({ embeds: [errorEmbed] });
   }
 
@@ -102,7 +146,9 @@ export async function run({ interaction, client }) {
   if (!targetMember.moderatable) {
     const errorEmbed = new EmbedBuilder()
       .setColor("#212226")
-      .setDescription(client.getLocale(locale, "cannot_timeout_user"));
+      .setDescription(
+        client.getLocale(locale, "timeout.errors.cannotTimeoutUser")
+      );
     return interaction.editReply({ embeds: [errorEmbed] });
   }
 
@@ -114,7 +160,7 @@ export async function run({ interaction, client }) {
     ) {
       const errorEmbed = new EmbedBuilder()
         .setColor("#212226")
-        .setDescription(client.getLocale(locale, "cannot_timeout_higher_role"));
+        .setDescription(client.getLocale(locale, "timeout.errors.higherRole"));
       return interaction.editReply({ embeds: [errorEmbed] });
     }
   }
@@ -124,10 +170,10 @@ export async function run({ interaction, client }) {
     try {
       const dmEmbed = new EmbedBuilder()
         .setColor("#212226")
-        .setTitle(client.getLocale(locale, "timeout_dm_title"))
+        .setTitle(client.getLocale(locale, "timeout.dm.title"))
         .setDescription(
           client
-            .getLocale(locale, "timeout_dm_description")
+            .getLocale(locale, "timeout.dm.description")
             .replace("{server}", interaction.guild.name)
             .replace("{duration}", formatDuration(durationMs))
             .replace("{reason}", reason)
@@ -152,7 +198,7 @@ export async function run({ interaction, client }) {
       .setColor(client.embedColor)
       .setDescription(
         client
-          .getLocale(locale, "timeout_success")
+          .getLocale(locale, "timeout.success.message")
           .replace("{user}", targetUser.tag)
           .replace("{duration}", formatDuration(durationMs))
           .replace("{reason}", reason)
@@ -164,7 +210,7 @@ export async function run({ interaction, client }) {
     console.error("Timeout execution error:", error);
     const errorEmbed = new EmbedBuilder()
       .setColor(client.embedColor)
-      .setDescription(client.getLocale(locale, "timeout_failed"));
+      .setDescription(client.getLocale(locale, "timeout.errors.timeoutFailed"));
     return interaction.editReply({ embeds: [errorEmbed] });
   }
 }

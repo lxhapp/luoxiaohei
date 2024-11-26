@@ -35,8 +35,8 @@ export async function run({ interaction, client }) {
   const { locale } = interaction;
   const question = interaction.options.getString("question");
   const words = [
-    client.getLocale(locale, `benYes`),
-    client.getLocale(locale, `benNo`),
+    client.getLocale(locale, `ben.yes`),
+    client.getLocale(locale, `ben.no`),
     "😜",
     "😂",
   ];
@@ -54,7 +54,7 @@ export async function run({ interaction, client }) {
       inline: true,
     })
     .addFields({
-      name: client.getLocale(locale, `ben`),
+      name: client.getLocale(locale, `ben.name`),
       value: `${words[Math.floor(Math.random() * words.length)]}`,
       inline: true,
     });

@@ -59,14 +59,14 @@ export async function run({ interaction, client }) {
     .catch(() => null);
   const reason =
     interaction.options.getString("reason") ||
-    client.getLocale(locale, "no_reason");
+    client.getLocale(locale, "kick.reason.none");
   const sendDM = interaction.options.getBoolean("dm") ?? true;
 
   // Check if user exists in the server
   if (!targetMember) {
     const errorEmbed = new EmbedBuilder()
       .setColor(client.embedColor)
-      .setDescription(client.getLocale(locale, "user_not_in_server"));
+      .setDescription(client.getLocale(locale, "kick.errors.userNotInServer"));
     return interaction.editReply({ embeds: [errorEmbed] });
   }
 
@@ -74,7 +74,7 @@ export async function run({ interaction, client }) {
   if (!targetMember.kickable) {
     const errorEmbed = new EmbedBuilder()
       .setColor(client.embedColor)
-      .setDescription(client.getLocale(locale, "cannot_kick_user"));
+      .setDescription(client.getLocale(locale, "kick.errors.cannotKickUser"));
     return interaction.editReply({ embeds: [errorEmbed] });
   }
 
@@ -86,7 +86,7 @@ export async function run({ interaction, client }) {
     ) {
       const errorEmbed = new EmbedBuilder()
         .setColor(client.embedColor)
-        .setDescription(client.getLocale(locale, "cannot_kick_higher_role"));
+        .setDescription(client.getLocale(locale, "kick.errors.higherRole"));
       return interaction.editReply({ embeds: [errorEmbed] });
     }
   }
@@ -96,10 +96,10 @@ export async function run({ interaction, client }) {
     try {
       const dmEmbed = new EmbedBuilder()
         .setColor(client.embedColor)
-        .setTitle(client.getLocale(locale, "kicked_dm_title"))
+        .setTitle(client.getLocale(locale, "kick.dm.title"))
         .setDescription(
           client
-            .getLocale(locale, "kicked_dm_description")
+            .getLocale(locale, "kick.dm.description")
             .replace("{server}", interaction.guild.name)
             .replace("{reason}", reason)
         )
@@ -122,7 +122,7 @@ export async function run({ interaction, client }) {
       .setColor(client.embedColor)
       .setDescription(
         client
-          .getLocale(locale, "kick_success")
+          .getLocale(locale, "kick.success.message")
           .replace("{user}", targetUser.tag)
           .replace("{reason}", reason)
       )
@@ -133,7 +133,7 @@ export async function run({ interaction, client }) {
     console.error("Kick execution error:", error);
     const errorEmbed = new EmbedBuilder()
       .setColor(client.embedColor)
-      .setDescription(client.getLocale(locale, "kick_failed"));
+      .setDescription(client.getLocale(locale, "kick.errors.kickFailed"));
     return interaction.editReply({ embeds: [errorEmbed] });
   }
 }

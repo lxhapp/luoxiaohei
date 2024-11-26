@@ -39,29 +39,29 @@ export async function run({ interaction, client }) {
   const embed = new EmbedBuilder()
     .setColor(client.embedColor)
     .addFields({
-      name: client.getLocale(locale, "host"),
+      name: client.getLocale(locale, "os.host"),
       value: `${hostname()}`,
       inline: false,
     })
     .addFields({
-      name: "RAM",
+      name: client.getLocale(locale, "os.ram"),
       value: `${formatBytes(totalmem() - freemem())} | ${formatBytes(
         totalmem()
       )}`,
       inline: false,
     })
     .addFields({
-      name: "CPU",
+      name: client.getLocale(locale, "os.cpu"),
       value: `${cpus()[0].model}`,
       inline: false,
     })
     .addFields({
-      name: "Arch",
+      name: client.getLocale(locale, "os.arch"),
       value: `${arch()}`,
       inline: false,
     })
     .addFields({
-      name: client.getLocale(locale, "release"),
+      name: client.getLocale(locale, "os.release"),
       value: `${release()}`,
       inline: false,
     });

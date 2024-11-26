@@ -62,7 +62,7 @@ export async function run({ interaction, client }) {
     // Check if font exists in figlet
     if (!figlet.fontsSync().includes(font)) {
       return interaction.editReply({
-        content: client.getLocale(locale, "asciiFontInvalid"),
+        content: client.getLocale(locale, "ascii.errors.fontInvalid"),
         ephemeral: true,
       });
     }
@@ -77,7 +77,7 @@ export async function run({ interaction, client }) {
 
     if (asciiArt.length > 8e6) {
       return interaction.editReply({
-        content: client.getLocale(locale, "asciilong"),
+        content: client.getLocale(locale, "ascii.errors.asciiLong"),
         ephemeral: true,
       });
     }
@@ -87,14 +87,14 @@ export async function run({ interaction, client }) {
     });
 
     await interaction.editReply({
-      content: client.getLocale(locale, "asciiSuccess"),
+      content: client.getLocale(locale, "ascii.success"),
       files: [attachment],
       ephemeral: true,
     });
   } catch (error) {
     console.error(error);
     await interaction.editReply({
-      content: client.getLocale(locale, "asciiError"),
+      content: client.getLocale(locale, "ascii.errors.asciiError"),
       ephemeral: true,
     });
   }

@@ -43,11 +43,11 @@ export async function run({ interaction, client }) {
       const embed = new EmbedBuilder()
         .setColor(client.embedColor)
         .addFields({
-          name: client.getLocale(locale, "servercount"),
+          name: client.getLocale(locale, "stats.servercount"),
           value: `${totalGuilds}`,
         })
         .addFields({
-          name: client.getLocale(locale, "membercount"),
+          name: client.getLocale(locale, "stats.membercount"),
           value: `${totalMembers}`,
         });
       return interaction.editReply({ embeds: [embed] });

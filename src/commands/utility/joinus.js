@@ -33,8 +33,8 @@ export async function run({ interaction, client }) {
     .setDescription(
       `${client.getLocale(locale, "joinusdesc")}\n${client.getLocale(
         locale,
-        "btnisntfunc"
-      )} https://dsc.gg/luocat`
+        "joinus.buttonNotWorking"
+      )} https://discord.gg/8pQNPFnBph`
     );
 
   const joinBtn = new ActionRowBuilder().addComponents(

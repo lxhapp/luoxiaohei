@@ -2,6 +2,11 @@ import {
   SlashCommandBuilder,
   InteractionContextType,
   EmbedBuilder,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
 } from "discord.js";
 import { supabase } from "../../db/main.js";
 
@@ -15,29 +20,6 @@ export const data = new SlashCommandBuilder()
     uk: "Продати предмет з інвентаря",
     ja: "インベントリからアイテムを販売する",
   })
-  .addStringOption((option) =>
-    option
-      .setName("item")
-      .setDescription("The item to sell")
-      .setDescriptionLocalizations({
-        ru: "Предмет, который вы хотите продать",
-        uk: "Предмет, який ви хочете продати",
-        ja: "販売するアイテム",
-      })
-      .setRequired(true)
-  )
-  .addIntegerOption((option) =>
-    option
-      .setName("amount")
-      .setDescription("The amount of the item to sell (default: 1)")
-      .setDescriptionLocalizations({
-        ru: "Количество предметов для продажи (по умолчанию: 1)",
-        uk: "Кількість предметів для продажу (за замовчуванням: 1)",
-        ja: "販売するアイテムの数量（デフォルト：1）",
-      })
-      .setMinValue(1)
-      .setMaxValue(24)
-  )
   .setContexts(
     InteractionContextType.Guild,
     InteractionContextType.BotDM,
@@ -46,76 +28,215 @@ export const data = new SlashCommandBuilder()
   .setIntegrationTypes([0, 1]);
 
 export async function run({ interaction, client }) {
-  const itemName = interaction.options.getString("item").trim();
-  const amount = interaction.options.getInteger("amount") || 1;
+  const { locale } = interaction;
 
+  // Fetch user's inventory
   const { data: userItems, error: userItemError } = await supabase
     .from("user_items")
     .select("*, currency_shop(*)")
-    .eq("user_id", interaction.user.id);
+    .eq("user_id", interaction.user.id)
+    .gt("amount", 0);
 
   if (userItemError) {
     console.error("Error fetching user items:", userItemError);
-    const embed = new EmbedBuilder()
-      .setColor(client.embedColor)
-      .setDescription(client.getLocale(interaction.locale, "databaseError"));
-    return interaction.editReply({ embeds: [embed] });
+    return interaction.editReply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(client.embedColor)
+          .setDescription(client.getLocale(locale, "sell.database.error")),
+      ],
+    });
   }
 
-  const userItem = userItems.find(item => 
-    item.currency_shop.name.toLowerCase() === itemName.toLowerCase()
-  );
-
-  if (!userItem) {
-    const embed = new EmbedBuilder()
-      .setColor(client.embedColor)
-      .setDescription(client.getLocale(interaction.locale, "itemNotInInventory"));
-    return interaction.editReply({ embeds: [embed] });
+  if (!userItems || userItems.length === 0) {
+    return interaction.editReply({
+      embeds: [
+        new EmbedBuilder()
+          .setColor(client.embedColor)
+          .setDescription(client.getLocale(locale, "sell.inventory.empty")),
+      ],
+    });
   }
 
-  if (userItem.amount < amount) {
-    const embed = new EmbedBuilder()
-      .setColor(client.embedColor)
-      .setDescription(client.getLocale(interaction.locale, "notEnoughItems"));
-    return interaction.editReply({ embeds: [embed] });
-  }
-
-  // Calculate sell price
-  const originalPrice = userItem.currency_shop.cost;
-  const sellPrice = Math.max(1, Math.floor(originalPrice / 2));
-  const totalSellPrice = sellPrice * amount;
-
-  // Perform the sale
-  const { error: saleError } = await supabase.rpc("sell_item", {
-    p_user_id: interaction.user.id,
-    p_item_id: userItem.item_id,
-    p_amount: amount,
-    p_sell_price: totalSellPrice,
-  });
-
-  if (saleError) {
-    console.error("Error during sale:", saleError);
-    const embed = new EmbedBuilder()
-      .setColor(client.embedColor)
-      .setDescription(client.getLocale(interaction.locale, "saleError"));
-    return interaction.editReply({ embeds: [embed] });
-  }
-
-  const successEmbed = new EmbedBuilder()
+  // Create the sell embed
+  const embed = new EmbedBuilder()
     .setColor(client.embedColor)
-    .setTitle(client.getLocale(interaction.locale, "itemSold"))
-    .setDescription(
-      client
-        .getLocale(interaction.locale, "itemSoldDescription")
-        .replace("{amount}", amount)
-        .replace("{item}", userItem.currency_shop.name)
-        .replace("{price}", totalSellPrice)
-    )
-    .addFields(
-      { name: client.getLocale(interaction.locale, "itemSold"), value: userItem.currency_shop.name, inline: true },
-      { name: client.getLocale(interaction.locale, "soldAmount"), value: `${amount}x`, inline: true },
-      { name: client.getLocale(interaction.locale, "soldPrice"), value: `${totalSellPrice}¥`, inline: true }
+    .setDescription(client.getLocale(locale, "sell.selectItemToSell"));
+
+  // Create the dropdown menu
+  const select = new StringSelectMenuBuilder()
+    .setCustomId("sell_select")
+    .setPlaceholder(client.getLocale(locale, "sell.selectPlaceholder"))
+    .addOptions(
+      userItems.map((item) =>
+        new StringSelectMenuOptionBuilder()
+          .setLabel(item.currency_shop.name)
+          .setDescription(
+            `${Math.floor(item.currency_shop.cost / 2)}¥ each (${
+              item.amount
+            }x ${client.getLocale(locale, "sell.available")})`
+          )
+          .setValue(item.currency_shop.id.toString())
+      )
     );
 
-  return interaction.editReply({ embeds: [successEmbed] });
+  const row = new ActionRowBuilder().addComponents(select);
+  const response = await interaction.editReply({
+    embeds: [embed],
+    components: [row],
+  });
+
+  // Create quantity buttons
+  const quantityRow = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId("sell_one")
+      .setLabel(client.getLocale(locale, "sell.one"))
+      .setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder()
+      .setCustomId("sell_five")
+      .setLabel(client.getLocale(locale, "sell.five"))
+      .setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder()
+      .setCustomId("sell_ten")
+      .setLabel(client.getLocale(locale, "sell.ten"))
+      .setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder()
+      .setCustomId("sell_max")
+      .setLabel(client.getLocale(locale, "sell.max"))
+      .setStyle(ButtonStyle.Primary)
+  );
+
+  const actionRow = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId("skip_item")
+      .setLabel(client.getLocale(locale, "sell.skip"))
+      .setStyle(ButtonStyle.Secondary)
+  );
+
+  const filter = (i) => i.user.id === interaction.user.id;
+  const collector = response.createMessageComponentCollector({
+    filter,
+    time: 300000, // 5 minutes
+  });
+
+  let currentItem = null;
+
+  collector.on("collect", async (i) => {
+    try {
+      if (i.customId === "sell_select") {
+        const selectedItem = userItems.find(
+          (item) => item.currency_shop.id.toString() === i.values[0]
+        );
+        currentItem = selectedItem;
+
+        const quantityEmbed = new EmbedBuilder()
+          .setColor(client.embedColor)
+          .setDescription(
+            client
+              .getLocale(locale, "sell.selectQuantityPreset")
+              .replace("{item}", currentItem.currency_shop.name)
+              .replace(
+                "{price}",
+                Math.floor(currentItem.currency_shop.cost / 2)
+              )
+          );
+
+        await i.update({
+          embeds: [quantityEmbed],
+          components: [quantityRow, actionRow],
+        });
+      } else if (i.customId.startsWith("sell_") && i.customId !== "sell_more") {
+        const quantity = {
+          sell_one: Math.min(1, currentItem.amount),
+          sell_five: Math.min(5, currentItem.amount),
+          sell_ten: Math.min(10, currentItem.amount),
+          sell_max: currentItem.amount,
+        }[i.customId];
+
+        const sellPrice = Math.floor(currentItem.currency_shop.cost / 2);
+        const totalPrice = sellPrice * quantity;
+
+        const { error: saleError } = await supabase.rpc("sell_item", {
+          p_user_id: interaction.user.id,
+          p_item_id: currentItem.currency_shop.id,
+          p_amount: quantity,
+          p_sell_price: totalPrice,
+        });
+
+        if (saleError) {
+          throw new Error(saleError.message);
+        }
+
+        const successEmbed = new EmbedBuilder()
+          .setColor(client.embedColor)
+          .setDescription(
+            client
+              .getLocale(locale, "sell.itemSoldAskMore")
+              .replace("{amount}", quantity)
+              .replace("{item}", currentItem.currency_shop.name)
+              .replace("{price}", totalPrice)
+          );
+
+        const continueRow = new ActionRowBuilder().addComponents(
+          new ButtonBuilder()
+            .setCustomId("sell_more")
+            .setLabel(client.getLocale(locale, "sell.more"))
+            .setStyle(ButtonStyle.Success),
+          new ButtonBuilder()
+            .setCustomId("finish_selling")
+            .setLabel(client.getLocale(locale, "sell.finish"))
+            .setStyle(ButtonStyle.Secondary)
+        );
+
+        await i.update({
+          embeds: [successEmbed],
+          components: [continueRow],
+        });
+      } else if (i.customId === "skip_item" || i.customId === "sell_more") {
+        currentItem = null;
+        await i.update({
+          embeds: [embed],
+          components: [row],
+        });
+      } else if (i.customId === "finish_selling") {
+        const finalEmbed = new EmbedBuilder()
+          .setColor(client.embedColor)
+          .setDescription(client.getLocale(locale, "sell.complete"));
+
+        await i.update({
+          embeds: [finalEmbed],
+          components: [],
+        });
+        collector.stop("finished");
+      }
+    } catch (error) {
+      console.error("Sell interaction error:", error);
+      const errorEmbed = new EmbedBuilder()
+        .setColor(client.embedColor)
+        .setDescription(client.getLocale(locale, "sell.error"));
+
+      await i.update({
+        embeds: [errorEmbed],
+        components: [],
+      });
+      collector.stop("error");
+    }
+  });
+
+  collector.on("end", async (collected, reason) => {
+    if (reason === "time") {
+      try {
+        const timeoutEmbed = new EmbedBuilder()
+          .setColor(client.embedColor)
+          .setDescription(client.getLocale(locale, "sell.timeout"));
+
+        await interaction.editReply({
+          embeds: [timeoutEmbed],
+          components: [],
+        });
+      } catch (error) {
+        console.error("Error sending timeout message:", error);
+      }
+    }
+  });
 }

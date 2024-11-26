@@ -27,8 +27,8 @@ export async function run({ interaction, client }) {
   const { locale } = interaction;
   const invembed = new EmbedBuilder()
     .setColor(client.embedColor)
-    .setTitle(`🌸 ${client.getLocale(locale, "luoxiaohei")}`)
-    .setDescription(client.getLocale(locale, "luoxiaoheidesc"))
+    .setTitle(client.getLocale(locale, "invite.title"))
+    .setDescription(client.getLocale(locale, "invite.description"))
     .setImage(
       "https://raw.githubusercontent.com/lxhapp/files/refs/heads/main/thumbnail.png"
     );
@@ -36,7 +36,7 @@ export async function run({ interaction, client }) {
   const invBtn = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setEmoji("<:luo:1270401166731382867>")
-      .setLabel(client.getLocale(locale, "luoxiaoheiadd"))
+      .setLabel(client.getLocale(locale, "invite.button"))
       .setStyle(ButtonStyle.Link)
       .setURL(
         "https://discordapp.com/oauth2/authorize?client_id=1126444416282927156"
