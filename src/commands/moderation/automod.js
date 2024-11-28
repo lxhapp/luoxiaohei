@@ -109,7 +109,7 @@ export const data = new SlashCommandBuilder()
   .setContexts(InteractionContextType.Guild);
 
 export async function run({ interaction, client }) {
-  const { guild, options, locale } = interaction;
+  const { guild, options  } = interaction;
 
   // Check bot permissions
   if (!await checkBotPermissions(guild, interaction, client)) return;
@@ -118,16 +118,16 @@ export async function run({ interaction, client }) {
     const subcommand = options.getSubcommand();
     const rule = await createAutoModRule(guild, interaction, subcommand);
     
-    await sendResponse(interaction, client, rule ? 'success' : 'alreadyExists');
+    await sendResponse(interaction, client, rule ? 'success' : 'errors.alreadyExists');
   } catch (error) {
     console.error("Error creating AutoMod rule:", error);
-    await sendResponse(interaction, client, 'error');
+    await sendResponse(interaction, client, 'errors.error');
   }
 }
 
 async function checkBotPermissions(guild, interaction, client) {
   if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ManageGuild)) {
-    await sendResponse(interaction, client, 'noPermission');
+    await sendResponse(interaction, client, 'errors.noPermission');
     return false;
   }
   return true;
@@ -136,6 +136,19 @@ async function checkBotPermissions(guild, interaction, client) {
 async function createAutoModRule(guild, interaction, subcommand) {
   const ruleConfig = AUTOMOD_RULES[subcommand];
   if (!ruleConfig) return null;
+
+  // Check existing rules of the same type
+  const existingRules = await guild.autoModerationRules.fetch();
+  const rulesOfSameType = existingRules.filter(rule => rule.triggerType === ruleConfig.triggerType);
+  
+  // Check if maximum limit reached (mention-spam has limit of 1)
+  if (subcommand === 'mention-spam' && rulesOfSameType.size >= 1) {
+    await interaction.editReply({
+      content: interaction.client.getLocale(interaction.locale, 'automod.errors.maxRulesExceeded'),
+      ephemeral: true
+    });
+    return null;
+  }
 
   const baseRule = {
     name: `${capitalizeFirstLetter(subcommand)} - ${interaction.user.tag} (${interaction.user.id})`,

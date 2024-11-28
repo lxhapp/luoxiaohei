@@ -53,7 +53,7 @@ export async function run({ interaction, client }) {
     opponent: user,
     embed: {
       title: client.getLocale(locale, "tictactoe.title"),
-      color: `#212226`,
+      color: client.embedColor,
       statusTitle: client.getLocale(locale, "tictactoe.status"),
       overTitle: client.getLocale(locale, "tictactoe.over"),
     },

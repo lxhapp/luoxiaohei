@@ -6,6 +6,7 @@
   "type": "module",
   "dependencies": {
     "@supabase/supabase-js": "^2.45.6",
+    "canvas": "^2.11.2",
     "discord-gamecord": "^4.4.2",
     "discord.js": "^14.16.2",
     "dotenv": "^16.4.5",

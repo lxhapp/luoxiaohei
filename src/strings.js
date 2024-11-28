@@ -444,6 +444,23 @@ export default {
     },
   },
 
+  demotivator: {
+    errors: {
+      invalidImage: {
+        en: "<:cross:1281580669373382686> Please provide a valid image file",
+        ru: "<:cross:1281580669373382686> Пожалуйста, предоставьте действительный файл изображения",
+        uk: "<:cross:1281580669373382686> Будь ласка, надайте дійсний файл зображення",
+        ja: "<:cross:1281580669373382686> 有効な画像ファイルを提供してください",
+      },
+      creationFailed: {
+        en: "<:cross:1281580669373382686> Failed to create demotivator. Please try again later",
+        ru: "<:cross:1281580669373382686> Не удалось создать демотиватор. Пожалуйста, попробуйте позже",
+        uk: "<:cross:1281580669373382686> Не вдалося створити демотиватор. Будь ласка, спробуйте пізніше",
+        ja: "<:cross:1281580669373382686> デモチベーターの作成に失敗しました。後でもう一度お試しください",
+      },
+    },
+  },
+
   rps: {
     gameApp: {
       en: "<:cross:1281580669373382686> You can't play with a bot",
@@ -488,10 +505,10 @@ export default {
       ja: "チョキ",
     },
     pick: {
-      en: "You picked {emoji} {choice}",
-      ru: "Вы выбрали {emoji} {choice}",
-      uk: "Ви обрали {emoji} {choice}",
-      ja: "あなたは {emoji} {choice} を選びました",
+      en: "You picked {emoji}",
+      ru: "Вы выбрали {emoji}",
+      uk: "Ви обрали {emoji}",
+      ja: "あなたは {emoji} を選びました",
     },
     win: {
       en: "{player} won the game! Congratulations!",
@@ -500,10 +517,10 @@ export default {
       ja: "{player} が勝ちました！おめでとうございます！",
     },
     tie: {
-      en: "It's a tie! Both players picked {emoji} {choice}",
-      ru: "Ничья! Оба игрока выбрали {emoji} {choice}",
-      uk: "Нічия! Обидва гравці обрали {emoji} {choice}",
-      ja: "引き分けです！両プレイヤーとも {emoji} {choice} を選びました",
+      en: "It's a tie! Both players picked {emoji}",
+      ru: "Ничья! Оба игрока выбрали {emoji}",
+      uk: "Нічия! Обидва гравці обрали {emoji}",
+      ja: "引き分けです！両プレイヤーとも {emoji} を選びました",
     },
     timeout: {
       en: "Game timed out! No one made a choice",
@@ -750,87 +767,35 @@ export default {
   automod: {
     errors: {
       noPermission: {
-        en: "<:cross:1281580669373382686> I need the `Manage Server` permission to set up AutoMod rules",
+        en: "<:cross:1281580669373382686> I need the `Manage Server` permission to configure AutoMod rules",
         ru: "<:cross:1281580669373382686> Мне нужно разрешение `Управление сервером` для настройки правил AutoMod",
         uk: "<:cross:1281580669373382686> Мені потрібен дозвіл `Керування сервером` для налаштування правил AutoMod",
         ja: "<:cross:1281580669373382686> AutoModルールを設定するには`サーバーの管理`権限が必要です",
       },
-      error: {
-        en: "<:cross:1281580669373382686> An error occurred while setting up the AutoMod rule",
-        ru: "<:cross:1281580669373382686> Произошла ошибка при настройке правила AutoMod",
-        uk: "<:cross:1281580669373382686> Сталася помилка при налаштуванні правила AutoMod",
-        ja: "<:cross:1281580669373382686> AutoModルールの設定中にエラーが発生しました",
-      },
       alreadyExists: {
-        en: "<:cross:1281580669373382686> This AutoMod rule already exists",
-        ru: "<:cross:1281580669373382686> Это правило AutoMod уже существует",
-        uk: "<:cross:1281580669373382686> Це правило AutoMod вже існує",
-        ja: "<:cross:1281580669373382686> このAutoModルールは既に存在します",
+        en: "<:cross:1281580669373382686> This AutoMod rule already exists in this server",
+        ru: "<:cross:1281580669373382686> Это правило AutoMod уже существует на этом сервере",
+        uk: "<:cross:1281580669373382686> Це правило AutoMod вже існує на цьому сервері",
+        ja: "<:cross:1281580669373382686> このAutoModルールは既にこのサーバーに存在します",
+      },
+      maxRulesExceeded: {
+        en: "<:cross:1281580669373382686> Maximum number of rules of this type has been reached",
+        ru: "<:cross:1281580669373382686> Достигнуто максимальное количество правил этого типа",
+        uk: "<:cross:1281580669373382686> Досягнуто максимальну кількість правил цього типу",
+        ja: "<:cross:1281580669373382686> このタイプのルールの最大数に達しました",
+      },
+      error: {
+        en: "<:cross:1281580669373382686> An error occurred while creating the AutoMod rule",
+        ru: "<:cross:1281580669373382686> Произошла ошибка при создании правила AutoMod",
+        uk: "<:cross:1281580669373382686> Сталася помилка під час створення правила AutoMod",
+        ja: "<:cross:1281580669373382686> AutoModルールの作成中にエラーが発生しました",
       },
     },
     success: {
-      en: "<:check:1281579844089675810> Successfully set up the AutoMod rule",
-      ru: "<:check:1281579844089675810> Правило AutoMod успешно настроено",
-      uk: "<:check:1281579844089675810> Правило AutoMod успішно налаштовано",
-      ja: "<:check:1281579844089675810> AutoModルールを正常に設定しました",
-    },
-    rules: {
-      flaggedWords: {
-        name: {
-          en: "Flagged Words Filter",
-          ru: "Фильтр запрещенных слов",
-          uk: "Фільтр заборонених слів",
-          ja: "不適切な言葉フィルター",
-        },
-        description: {
-          en: "Blocks messages containing profanity, sexual content, or slurs",
-          ru: "Блокирует сообщения, содержащие нецензурную лексику, сексуальный контент или оскорбления",
-          uk: "Блокує повідомлення, що містять нецензурну лексику, сексуальний контент або образи",
-          ja: "不適切な言葉、性的なコンテンツ、差別的な表現を含むメッセージをブロックします",
-        },
-      },
-      spamMessages: {
-        name: {
-          en: "Spam Protection",
-          ru: "Защита от спама",
-          uk: "Захист від спаму",
-          ja: "スパム保護",
-        },
-        description: {
-          en: "Blocks messages that are detected as spam",
-          ru: "Блокирует сообщения, определенные как спам",
-          uk: "Блокує повідомлення, визначені як спам",
-          ja: "スパムと判定されたメッセージをブロックします",
-        },
-      },
-      mentionSpam: {
-        name: {
-          en: "Mention Spam Protection",
-          ru: "Защита от спама упоминаний",
-          uk: "Захист від спаму згадувань",
-          ja: "メンションスパム保護",
-        },
-        description: {
-          en: "Blocks messages with excessive mentions ({amount} or more)",
-          ru: "Блокирует сообщения с чрезмерным количеством упоминаний ({amount} или более)",
-          uk: "Блокує повідомлення з надмірною кількістю згадувань ({amount} або більше)",
-          ja: "過剰なメンション（{amount}以上）を含むメッセージをブロックします",
-        },
-      },
-      keyword: {
-        name: {
-          en: "Keyword Filter",
-          ru: "Фильтр ключевых слов",
-          uk: "Фільтр ключових слів",
-          ja: "キーワードフィルター",
-        },
-        description: {
-          en: "Blocks messages containing the keyword: {word}",
-          ru: "Блокирует сообщения, содержащие ключевое слово: {word}",
-          uk: "Блокує повідомлення, що містять ключове слово: {word}",
-          ja: "キーワード「{word}」を含むメッセージをブロックします",
-        },
-      },
+      en: "<:check:1281579844089675810> Successfully created AutoMod rule",
+      ru: "<:check:1281579844089675810> Правило AutoMod успешно создано",
+      uk: "<:check:1281579844089675810> Правило AutoMod успішно створено",
+      ja: "<:check:1281579844089675810> AutoModルールが正常に作成されました",
     },
   },
 

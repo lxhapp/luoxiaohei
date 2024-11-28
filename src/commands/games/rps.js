@@ -51,9 +51,9 @@ export async function run({ interaction, client }) {
     isSlashGame: true,
     opponent: user,
     embed: {
-      title: client.getLocale(locale, "rps"),
-      color: `#212226`,
-      description: client.getLocale(locale, "rpsDesc"),
+      title: client.getLocale(locale, "rps.title"),
+      color: client.embedColor,
+      description: client.getLocale(locale, "rps.description"),
     },
     buttons: {
       rock: client.getLocale(locale, "rps.rock"),
