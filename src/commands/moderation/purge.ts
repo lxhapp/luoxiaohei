@@ -33,15 +33,13 @@ export const data = new SlashCommandBuilder()
 export async function run({ interaction, client }) {
   const { locale } = interaction;
   const embed = new EmbedBuilder().setColor(client.embedColor);
-
-  // Check for both required permissions
   const requiredPermissions = [
     PermissionsBitField.Flags.ManageMessages,
-    PermissionsBitField.Flags.ViewChannel
+    PermissionsBitField.Flags.ViewChannel,
   ];
 
   const missingPermissions = requiredPermissions.filter(
-    perm => !interaction.guild.members.me.permissions.has(perm)
+    (perm) => !interaction.guild.members.me.permissions.has(perm)
   );
 
   if (missingPermissions.length > 0) {
@@ -71,7 +69,8 @@ export async function run({ interaction, client }) {
         new EmbedBuilder()
           .setColor(client.embedColor)
           .setDescription(
-            client.getLocale(locale, "purge.success")
+            client
+              .getLocale(locale, "purge.success")
               .replace("${fetchedMessages}", fetchedMessages.size)
           )
           .setAuthor({
@@ -81,6 +80,6 @@ export async function run({ interaction, client }) {
       ],
     });
   } catch (error) {
-    console.error('Purge error:', error);
+    console.error("Purge error:", error);
   }
 }

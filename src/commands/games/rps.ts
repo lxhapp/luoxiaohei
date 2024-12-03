@@ -73,7 +73,7 @@ export async function run({ interaction, client }) {
     tieMessage: client.getLocale(locale, "rps.tie"),
     timeoutMessage: client.getLocale(locale, "rps.timeout"),
     playerOnlyMessage: client.getLocale(locale, "rps.onPOnly"),
-  });
+  } as any);
 
   game.startGame();
 }

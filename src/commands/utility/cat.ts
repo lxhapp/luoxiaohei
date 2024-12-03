@@ -30,7 +30,11 @@ export async function run({ interaction, client }) {
       url: url,
       json: true,
     },
-    (error, response, body) => {
+    (
+      error: any,
+      response: { statusCode: number },
+      body: { forEach: (arg0: (catObject: any) => void) => void; url: string }
+    ) => {
       if (!error && response.statusCode === 200) {
         if (Array.isArray(body)) {
           body.forEach((catObject) => {

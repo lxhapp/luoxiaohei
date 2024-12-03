@@ -5,7 +5,7 @@ import {
 } from "discord.js";
 import request from "request";
 
-function correctDate(number) {
+function correctDate(number: number) {
   return number < 10 ? `0${number}` : number;
 }
 

@@ -26,63 +26,18 @@ import {
 } from "discord.js";
 import { supabase } from "./db/main.js";
 
-class RateLimiter {
-  constructor(maxRetries = 3, initialDelay = 1000) {
-    this.maxRetries = maxRetries;
-    this.initialDelay = initialDelay;
-    this.attempts = new Map();
-    this.locks = new Map();
-  }
-
-  async acquire(key) {
-    while (this.locks.get(key)) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
-    }
-    this.locks.set(key, true);
-  }
-
-  release(key) {
-    this.locks.delete(key);
-  }
-
-  calculateDelay(attempt) {
-    return Math.min(this.initialDelay * Math.pow(2, attempt), 10000); // Max 10s delay
-  }
-
-  async execute(key, operation) {
-    try {
-      await this.acquire(key);
-
-      let attempt = this.attempts.get(key) || 0;
-      let lastError;
-
-      while (attempt < this.maxRetries) {
-        try {
-          const result = await operation();
-          this.attempts.set(key, 0); // Reset attempts on success
-          return result;
-        } catch (error) {
-          lastError = error;
-          attempt++;
-          this.attempts.set(key, attempt);
-
-          if (attempt < this.maxRetries) {
-            const delay = this.calculateDelay(attempt - 1);
-            await new Promise((resolve) => setTimeout(resolve, delay));
-          }
-        }
-      }
-
-      throw new Error(
-        `Operation failed after ${this.maxRetries} retries. Last error: ${lastError.message}`
-      );
-    } finally {
-      this.release(key);
-    }
-  }
-}
+import RateLimiter from "./class/rate-limiter.js";
 
 class MainClient extends Client {
+  rateLimiter: RateLimiter;
+  commands: Collection<string, any>;
+  cooldowns: Collection<string, any>;
+  embedColor: string;
+  rest: REST;
+  getLocale: (code: string, path: string) => string;
+  currency: Map<string, any>;
+  supabase: any;
+
   constructor() {
     super({
       intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
@@ -105,12 +60,10 @@ class MainClient extends Client {
     this.embedColor = "#111216";
     this.rest = new REST().setToken(process.env.token);
 
-    this.getLocale = new Collection();
-    this.getLocale = function (code, path) {
+    this.getLocale = function (code: string, path: string) {
       try {
         const parts = path.split(".");
 
-        // Navigate through the nested structure
         let current = strings;
         for (const part of parts.slice(0, -1)) {
           current = current[part];
@@ -120,7 +73,6 @@ class MainClient extends Client {
         const translations = current[parts[parts.length - 1]];
         if (!translations) return path;
 
-        // Return requested language or fall back to English
         return translations[code] || translations.en || path;
       } catch (error) {
         console.error(
@@ -135,12 +87,11 @@ class MainClient extends Client {
     this.supabase = supabase;
   }
 
-  async addBalance(id, amount) {
+  async addBalance(id: string, amount: number) {
     const operationKey = `addBalance:${id}`;
 
     try {
       return await this.rateLimiter.execute(operationKey, async () => {
-        // Check Supabase connection
         const { error: connectionError } = await this.supabase
           .from("users")
           .select("count")
@@ -153,7 +104,6 @@ class MainClient extends Client {
           );
         }
 
-        // Fetch user data
         let { data: userData, error: fetchError } = await this.supabase
           .from("users")
           .select("*")
@@ -166,7 +116,6 @@ class MainClient extends Client {
 
         let newBalance;
         if (!userData) {
-          // Create new user
           newBalance = amount;
           const { data, error } = await this.supabase
             .from("users")
@@ -179,7 +128,6 @@ class MainClient extends Client {
           }
           userData = data;
         } else {
-          // Update existing user
           newBalance = userData.balance + amount;
           const { data, error } = await this.supabase
             .from("users")
@@ -234,13 +182,13 @@ class MainClient extends Client {
     for (const folder of commandFolders) {
       const commandsPath = path.join(foldersPath, folder);
       const commandFiles = readdirSync(commandsPath).filter(
-        (file) => file.endsWith(".js") || file.endsWith(".ts")
+        (file) => file.endsWith(".js")
       );
 
       for (const file of commandFiles) {
         try {
           const filePath = path.join(commandsPath, file);
-          const fileUrl = pathToFileURL(filePath);
+          const fileUrl = pathToFileURL(filePath).toString();
           const command = await import(fileUrl);
 
           if ("data" in command && "run" in command) {
@@ -269,13 +217,13 @@ class MainClient extends Client {
     const __dirname = path.dirname(__filename);
     const eventsPath = path.join(__dirname, ".", "events");
     const eventFiles = readdirSync(eventsPath).filter(
-      (file) => file.endsWith(".js") || file.endsWith(".ts")
+      (file) => file.endsWith(".js")
     );
 
     for (const file of eventFiles) {
       try {
         const filePath = path.join(eventsPath, file);
-        const fileUrl = pathToFileURL(filePath);
+        const fileUrl = pathToFileURL(filePath).toString();
         const event = await import(fileUrl);
         if (event.once) {
           this.once(event.name, (...args) => event.execute(...args));
@@ -295,13 +243,15 @@ class MainClient extends Client {
         `Started refreshing ${commands.length} application (/) commands`
       );
 
-      const data = await this.rest.put(
+      const data = (await this.rest.put(
         Routes.applicationCommands(process.env.clientid),
         { body: commands }
-      );
+      )) as any[];
 
       console.log(
-        `Successfully reloaded ${data.length} application (/) commands`
+        `Successfully reloaded ${
+          (data as any[]).length
+        } application (/) commands`
       );
     } catch (error) {
       console.error("Error refreshing application commands:", error);

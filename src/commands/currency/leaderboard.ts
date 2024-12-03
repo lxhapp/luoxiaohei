@@ -52,13 +52,11 @@ export async function run({ interaction, client }) {
   }
 }
 
-async function showLeaderboard(interaction, client) {
+async function showLeaderboard(interaction: any, client: any) {
   const { locale } = interaction;
-  // Fetch top 10 users from Supabase, excluding those with 0 balance
   const { data: leaderboardData, error } = await supabase
     .from("users")
     .select("user_id, balance, is_anonymous, verified")
-    .gt("balance", 0) // This line filters out users with 0 or less balance
     .order("balance", { ascending: false })
     .limit(10);
 
@@ -73,7 +71,6 @@ async function showLeaderboard(interaction, client) {
     );
   }
 
-  // Fetch user data for valid entries
   const userPromises = leaderboardData.map((entry) =>
     client.users.fetch(entry.user_id).catch(() => null)
   );
@@ -108,18 +105,16 @@ async function showLeaderboard(interaction, client) {
   return interaction.editReply({ embeds: [embed] });
 }
 
-async function handleToggleAnonymous(interaction, client) {
+async function handleToggleAnonymous(interaction: any, client: any) {
   const userId = interaction.user.id;
   const { locale } = interaction;
 
-  // First, try to fetch current user data
   let { data: userData, error: fetchError } = await supabase
     .from("users")
     .select("is_anonymous")
     .eq("user_id", userId)
     .single();
 
-  // If user doesn't exist, create a new user record
   if (fetchError && fetchError.code === "PGRST116") {
     const { data: newUser, error: createError } = await supabase
       .from("users")
@@ -137,7 +132,7 @@ async function handleToggleAnonymous(interaction, client) {
     if (createError) {
       console.error("Error creating user:", createError);
       return interaction.editReply(
-        client.getLocale(locale, "leaderboard.errorCreatingUser")
+        client.getLocale(locale, "leaderboard.errors.create_user")
       );
     }
 
@@ -145,13 +140,12 @@ async function handleToggleAnonymous(interaction, client) {
   } else if (fetchError) {
     console.error("Error fetching user data:", fetchError);
     return interaction.editReply(
-      client.getLocale(locale, "leaderboard.errorFetchingUserData")
+      client.getLocale(locale, "leaderboard.errors.fetch_data")
     );
   }
 
   const newAnonymousState = !userData.is_anonymous;
 
-  // Update user's anonymous state
   const { error: updateError } = await supabase
     .from("users")
     .update({ is_anonymous: newAnonymousState })
@@ -160,7 +154,7 @@ async function handleToggleAnonymous(interaction, client) {
   if (updateError) {
     console.error("Error updating user data:", updateError);
     return interaction.editReply(
-      client.getLocale(locale, "leaderboard.errorUpdatingUserData")
+      client.getLocale(locale, "leaderboard.errors.update_data")
     );
   }
 

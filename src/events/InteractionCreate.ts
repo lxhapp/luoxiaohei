@@ -1,37 +1,31 @@
-import { Events, EmbedBuilder, Collection } from "discord.js";
+import { Events, EmbedBuilder, Collection, Interaction } from "discord.js";
 const DEFAULT_COOLDOWN_DURATION = 3;
 
 export const name = Events.InteractionCreate;
-export async function execute(interaction) {
+export async function execute(interaction: any) {
   if (!interaction?.isChatInputCommand()) return;
 
   const { client, commandName, user } = interaction;
   const command = client.commands.get(commandName);
 
   try {
-    // Validate command exists
     if (!command) {
       console.error(`No command matching ${commandName} was found`);
       return await sendErrorResponse(interaction, "command_not_found");
     }
 
-    // Check interaction validity
     if (!interaction.isRepliable()) {
       console.log("Interaction is no longer valid");
       return await sendErrorResponse(interaction, "interaction_invalid");
     }
 
-    // Check beta access and cooldown
     if (await checkBetaAccess(interaction, command)) return;
     if (await checkCooldown(interaction, command)) return;
 
-    // Log command usage
     console.log(`${user.id} | ${user.tag} ~ ${buildLogMessage(interaction)}`);
 
-    // Defer reply
     await interaction.deferReply();
 
-    // Execute command with timeout
     await executeCommandWithTimeout(interaction, command);
   } catch (error) {
     console.error("Command execution error:", error);
@@ -40,7 +34,7 @@ export async function execute(interaction) {
   }
 }
 
-async function executeCommandWithTimeout(interaction, command) {
+async function executeCommandWithTimeout(interaction: any, command: any) {
   const commandPromise = command.run({
     interaction,
     client: interaction.client,
@@ -59,7 +53,7 @@ async function executeCommandWithTimeout(interaction, command) {
   }
 }
 
-function buildLogMessage(interaction) {
+function buildLogMessage(interaction: any) {
   const { commandName, options } = interaction;
   let message = `/${commandName}`;
 
@@ -95,7 +89,7 @@ function buildLogMessage(interaction) {
   return message;
 }
 
-async function checkBetaAccess(interaction, command) {
+async function checkBetaAccess(interaction: any, command: any) {
   if (command.beta && interaction.user.id !== "1053012080812359750") {
     if (!interaction.replied && !interaction.deferred) return true;
     const embed = new EmbedBuilder()
@@ -113,14 +107,12 @@ async function checkBetaAccess(interaction, command) {
   return false;
 }
 
-async function checkCooldown(interaction, command) {
+async function checkCooldown(interaction: any, command: any) {
   const { cooldowns } = interaction.client;
 
-  // Clean up expired cooldowns first
   if (cooldowns.has(command.data.name)) {
     const timestamps = cooldowns.get(command.data.name);
     const now = Date.now();
-    // Clean up any expired entries
     [...timestamps.entries()].forEach(([userId, timestamp]) => {
       const cooldownAmount =
         (command.cooldown ?? DEFAULT_COOLDOWN_DURATION) * 1000;
@@ -129,13 +121,11 @@ async function checkCooldown(interaction, command) {
       }
     });
 
-    // If map is empty after cleanup, delete it
     if (timestamps.size === 0) {
       cooldowns.delete(command.data.name);
     }
   }
 
-  // Initialize cooldown collection if needed
   if (!cooldowns.has(command.data.name)) {
     cooldowns.set(command.data.name, new Collection());
   }
@@ -171,9 +161,9 @@ async function checkCooldown(interaction, command) {
   return false;
 }
 
-async function handleCommandError(interaction) {
-  console.warn(`Error executing command: ${error.message}`);
-  console.error(error);
+async function handleCommandError(interaction: any) {
+  console.warn("Error executing command: " + interaction.error?.message);
+  console.error(interaction.error);
 
   const embed = new EmbedBuilder()
     .setColor(interaction.client.embedColor)
@@ -191,15 +181,14 @@ async function handleCommandError(interaction) {
   }
 }
 
-async function sendErrorResponse(interaction, errorType) {
+async function sendErrorResponse(interaction: any, errorType: string) {
+  const error = interaction.client.getLocale(
+    interaction.locale,
+    `InteractionCreate.error.${errorType}`
+  );
   const embed = new EmbedBuilder()
     .setColor(interaction.client.embedColor)
-    .setDescription(
-      interaction.client.getLocale(
-        interaction.locale,
-        `InteractionCreate.error.${errorType}`
-      )
-    );
+    .setDescription(error);
 
   if (interaction.replied || interaction.deferred) {
     await interaction.followUp({ embeds: [embed], ephemeral: true });
@@ -208,14 +197,12 @@ async function sendErrorResponse(interaction, errorType) {
   }
 }
 
-function cleanupCooldown(interaction) {
+function cleanupCooldown(interaction: any) {
   const { cooldowns } = interaction.client;
 
-  // Clean up expired cooldowns first
   if (cooldowns.has(interaction.commandName)) {
     const timestamps = cooldowns.get(interaction.commandName);
     const now = Date.now();
-    // Clean up any expired entries
     [...timestamps.entries()].forEach(([userId, timestamp]) => {
       const cooldownAmount =
         (interaction.client.commands.get(interaction.commandName).cooldown ??
@@ -225,7 +212,6 @@ function cleanupCooldown(interaction) {
       }
     });
 
-    // If map is empty after cleanup, delete it
     if (timestamps.size === 0) {
       cooldowns.delete(interaction.commandName);
     }

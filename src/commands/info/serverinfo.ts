@@ -27,7 +27,8 @@ export async function run({ interaction, client }) {
   if (baseVerif === 1) baseVerif = client.getLocale(locale, `serverinfo.low`);
   if (baseVerif === 2) baseVerif = client.getLocale(locale, `serverinfo.mid`);
   if (baseVerif === 3) baseVerif = client.getLocale(locale, `serverinfo.high`);
-  if (baseVerif === 4) baseVerif = client.getLocale(locale, `serverinfo.veryhigh`);
+  if (baseVerif === 4)
+    baseVerif = client.getLocale(locale, `serverinfo.veryhigh`);
 
   const sinfoEmbed = new EmbedBuilder()
     .setColor(client.embedColor)
@@ -47,7 +48,7 @@ export async function run({ interaction, client }) {
     })
     .addFields({
       name: client.getLocale(locale, `serverinfo.creation`),
-      value: `<t:${parseInt(createdTimestamp / 1000)}:R>`,
+      value: `<t:${createdTimestamp / 1000}:R>`,
       inline: true,
     })
     .addFields({

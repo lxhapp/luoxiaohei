@@ -1,12 +1,12 @@
 import { Events } from "discord.js";
 import { supabase } from "../db/main.js";
+import MainClient from "../luoxiaohei.js";
 
 export const name = Events.ClientReady;
 export const once = true;
-export async function execute(client) {
-  console.log(`Logged in as ${client.user.tag}`)
+export async function execute(client: MainClient) {
+  console.log(`Logged in as ${client.user.tag}`);
   try {
-    // Check if the users table exists
     const { data, error } = await supabase
       .from("users")
       .select("user_id, balance")
@@ -32,14 +32,12 @@ CREATE TABLE public.users (
 
     console.log("Supabase connection successful");
 
-    // Fetch all user balances
     const { data: storedBalances, error: balancesError } = await supabase
       .from("users")
       .select("user_id, balance");
 
     if (balancesError) throw balancesError;
 
-    // Populate the client's currency cache
     storedBalances.forEach((b) => client.currency.set(b.user_id, b));
   } catch (error) {
     console.error(error);

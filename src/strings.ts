@@ -139,7 +139,7 @@ export default {
         ja: "<:check:1281579844089675810> リーダーボードで匿名ではなくなりました",
       },
     },
-    error: {
+    errors: {
       create_user: {
         en: "<:cross:1281580669373382686> Error creating user profile",
         ru: "<:cross:1281580669373382686> Ошибка при создании профиля пользователя",

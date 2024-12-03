@@ -1,6 +1,6 @@
 import { supabase } from "./main.js";
 
-const CURRENCY_SHOP_TABLE = 'currency_shop';
+const CURRENCY_SHOP_TABLE = "currency_shop";
 
 async function initializeShop() {
   const shopItems = [
@@ -13,7 +13,7 @@ async function initializeShop() {
   for (const item of shopItems) {
     const { data, error } = await supabase
       .from(CURRENCY_SHOP_TABLE)
-      .upsert(item, { onConflict: 'name' })
+      .upsert(item, { onConflict: "name" })
       .select();
 
     if (error) {

@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "es2021",
+    "module": "es2022",
+    "lib": ["es2021"],
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": false,
+    "moduleResolution": "node10",
+    "esModuleInterop": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*", "src/types/**/*", ".env"],
+  "exclude": ["dist", "node_modules", "tests"]
+}

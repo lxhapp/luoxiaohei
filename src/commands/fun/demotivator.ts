@@ -2,7 +2,7 @@ import {
   SlashCommandBuilder,
   InteractionContextType,
   AttachmentBuilder,
-} from "discord.js";  
+} from "discord.js";
 import { createCanvas, loadImage } from "canvas";
 import path from "path";
 

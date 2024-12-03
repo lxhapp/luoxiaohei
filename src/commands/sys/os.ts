@@ -5,7 +5,7 @@ import {
 } from "discord.js";
 import { hostname, totalmem, freemem, cpus, arch, release } from "os";
 
-function formatBytes(bytes, decimals = 2) {
+function formatBytes(bytes: number, decimals = 2) {
   if (!+bytes) return "0 B";
 
   const k = 1024;

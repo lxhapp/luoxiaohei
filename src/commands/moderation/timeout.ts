@@ -64,7 +64,6 @@ export const data = new SlashCommandBuilder()
 export async function run({ interaction, client }) {
   const { locale } = interaction;
 
-  // Check if command is used in a guild
   if (!interaction.guild) {
     return interaction.editReply({
       embeds: [
@@ -82,7 +81,6 @@ export async function run({ interaction, client }) {
   const sendDM = interaction.options.getBoolean("dm") ?? true;
   const duration = interaction.options.getString("duration");
 
-  // Check if trying to timeout self
   if (targetUser.id === interaction.user.id) {
     return interaction.editReply({
       embeds: [

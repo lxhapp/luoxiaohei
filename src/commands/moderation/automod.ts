@@ -6,28 +6,28 @@ import {
 } from "discord.js";
 
 const AUTOMOD_RULES = {
-  'flagged-words': {
+  "flagged-words": {
     triggerType: 4,
     triggerMetadata: {
-      presets: [1, 2, 3], // Profanity, Sexual Content, Slurs
-    }
+      presets: [1, 2, 3],
+    },
   },
-  'spam-messages': {
+  "spam-messages": {
     triggerType: 3,
-    triggerMetadata: {}
+    triggerMetadata: {},
   },
-  'mention-spam': {
+  "mention-spam": {
     triggerType: 5,
-    triggerMetadata: (amount) => ({
-      mentionTotalLimit: amount
-    })
+    triggerMetadata: (amount: number) => ({
+      mentionTotalLimit: amount,
+    }),
   },
-  'keyword': {
+  keyword: {
     triggerType: 1,
-    triggerMetadata: (word) => ({
-      keywordFilter: [word]
-    })
-  }
+    triggerMetadata: (word: string) => ({
+      keywordFilter: [word],
+    }),
+  },
 };
 
 export const beta = false;
@@ -109,63 +109,81 @@ export const data = new SlashCommandBuilder()
   .setContexts(InteractionContextType.Guild);
 
 export async function run({ interaction, client }) {
-  const { guild, options  } = interaction;
+  const { guild, options } = interaction;
 
   // Check bot permissions
-  if (!await checkBotPermissions(guild, interaction, client)) return;
+  if (!(await checkBotPermissions(guild, interaction, client))) return;
 
   try {
     const subcommand = options.getSubcommand();
     const rule = await createAutoModRule(guild, interaction, subcommand);
-    
-    await sendResponse(interaction, client, rule ? 'success' : 'errors.alreadyExists');
+
+    await sendResponse(
+      interaction,
+      client,
+      rule ? "success" : "errors.alreadyExists"
+    );
   } catch (error) {
     console.error("Error creating AutoMod rule:", error);
-    await sendResponse(interaction, client, 'errors.error');
+    await sendResponse(interaction, client, "errors.error");
   }
 }
 
-async function checkBotPermissions(guild, interaction, client) {
-  if (!guild.members.me.permissions.has(PermissionsBitField.Flags.ManageGuild)) {
-    await sendResponse(interaction, client, 'errors.noPermission');
+async function checkBotPermissions(guild: any, interaction: any, client: any) {
+  if (
+    !guild.members.me.permissions.has(PermissionsBitField.Flags.ManageGuild)
+  ) {
+    await sendResponse(interaction, client, "errors.noPermission");
     return false;
   }
   return true;
 }
 
-async function createAutoModRule(guild, interaction, subcommand) {
+async function createAutoModRule(
+  guild: any,
+  interaction: any,
+  subcommand: any
+) {
   const ruleConfig = AUTOMOD_RULES[subcommand];
   if (!ruleConfig) return null;
 
-  // Check existing rules of the same type
   const existingRules = await guild.autoModerationRules.fetch();
-  const rulesOfSameType = existingRules.filter(rule => rule.triggerType === ruleConfig.triggerType);
-  
-  // Check if maximum limit reached (mention-spam has limit of 1)
-  if (subcommand === 'mention-spam' && rulesOfSameType.size >= 1) {
+  const rulesOfSameType = existingRules.filter(
+    (rule: any) => rule.triggerType === ruleConfig.triggerType
+  );
+
+  if (subcommand === "mention-spam" && rulesOfSameType.size > 1) {
     await interaction.editReply({
-      content: interaction.client.getLocale(interaction.locale, 'automod.errors.maxRulesExceeded'),
-      ephemeral: true
+      content: interaction.client.getLocale(
+        interaction.locale,
+        "automod.errors.maxRulesExceeded"
+      ),
+      ephemeral: true,
     });
     return null;
   }
 
   const baseRule = {
-    name: `${capitalizeFirstLetter(subcommand)} - ${interaction.user.tag} (${interaction.user.id})`,
+    name: `${capitalizeFirstLetter(subcommand)} - ${interaction.user.tag} (${
+      interaction.user.id
+    })`,
     creatorId: interaction.client.user.id,
     enabled: true,
     eventType: 1,
     triggerType: ruleConfig.triggerType,
-    triggerMetadata: typeof ruleConfig.triggerMetadata === 'function' 
-      ? ruleConfig.triggerMetadata(getOptionValue(interaction, subcommand))
-      : ruleConfig.triggerMetadata,
-    actions: [{
-      type: 1,
-      metadata: {
-        channel: interaction.channel,
-        durationSeconds: 10,
+    triggerMetadata:
+      typeof ruleConfig.triggerMetadata === "function"
+        ? ruleConfig.triggerMetadata(getOptionValue(interaction, subcommand))
+        : ruleConfig.triggerMetadata,
+    actions: [
+      {
+        type: 1,
+        metadata: {
+          channel: interaction.channel,
+          durationSeconds: 10,
+        },
       },
-    }],
+    ],
   };
 
   return await guild.autoModerationRules.create(baseRule);
@@ -173,10 +191,10 @@ async function createAutoModRule(guild, interaction, subcommand) {
 
 function getOptionValue(interaction, subcommand) {
   switch (subcommand) {
-    case 'mention-spam':
-      return interaction.options.getInteger('amount');
-    case 'keyword':
-      return interaction.options.getString('word');
+    case "mention-spam":
+      return interaction.options.getInteger("amount");
+    case "keyword":
+      return interaction.options.getString("word");
     default:
       return null;
   }

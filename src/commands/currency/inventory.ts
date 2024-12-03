@@ -5,6 +5,17 @@ import {
 } from "discord.js";
 import { supabase } from "../../db/main.js";
 
+interface ShopItem {
+  id: number;
+  name: string;
+  cost: number;
+}
+
+interface InventoryItem {
+  amount: number;
+  currency_shop: ShopItem;
+}
+
 export const beta = false;
 export const cooldown = 11;
 export const data = new SlashCommandBuilder()
@@ -36,8 +47,7 @@ export const data = new SlashCommandBuilder()
 export async function run({ interaction, client }) {
   const targetUser = interaction.options.getUser("user") || interaction.user;
 
-  // Fetch inventory items
-  const { data: items, error } = await supabase
+  const { data: items, error } = (await supabase
     .from("user_items")
     .select(
       `
@@ -51,8 +61,10 @@ export async function run({ interaction, client }) {
     )
     .eq("user_id", targetUser.id)
     .gt("amount", 0)
-    .order("amount", { ascending: false });
-
+    .order("amount", { ascending: false })) as {
+    data: InventoryItem[];
+    error: any;
+  };
   if (error) {
     console.error("Error fetching inventory:", error);
     return interaction.editReply(
@@ -66,7 +78,6 @@ export async function run({ interaction, client }) {
     );
   }
 
-  // Create embed
   const embed = new EmbedBuilder()
     .setColor(client.embedColor)
     .setTitle(
@@ -76,11 +87,10 @@ export async function run({ interaction, client }) {
     )
     .setThumbnail(targetUser.displayAvatarURL({ dynamic: true }));
 
-  // Add items to embed
   let totalItems = 0;
-  items.forEach((item) => {
+  items.forEach((item: InventoryItem) => {
     if (item.currency_shop && item.amount > 0) {
-      const amount = parseInt(item.amount);
+      const amount = parseInt(item.amount.toString());
       embed.addFields({
         name: item.currency_shop.name,
         value: `x${amount}`,
@@ -90,7 +100,6 @@ export async function run({ interaction, client }) {
     }
   });
 
-  // Add inventory size info
   const maxSlots = 24;
   const availableSlots = maxSlots - totalItems;
   const sizeText =

@@ -61,12 +61,12 @@ export async function run({ interaction, client }) {
     })
     .addFields({
       name: client.getLocale(locale, `whois.joinedAt`),
-      value: `<t:${parseInt(member.joinedAt / 1000)}:R>`,
+      value: `<t:${member.joinedAt / 1000}:R>`,
       inline: true,
     })
     .addFields({
       name: client.getLocale(locale, `whois.createdAt`),
-      value: `<t:${parseInt(user.createdAt / 1000)}:R>`,
+      value: `<t:${user.createdAt / 1000}:R>`,
       inline: true,
     })
     .addFields({

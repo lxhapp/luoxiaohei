@@ -3,7 +3,10 @@ import {
   InteractionContextType,
   AttachmentBuilder,
 } from "discord.js";
+import { promisify } from "util";
 import figlet from "figlet";
+
+const figletAsync = promisify<string, figlet.Options, string>(figlet);
 
 export const beta = false;
 export const cooldown = 30;
@@ -55,11 +58,8 @@ export async function run({ interaction, client }) {
   try {
     const text = interaction.options.getString("text");
     let font = interaction.options.getString("font") || "Standard";
-
-    // Capitalize first letter of font name
     font = font.charAt(0).toUpperCase() + font.slice(1).toLowerCase();
 
-    // Check if font exists in figlet
     if (!figlet.fontsSync().includes(font)) {
       return interaction.editReply({
         content: client.getLocale(locale, "ascii.errors.fontInvalid"),
@@ -67,7 +67,7 @@ export async function run({ interaction, client }) {
       });
     }
 
-    const asciiArt = await figlet(text, {
+    const asciiArt = await figletAsync(text, {
       font: font,
       horizontalLayout: "default",
       verticalLayout: "default",

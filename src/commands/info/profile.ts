@@ -28,6 +28,7 @@ export const data = new SlashCommandBuilder()
   .setContexts(InteractionContextType.Guild);
 export async function run({ interaction, client }) {
   const user = interaction.options.getUser("user") || interaction.user;
+  const { locale } = interaction;
 
   if (!user) {
     const embed = new EmbedBuilder()

@@ -1,8 +1,12 @@
-import { SlashCommandBuilder, InteractionContextType } from "discord.js";
+import {
+  SlashCommandBuilder,
+  InteractionContextType,
+  ApplicationCommandType,
+} from "discord.js";
 
 export const beta = false;
 export const cooldown = 60;
-export const data = {
+export const data: any = {
   ...new SlashCommandBuilder()
     .setName("rickroll")
     .setNameLocalizations({
@@ -23,8 +27,9 @@ export const data = {
     )
     .setIntegrationTypes([0, 1])
     .toJSON(),
-  type: 4,
+  type: ApplicationCommandType.PrimaryEntryPoint,
 };
+
 export async function run() {
   return;
 }
