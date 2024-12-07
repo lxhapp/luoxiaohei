@@ -3,12 +3,7 @@ import {
   InteractionContextType,
   EmbedBuilder,
 } from "discord.js";
-
-import request from "request";
-import { promisify } from "util";
-
-const getAsync = promisify(request.get);
-const postAsync = promisify(request.post);
+import axios from "axios";
 
 export const beta = false;
 export const cooldown = 6;
@@ -27,107 +22,51 @@ export const data = new SlashCommandBuilder()
   )
   .setIntegrationTypes([0, 1]);
 
-async function getRedditToken() {
-  const authOptions = {
-    url: "https://www.reddit.com/api/v1/access_token",
-    auth: {
-      username: process.env.REDDIT_CLIENT_ID,
-      password: process.env.REDDIT_CLIENT_SECRET,
-    },
-    form: {
-      grant_type: "password",
-      username: process.env.REDDIT_USERNAME,
-      password: process.env.REDDIT_PASSWORD,
-    },
-    headers: {
-      "User-Agent": "LuoXiaohei/7.11.24",
-    },
-    json: true,
-  };
-
-  const response = await postAsync(authOptions);
-  return response.body.access_token;
-}
-
-async function getRandomMeme(token, subreddit) {
-  const options = {
-    url: `https://oauth.reddit.com/r/${subreddit}/hot.json?limit=100`,
-    headers: {
-      "User-Agent": "DiscordBot/1.0.0",
-      Authorization: `Bearer ${token}`,
-    },
-    json: true,
-  };
-
-  const response = await getAsync(options);
-  return response.body;
-}
-
 export async function run({ interaction, client }) {
-  const subreddits = [
-    "memes",
-    "me_irl",
-    "dankmemes",
-    "comedyheaven",
-    "Animemes",
-  ];
-  const selectedSubreddit =
-    subreddits[Math.floor(Math.random() * subreddits.length)];
+  const { locale } = interaction;
+  const embed = new EmbedBuilder().setColor(client.embedColor);
 
   try {
-    // Get access token
-    const token = await getRedditToken();
+    const response = await axios.get("https://meme-api.com/gimme");
+    const meme = response.data;
 
-    // Get meme data
-    const data = await getRandomMeme(token, selectedSubreddit);
-
-    if (!data?.data?.children?.length) {
-      const embed = new EmbedBuilder()
-        .setColor(client.embedColor)
-        .setTitle("No Content")
-        .setDescription("http.cat")
-        .setImage("https://http.cat/images/204.jpg")
-        .setTimestamp();
+    // Check if meme is NSFW and skip if needed
+    if (meme.nsfw) {
       return interaction.editReply({
-        embeds: [embed],
+        content: client.getLocale(locale, "meme.errors.nsfw_content"),
       });
     }
 
-    // Filter posts that have images
-    const imagePosts = data.data.children.filter((post) =>
-      post.data.url?.match(/\.(jpg|jpeg|png|gif)$/i)
-    );
+    let description = client.getLocale(locale, "meme.description");
+    description = description
+      .replace("{{author}}", meme.author)
+      .replace("{{subreddit}}", meme.subreddit);
 
-    if (!imagePosts.length) {
-      const embed = new EmbedBuilder()
-        .setColor(client.embedColor)
-        .setTitle("No Content")
-        .setDescription("http.cat")
-        .setImage("https://http.cat/images/204.jpg")
-        .setTimestamp();
-      return interaction.editReply({
-        embeds: [embed],
-      });
-    }
+    let footerText = client.getLocale(locale, "meme.footer");
+    footerText = footerText.replace("{{upvotes}}", meme.ups.toString());
 
-    // Get a random image post
-    const post = imagePosts[Math.floor(Math.random() * imagePosts.length)].data;
-
-    const embed = new EmbedBuilder()
-      .setColor(client.embedColor)
-      .setURL(`https://reddit.com${post.permalink}`)
-      .setTitle(post.title)
-      .setDescription(
-        `-# **[u/${post.author}](https://www.reddit.com/user/${post.author}/)**`
-      )
-      .setImage(post.url)
+    embed
+      .setURL(meme.postLink)
+      .setTitle(meme.title)
+      .setDescription(description)
+      .setImage(meme.url)
       .setFooter({
-        text: `⬆️ ${post.ups.toLocaleString()} | 💬 ${post.num_comments.toLocaleString()} | 📍 r/${selectedSubreddit}`,
+        text: footerText,
       })
       .setTimestamp();
 
     return interaction.editReply({ embeds: [embed] });
   } catch (error) {
     console.error("Meme command error:", error);
+
+    const errorTitle = client.getLocale(locale, "meme.errors.title");
+    const errorDescription = client.getLocale(locale, "meme.errors.fetch");
+
+    embed
+      .setTitle(errorTitle)
+      .setDescription(errorDescription)
+      .setColor(client.embedColor);
+
+    return interaction.editReply({ embeds: [embed] });
   }
 }

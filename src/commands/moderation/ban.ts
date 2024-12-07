@@ -68,7 +68,7 @@ export async function run({ interaction, client }) {
   const targetUser = interaction.options.getUser("user");
   const reason =
     interaction.options.getString("reason") ||
-    client.getLocale(locale, "no_reason");
+    client.getLocale(locale, "ban.fields.noReason");
   const deleteDays = interaction.options.getInteger("days") ?? 1;
   const sendDM = interaction.options.getBoolean("dm") ?? true;
 
@@ -77,7 +77,7 @@ export async function run({ interaction, client }) {
       embeds: [
         new EmbedBuilder()
           .setColor(client.embedColor)
-          .setDescription(client.getLocale(locale, "guild_only")),
+          .setDescription(client.getLocale(locale, "ban.errors.guildOnly")),
       ],
     });
   }
@@ -87,7 +87,7 @@ export async function run({ interaction, client }) {
       embeds: [
         new EmbedBuilder()
           .setColor(client.embedColor)
-          .setDescription(client.getLocale(locale, "cannot_ban_self")),
+          .setDescription(client.getLocale(locale, "ban.errors.cannotBanSelf")),
       ],
     });
   }
@@ -97,7 +97,7 @@ export async function run({ interaction, client }) {
       embeds: [
         new EmbedBuilder()
           .setColor(client.embedColor)
-          .setDescription(client.getLocale(locale, "cannot_ban_bot")),
+          .setDescription(client.getLocale(locale, "ban.errors.cannotBanBot")),
       ],
     });
   }
@@ -112,7 +112,7 @@ export async function run({ interaction, client }) {
         embeds: [
           new EmbedBuilder()
             .setColor(client.embedColor)
-            .setDescription(client.getLocale(locale, "cannot_ban_user")),
+            .setDescription(client.getLocale(locale, "ban.errors.cannotBanUser")),
         ],
       });
     }
@@ -127,7 +127,7 @@ export async function run({ interaction, client }) {
             new EmbedBuilder()
               .setColor(client.embedColor)
               .setDescription(
-                client.getLocale(locale, "cannot_ban_higher_role")
+                client.getLocale(locale, "ban.errors.higherRole")
               ),
           ],
         });
@@ -140,22 +140,22 @@ export async function run({ interaction, client }) {
       const dmEmbed = new EmbedBuilder()
         .setColor(client.embedColor)
         .setAuthor({
-          name: client.getLocale(locale, "banned_dm_title"),
+          name: client.getLocale(locale, "ban.dm.title"),
           iconURL: interaction.guild.iconURL({ dynamic: true }) || null,
         })
         .addFields([
           {
-            name: client.getLocale(locale, "server"),
+            name: client.getLocale(locale, "ban.fields.server"),
             value: interaction.guild.name,
             inline: true,
           },
           {
-            name: client.getLocale(locale, "moderator"),
+            name: client.getLocale(locale, "ban.fields.moderator"),
             value: interaction.user.tag,
             inline: true,
           },
           {
-            name: client.getLocale(locale, "reason"),
+            name: client.getLocale(locale, "ban.fields.reason"),
             value: reason,
             inline: false,
           },
@@ -179,27 +179,27 @@ export async function run({ interaction, client }) {
     const banEmbed = new EmbedBuilder()
       .setColor(client.embedColor)
       .setAuthor({
-        name: client.getLocale(locale, "ban_success_title"),
+        name: client.getLocale(locale, "ban.success.title"),
         iconURL: interaction.guild.iconURL({ dynamic: true }) || null,
       })
       .addFields([
         {
-          name: client.getLocale(locale, "banned_user"),
+          name: client.getLocale(locale, "ban.fields.bannedUser"),
           value: `${targetUser.tag} (${targetUser.id})`,
           inline: true,
         },
         {
-          name: client.getLocale(locale, "banned_by"),
+          name: client.getLocale(locale, "ban.fields.bannedBy"),
           value: interaction.user.tag,
           inline: true,
         },
         {
-          name: client.getLocale(locale, "message_deletion"),
+          name: client.getLocale(locale, "ban.fields.messageDeletion"),
           value: `${deleteDays} ${client.getLocale(locale, "days")}`,
           inline: true,
         },
         {
-          name: client.getLocale(locale, "reason"),
+          name: client.getLocale(locale, "ban.fields.reason"),
           value: reason,
           inline: false,
         },
@@ -207,7 +207,7 @@ export async function run({ interaction, client }) {
       .setThumbnail(targetUser.displayAvatarURL({ dynamic: true }))
       .setTimestamp()
       .setFooter({
-        text: client.getLocale(locale, "server_moderation"),
+        text: client.getLocale(locale, "ban.footer.moderation"),
         iconURL: client.user.displayAvatarURL(),
       });
 
@@ -218,7 +218,7 @@ export async function run({ interaction, client }) {
       embeds: [
         new EmbedBuilder()
           .setColor(client.embedColor)
-          .setDescription(client.getLocale(locale, "ban_failed")),
+          .setDescription(client.getLocale(locale, "ban.errors.banFailed")),
       ],
     });
   }

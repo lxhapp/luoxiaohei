@@ -3,8 +3,7 @@ import {
   InteractionContextType,
   EmbedBuilder,
 } from "discord.js";
-import request from "request";
-const { get } = request;
+import axios from "axios";
 
 export const beta = false;
 export const cooldown = 6;
@@ -22,33 +21,36 @@ export const data = new SlashCommandBuilder()
     InteractionContextType.PrivateChannel
   )
   .setIntegrationTypes([0, 1]);
+
 export async function run({ interaction, client }) {
-  get(
-    {
-      url: "https://api.api-ninjas.com/v1/facts",
+  const { locale } = interaction;
+  const embed = new EmbedBuilder().setColor(client.embedColor);
+
+  try {
+    const response = await axios.get("https://api.api-ninjas.com/v1/facts", {
       headers: {
         "X-Api-Key": "9uDtqyQHdTHJjEmEIrcbCg==vOxsk9livTKn4D1m",
       },
-    },
-    function (error, response, body) {
-      if (error) return console.error("Request failed:", error);
-      else if (response.statusCode != 200)
-        return console.error(response.statusCode, body.toString("utf8"));
-      else
-        interaction.editReply({
-          embeds: [
-            new EmbedBuilder()
-              .setColor(client.embedColor)
-              .setDescription(
-                `<:luo:1270401166731382867> ${JSON.parse(body)[0].fact}`
-              ),
-          ],
-          allowedMentions: {
-            repliedUser: false,
-          },
+    });
 
-          flags: [4096],
-        });
+    if (!response.data?.[0]?.fact) {
+      throw new Error("Invalid response format");
     }
-  );
+
+    let description = client.getLocale(locale, "fact.description");
+    description = description.replace("{{fact}}", response.data[0].fact);
+
+    embed.setDescription(description);
+  } catch (error) {
+    console.error("Error in fact command:", error);
+    embed.setDescription(client.getLocale(locale, "fact.errors.fetch"));
+  }
+
+  return interaction.editReply({
+    embeds: [embed],
+    allowedMentions: {
+      repliedUser: false,
+    },
+    flags: [4096],
+  });
 }

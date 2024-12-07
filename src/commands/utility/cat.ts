@@ -3,7 +3,7 @@ import {
   InteractionContextType,
   EmbedBuilder,
 } from "discord.js";
-import request from "request";
+import axios from "axios";
 const url = "https://api.thecatapi.com/v1/images/search";
 
 export const beta = false;
@@ -22,79 +22,38 @@ export const data = new SlashCommandBuilder()
     InteractionContextType.PrivateChannel
   )
   .setIntegrationTypes([0, 1]);
+
 export async function run({ interaction, client }) {
   const { locale } = interaction;
   const catembed = new EmbedBuilder().setColor(client.embedColor);
-  request(
-    {
-      url: url,
-      json: true,
-    },
-    (
-      error: any,
-      response: { statusCode: number },
-      body: { forEach: (arg0: (catObject: any) => void) => void; url: string }
-    ) => {
-      if (!error && response.statusCode === 200) {
-        if (Array.isArray(body)) {
-          body.forEach((catObject) => {
-            catembed.setImage(catObject.url);
-            catembed.setTitle(client.getLocale(locale, `cat.title`));
-            catembed.setTimestamp();
-            catembed.setAuthor({
-              name: interaction.user.username,
-              iconURL: interaction.user.displayAvatarURL(),
-            });
 
-            interaction.editReply({
-              embeds: [catembed],
-              allowedMentions: {
-                repliedUser: false,
-              },
-              flags: [4096],
-            });
-          });
-          return;
-        } else if (typeof body === "object") {
-          catembed.setImage(body.url);
-          catembed.setTitle(client.getLocale(locale, `cat.title`));
-          catembed.setTimestamp();
-          catembed.setAuthor({
-            name: interaction.user.username,
-            iconURL: interaction.user.displayAvatarURL(),
-          });
+  try {
+    const response = await axios.get(url);
+    const body = response.data;
 
-          interaction.editReply({
-            embeds: [catembed],
-            allowedMentions: {
-              repliedUser: false,
-            },
-            flags: [4096],
-          });
-          return;
-        } else {
-          catembed.setDescription(client.getLocale(locale, `cat.errors.fail`));
-          interaction.editReply({
-            embeds: [catembed],
-            allowedMentions: {
-              repliedUser: false,
-            },
-            flags: [4096],
-          });
-          client.error("Unexpected response format:", body);
-          return;
-        }
-      } else {
-        catembed.setDescription(client.getLocale(locale, `cat.errors.fail`));
-        interaction.editReply({
-          embeds: [catembed],
-          allowedMentions: {
-            repliedUser: false,
-          },
-          flags: [4096],
+    if (Array.isArray(body)) {
+      const catObject = body[0];
+      catembed
+        .setImage(catObject.url)
+        .setTitle(client.getLocale(locale, `cat.title`))
+        .setTimestamp()
+        .setAuthor({
+          name: interaction.user.username,
+          iconURL: interaction.user.displayAvatarURL(),
         });
-        return;
-      }
+    } else {
+      throw new Error("Unexpected response format");
     }
-  );
+  } catch (error) {
+    console.error("Error in cat command:", error);
+    catembed.setDescription(client.getLocale(locale, `cat.errors.fail`));
+  }
+
+  return interaction.editReply({
+    embeds: [catembed],
+    allowedMentions: {
+      repliedUser: false,
+    },
+    flags: [4096],
+  });
 }

@@ -461,6 +461,48 @@ export default {
     },
   },
 
+  fact: {
+    description: "<:luo:1270401166731382867> {{fact}}",
+    errors: {
+      fetch: "Failed to fetch a fact. Please try again later.",
+    },
+  },
+
+  meme: {
+    description: {
+      en: "by u/{{author}} | r/{{subreddit}}",
+      ru: "от u/{{author}} | r/{{subreddit}}",
+      uk: "від u/{{author}} | r/{{subreddit}}",
+      ja: "u/{{author}}によって | r/{{subreddit}}",
+    },
+    footer: {
+      en: "⬆️ {{upvotes}}",
+      ru: "⬆️ {{upvotes}}",
+      uk: "⬆️ {{upvotes}}",
+      ja: "⬆️ {{upvotes}}",
+    },
+    errors: {
+      nsfw_content: {
+        en: "Oops! The meme was NSFW. Try again!",
+        ru: "Упс! Этот мем был NSFW. Попробуйте снова!",
+        uk: "Упс! Мем був NSFW. Спробуйте ще раз!",
+        ja: "おっと！そのミームはNSFWです。もう一度試してください！",
+      },
+      title: {
+        en: "<:cross:1281580669373382686> Failed to fetch meme",
+        ru: "<:cross:1281580669373382686> Не удалось загрузить мем",
+        uk: "<:cross:1281580669373382686> Не вдалося завантажити мем",
+        ja: "<:cross:1281580669373382686> メモをフェッチできませんでした",
+      },
+      fetch: {
+        en: "Unable to retrieve a meme at the moment.",
+        ru: "В данный момент невозможно получить мем.",
+        uk: "Зараз неможливо отримати мем.",
+        ja: "今はミームを取得できません。",
+      },
+    },
+  },
+
   rps: {
     gameApp: {
       en: "<:cross:1281580669373382686> You can't play with a bot",

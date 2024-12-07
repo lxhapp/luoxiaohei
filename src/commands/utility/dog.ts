@@ -3,7 +3,7 @@ import {
   InteractionContextType,
   EmbedBuilder,
 } from "discord.js";
-import request from "request";
+import axios from "axios";
 const url = "https://dog.ceo/api/breeds/image/random";
 
 export const beta = false;
@@ -22,79 +22,37 @@ export const data = new SlashCommandBuilder()
     InteractionContextType.PrivateChannel
   )
   .setIntegrationTypes([0, 1]);
+
 export async function run({ interaction, client }) {
   const { locale } = interaction;
   const dogembed = new EmbedBuilder().setColor(client.embedColor);
-  request(
-    {
-      url: url,
-      json: true,
-    },
-    (error, response, body) => {
-      if (!error && response.statusCode === 200) {
-        if (Array.isArray(body)) {
-          body.forEach((dogObject) => {
-            dogembed.setImage(dogObject.message);
-            dogembed.setTitle(client.getLocale(locale, `dog.title`));
-            dogembed.setTimestamp();
-            dogembed.setAuthor({
-              name: interaction.user.username,
-              iconURL: interaction.user.displayAvatarURL(),
-            });
 
-            interaction.editReply({
-              embeds: [dogembed],
-              allowedMentions: {
-                repliedUser: false,
-              },
+  try {
+    const response = await axios.get(url);
+    const body = response.data;
 
-              flags: [4096],
-            });
-          });
-          return;
-        } else if (typeof body === "object") {
-          dogembed.setImage(body.message);
-          dogembed.setTitle(client.getLocale(locale, `dog.title`));
-          dogembed.setTimestamp();
-          dogembed.setAuthor({
-            name: interaction.user.username,
-            iconURL: interaction.user.displayAvatarURL(),
-          });
-
-          interaction.editReply({
-            embeds: [dogembed],
-            allowedMentions: {
-              repliedUser: false,
-            },
-
-            flags: [4096],
-          });
-          return;
-        } else {
-          dogembed.setDescription(client.getLocale(locale, `dog.errors.fail`));
-          interaction.editReply({
-            embeds: [dogembed],
-            allowedMentions: {
-              repliedUser: false,
-            },
-
-            flags: [4096],
-          });
-          console.error("Unexpected response format:", body);
-          return;
-        }
-      } else {
-        dogembed.setDescription(client.getLocale(locale, `dog.errors.fail`));
-        interaction.editReply({
-          embeds: [dogembed],
-          allowedMentions: {
-            repliedUser: false,
-          },
-
-          flags: [4096],
+    if (typeof body === "object" && body.message) {
+      dogembed
+        .setImage(body.message)
+        .setTitle(client.getLocale(locale, `dog.title`))
+        .setTimestamp()
+        .setAuthor({
+          name: interaction.user.username,
+          iconURL: interaction.user.displayAvatarURL(),
         });
-        return;
-      }
+    } else {
+      throw new Error("Unexpected response format");
     }
-  );
+  } catch (error) {
+    console.error("Error in dog command:", error);
+    dogembed.setDescription(client.getLocale(locale, `dog.errors.fail`));
+  }
+
+  return interaction.editReply({
+    embeds: [dogembed],
+    allowedMentions: {
+      repliedUser: false,
+    },
+    flags: [4096],
+  });
 }
