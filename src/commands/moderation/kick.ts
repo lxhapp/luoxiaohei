@@ -49,7 +49,8 @@ export const data = new SlashCommandBuilder()
         ja: "キックされたユーザーにDM通知を送信する",
       })
   )
-  .setContexts(InteractionContextType.Guild);
+  .setContexts(InteractionContextType.Guild)
+  .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers);
 
 export async function run({ interaction, client }) {
   const { locale } = interaction;

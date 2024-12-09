@@ -59,7 +59,8 @@ export const data = new SlashCommandBuilder()
         uk: "Надіслати сповіщення в ЛС обмеженому користувачу",
         ja: "タイムアウトされたユーザーにDM通知を送信する",
       })
-  );
+  )
+  .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers);
 
 export async function run({ interaction, client }) {
   const { locale } = interaction;

@@ -61,7 +61,8 @@ export const data = new SlashCommandBuilder()
         ja: "バンされたユーザーにDM通知を送信する",
       })
   )
-  .setContexts(InteractionContextType.Guild);
+  .setContexts(InteractionContextType.Guild)
+  .setDefaultMemberPermissions(PermissionFlagsBits.BanMembers);
 
 export async function run({ interaction, client }) {
   const { locale } = interaction;

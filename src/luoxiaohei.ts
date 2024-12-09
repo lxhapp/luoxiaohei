@@ -181,8 +181,8 @@ class MainClient extends Client {
 
     for (const folder of commandFolders) {
       const commandsPath = path.join(foldersPath, folder);
-      const commandFiles = readdirSync(commandsPath).filter(
-        (file) => file.endsWith(".js")
+      const commandFiles = readdirSync(commandsPath).filter((file) =>
+        file.endsWith(".js")
       );
 
       for (const file of commandFiles) {
@@ -216,8 +216,8 @@ class MainClient extends Client {
     const __filename = fileURLToPath(import.meta.url);
     const __dirname = path.dirname(__filename);
     const eventsPath = path.join(__dirname, ".", "events");
-    const eventFiles = readdirSync(eventsPath).filter(
-      (file) => file.endsWith(".js")
+    const eventFiles = readdirSync(eventsPath).filter((file) =>
+      file.endsWith(".js")
     );
 
     for (const file of eventFiles) {
