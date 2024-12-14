@@ -41,8 +41,8 @@ async function executeCommandWithTimeout(interaction: any, command: any) {
     interaction,
     client: interaction.client,
   });
-  const timeoutPromise = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error("Command timeout")), 30000)
+  const timeoutPromise = new Promise(
+    (_, reject) => setTimeout(() => reject(new Error("Command timeout")), 60000)
   );
 
   try {

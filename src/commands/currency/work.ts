@@ -64,31 +64,39 @@ function generateChainedCalculation(
   minNum: number,
   maxNum: number
 ) {
-  const operationCount =
-    Math.floor(Math.random() * (maxOps - minOps + 1)) + minOps;
+  let question: string;
   let numbers: number[] = [];
   let operators: string[] = [];
 
-  numbers.push(Math.floor(Math.random() * (maxNum - minNum)) + minNum);
+  do {
+    numbers = [];
+    operators = [];
+    const operationCount =
+      Math.floor(Math.random() * (maxOps - minOps + 1)) + minOps;
 
-  for (let i = 0; i < operationCount; i++) {
-    const nextNum = Math.floor(Math.random() * (maxNum / 2 - minNum)) + minNum;
-    numbers.push(nextNum);
+    numbers.push(Math.floor(Math.random() * (maxNum - minNum)) + minNum);
 
-    let possibleOperators = ["+", "-"];
-    if (difficulty !== "easy") possibleOperators.push("*");
-    if (difficulty === "hard" || difficulty === "extreme")
-      possibleOperators.push("/");
+    for (let i = 0; i < operationCount; i++) {
+      const nextNum =
+        Math.floor(Math.random() * (maxNum / 2 - minNum)) + minNum;
+      numbers.push(nextNum);
 
-    operators.push(
-      possibleOperators[Math.floor(Math.random() * possibleOperators.length)]
-    );
-  }
+      let possibleOperators = ["+", "-"];
+      if (difficulty !== "easy") possibleOperators.push("*");
+      if (difficulty === "hard" || difficulty === "extreme")
+        possibleOperators.push("/");
 
-  const question = numbers.reduce((acc, num, i) => {
-    if (i === 0) return num.toString();
-    return `${acc} ${operators[i - 1]} ${num}`;
-  }, "");
+      operators.push(
+        possibleOperators[Math.floor(Math.random() * possibleOperators.length)]
+      );
+    }
+
+    question =
+      numbers.reduce((acc, num, i) => {
+        if (i === 0) return num.toString();
+        return `${acc} ${operators[i - 1]} ${num}`;
+      }, "") + " = ?";
+  } while (question.length > 45);
 
   let answer = numbers[0];
   for (let i = 0; i < operators.length; i++) {
@@ -109,7 +117,7 @@ function generateChainedCalculation(
   }
 
   return {
-    question: `${question} = ?`,
+    question,
     answer: Math.round(answer),
   };
 }
@@ -148,64 +156,63 @@ export async function run({ interaction, client }) {
 
   await interaction.showModal(modal);
 
-  const modalSubmit = await interaction
-    .awaitModalSubmit({
-      filter: (i) =>
-        i.customId.startsWith("math_") && i.user.id === interaction.user.id,
-      time: 30000,
-    })
-    .catch(() => null);
+  return new Promise((resolve) => {
+    interaction
+      .awaitModalSubmit({
+        filter: (i: { customId: string; user: { id: any } }) =>
+          i.customId === `math_${difficulty}_${problem.answer}` &&
+          i.user.id === interaction.user.id,
+        time: 120000,
+      })
+      .then(
+        async (modalSubmit: {
+          fields: { getTextInputValue: (arg0: string) => string };
+          reply: (arg0: { embeds: EmbedBuilder[] }) => any;
+        }) => {
+          if (!modalSubmit) {
+            resolve(true);
+            return;
+          }
 
-  if (!modalSubmit || modalSubmit.isFromMessage) {
-    return;
-  }
+          const userAnswer = parseInt(
+            modalSubmit.fields.getTextInputValue("answer")
+          );
 
-  if (!modalSubmit) {
-    const timeoutEmbed = new EmbedBuilder()
-      .setColor(client.embedColor)
-      .setTitle(client.getLocale(locale, "work.job"))
-      .setDescription(
-        client
-          .getLocale(locale, "work.timeout")
-          .replace("{{answer}}", problem.answer.toString())
+          if (userAnswer === problem.answer) {
+            const earned = getReward(difficulty);
+            await client.addBalance(interaction.user.id, earned);
+
+            const successEmbed = new EmbedBuilder()
+              .setColor(client.embedColor)
+              .setTitle(client.getLocale(locale, "work.job"))
+              .setDescription(
+                client
+                  .getLocale(locale, "work.correct")
+                  .replace(
+                    "{{difficulty}}",
+                    client.getLocale(locale, `work.difficulty.${difficulty}`)
+                  )
+                  .replace("{{amount}}", earned.toString())
+              )
+              .setTimestamp();
+
+            await modalSubmit.reply({ embeds: [successEmbed] });
+          } else {
+            const failEmbed = new EmbedBuilder()
+              .setColor(client.embedColor)
+              .setTitle(client.getLocale(locale, "work.job"))
+              .setDescription(
+                client
+                  .getLocale(locale, "work.wrong")
+                  .replace("{{answer}}", problem.answer.toString())
+              )
+              .setTimestamp();
+
+            await modalSubmit.reply({ embeds: [failEmbed] });
+          }
+          resolve(true);
+        }
       )
-      .setTimestamp();
-
-    return interaction.followUp({ embeds: [timeoutEmbed], ephemeral: true });
-  }
-
-  const userAnswer = parseInt(modalSubmit.fields.getTextInputValue("answer"));
-
-  if (userAnswer === problem.answer) {
-    const earned = getReward(difficulty);
-    await client.addBalance(interaction.user.id, earned);
-
-    const successEmbed = new EmbedBuilder()
-      .setColor(client.embedColor)
-      .setTitle(client.getLocale(locale, "work.job"))
-      .setDescription(
-        client
-          .getLocale(locale, "work.correct")
-          .replace(
-            "{{difficulty}}",
-            client.getLocale(locale, `work.difficulty.${difficulty}`)
-          )
-          .replace("{{amount}}", earned.toString())
-      )
-      .setTimestamp();
-
-    await modalSubmit.reply({ embeds: [successEmbed] });
-  } else {
-    const failEmbed = new EmbedBuilder()
-      .setColor(client.embedColor)
-      .setTitle(client.getLocale(locale, "work.job"))
-      .setDescription(
-        client
-          .getLocale(locale, "work.wrong")
-          .replace("{{answer}}", problem.answer.toString())
-      )
-      .setTimestamp();
-
-    await modalSubmit.reply({ embeds: [failEmbed] });
-  }
+      .catch(() => resolve(true));
+  });
 }
