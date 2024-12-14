@@ -24,7 +24,9 @@ export async function execute(interaction: any) {
 
     console.log(`${user.id} | ${user.tag} ~ ${buildLogMessage(interaction)}`);
 
-    await interaction.deferReply();
+    if (command.defer) {
+      await interaction.deferReply();
+    }
 
     await executeCommandWithTimeout(interaction, command);
   } catch (error) {
@@ -144,8 +146,8 @@ async function checkCooldown(interaction: any, command: any) {
         .setDescription(
           interaction.client
             .getLocale(interaction.locale, "InteractionCreate.cooldown")
-            .replace("${command.data.name}", command.data.name)
-            .replace("<t:${expiredTimestamp}:R>", `<t:${expiredTimestamp}:R>`)
+            .replace("{{command}}", command.data.name)
+            .replace("{{time}}", `<t:${expiredTimestamp}:R>`)
         );
 
       if (!interaction.replied && !interaction.deferred) {

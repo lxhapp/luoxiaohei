@@ -23,6 +23,6 @@
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "types": ["node"]
   },
-  "include": ["src/**/*", "src/types/**/*", ".env"],
+  "include": ["src/**/*", "src/types/**/*", "package.json"],
   "exclude": ["dist", "node_modules", "tests"]
 }

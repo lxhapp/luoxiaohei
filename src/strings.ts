@@ -444,6 +444,65 @@ export default {
     },
   },
 
+  work: {
+    modal_title: {
+      en: "Math Problem",
+      ru: "Математическая Задача",
+      uk: "Математична Задача",
+      jp: "数学の問題",
+    },
+    job: {
+      en: "Math Teacher",
+      ru: "Учитель Математики",
+      uk: "Вчитель Математики",
+      jp: "数学教師",
+    },
+    difficulty: {
+      easy: {
+        en: "Elementary School",
+        ru: "Начальная Школа",
+        uk: "Початкова Школа",
+        jp: "小学校",
+      },
+      medium: {
+        en: "Middle School",
+        ru: "Средняя Школа",
+        uk: "Середня Школа",
+        jp: "中学校",
+      },
+      hard: {
+        en: "High School",
+        ru: "Старшая Школа",
+        uk: "Старша Школа",
+        jp: "高校",
+      },
+      extreme: {
+        en: "University",
+        ru: "Университет",
+        uk: "Університет",
+        jp: "大学",
+      },
+    },
+    correct: {
+      en: "<:check:1281579844089675810> Great job! You solved the {{difficulty}} problem and earned {{amount}}¥",
+      ru: "<:check:1281579844089675810> Отличная работа! Вы решили задачу {{difficulty}} и заработали {{amount}}¥",
+      uk: "<:check:1281579844089675810> Чудова робота! Ви вирішили задачу {{difficulty}} і заробили {{amount}}¥",
+      jp: "<:check:1281579844089675810> よくできました！{{difficulty}}の問題を解いて{{amount}}¥を獲得しました",
+    },
+    wrong: {
+      en: "<:cross:1281580669373382686> That's incorrect. The answer was {{answer}}. Try another problem!",
+      ru: "<:cross:1281580669373382686> Это неверно. Ответ был {{answer}}. Попробуйте другую задачу!",
+      uk: "<:cross:1281580669373382686> Це неправильно. Відповідь була {{answer}}. Спробуйте іншу задачу!",
+      jp: "<:cross:1281580669373382686> 不正解です。答えは{{answer}}でした。他の問題を試してみてください！",
+    },
+    timeout: {
+      en: "⏰ Time's up! The answer was {{answer}}",
+      ru: "⏰ Время вышло! Ответ был {{answer}}",
+      uk: "⏰ Час вийшов! Відповідь була {{answer}}",
+      jp: "⏰ タイムアップ！答えは{{answer}}でした",
+    },
+  },
+
   demotivator: {
     errors: {
       invalidImage: {
@@ -464,7 +523,12 @@ export default {
   fact: {
     description: "<:luo:1270401166731382867> {{fact}}",
     errors: {
-      fetch: "Failed to fetch a fact. Please try again later.",
+      fetch: {
+        en: "Failed to fetch a fact. Please try again later.",
+        ru: "Не удалось получить факт. Пожалуйста, попробуйте позже.",
+        uk: "Не вдалося отримати факт. Будь ласка, спробуйте пізніше.",
+        jp: "失敗しました。後でもう一度お試しください。",
+      },
     },
   },
 
