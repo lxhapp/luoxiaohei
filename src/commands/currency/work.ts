@@ -42,74 +42,75 @@ function generateMathProblem(difficulty: string): {
   question: string;
   answer: number;
 } {
-  let num1: number, num2: number, operator: string;
-
   switch (difficulty) {
     case "easy":
-      num1 = Math.floor(Math.random() * 10) + 1;
-      num2 = Math.floor(Math.random() * 10) + 1;
-      operator = ["+", "-", "*"][Math.floor(Math.random() * 3)];
-      break;
+      return generateChainedCalculation("easy", 2, 3, 1, 20);
+
     case "medium":
-      num1 = Math.floor(Math.random() * 20) + 1;
-      num2 = Math.floor(Math.random() * 20) + 1;
-      operator = ["+", "-", "*", "/"][Math.floor(Math.random() * 4)];
-      if (operator === "/") {
-        num1 = num2 * (Math.floor(Math.random() * 10) + 1);
-      }
-      break;
+      return generateChainedCalculation("medium", 3, 4, 1, 50);
+
     case "hard":
-      num1 = Math.floor(Math.random() * 50) + 20;
-      num2 = Math.floor(Math.random() * 50) + 20;
-      operator = ["+", "-", "*", "/", "%"][Math.floor(Math.random() * 5)];
-      if (operator === "/") {
-        num1 = num2 * (Math.floor(Math.random() * 20) + 1);
-      }
-      break;
+      return generateChainedCalculation("hard", 4, 5, 1, 100);
+
     case "extreme":
-      num1 = Math.floor(Math.random() * 100) + 50;
-      num2 = Math.floor(Math.random() * 100) + 50;
-      operator = ["+", "-", "*", "/", "%", "**"][Math.floor(Math.random() * 6)];
-      if (operator === "/") {
-        num1 = num2 * (Math.floor(Math.random() * 30) + 1);
-      }
-      if (operator === "**") {
-        num2 = Math.floor(Math.random() * 3) + 2;
-      }
-      break;
-    default:
-      num1 = 1;
-      num2 = 1;
-      operator = "+";
+      return generateChainedCalculation("extreme", 5, 7, 1, 1000);
+  }
+}
+
+function generateChainedCalculation(
+  difficulty: string,
+  minOps: number,
+  maxOps: number,
+  minNum: number,
+  maxNum: number
+) {
+  const operationCount =
+    Math.floor(Math.random() * (maxOps - minOps + 1)) + minOps;
+  let numbers: number[] = [];
+  let operators: string[] = [];
+
+  numbers.push(Math.floor(Math.random() * (maxNum - minNum)) + minNum);
+
+  for (let i = 0; i < operationCount; i++) {
+    const nextNum = Math.floor(Math.random() * (maxNum / 2 - minNum)) + minNum;
+    numbers.push(nextNum);
+
+    let possibleOperators = ["+", "-"];
+    if (difficulty !== "easy") possibleOperators.push("*");
+    if (difficulty === "hard" || difficulty === "extreme")
+      possibleOperators.push("/");
+
+    operators.push(
+      possibleOperators[Math.floor(Math.random() * possibleOperators.length)]
+    );
   }
 
-  let answer: number;
-  switch (operator) {
-    case "+":
-      answer = num1 + num2;
-      break;
-    case "-":
-      answer = num1 - num2;
-      break;
-    case "*":
-      answer = num1 * num2;
-      break;
-    case "/":
-      answer = num1 / num2;
-      break;
-    case "%":
-      answer = num1 % num2;
-      break;
-    case "**":
-      answer = Math.pow(num1, num2);
-      break;
-    default:
-      answer = 0;
+  const question = numbers.reduce((acc, num, i) => {
+    if (i === 0) return num.toString();
+    return `${acc} ${operators[i - 1]} ${num}`;
+  }, "");
+
+  let answer = numbers[0];
+  for (let i = 0; i < operators.length; i++) {
+    switch (operators[i]) {
+      case "+":
+        answer += numbers[i + 1];
+        break;
+      case "-":
+        answer -= numbers[i + 1];
+        break;
+      case "*":
+        answer *= numbers[i + 1];
+        break;
+      case "/":
+        answer = Math.round(answer / numbers[i + 1]);
+        break;
+    }
   }
 
   return {
-    question: `${num1} ${operator} ${num2} = ?`,
-    answer,
+    question: `${question} = ?`,
+    answer: Math.round(answer),
   };
 }
 
@@ -154,6 +155,10 @@ export async function run({ interaction, client }) {
       time: 30000,
     })
     .catch(() => null);
+
+  if (!modalSubmit || modalSubmit.isFromMessage) {
+    return;
+  }
 
   if (!modalSubmit) {
     const timeoutEmbed = new EmbedBuilder()
