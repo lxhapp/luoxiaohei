@@ -24,7 +24,7 @@ export async function execute(interaction: any) {
 
     console.log(`${user.id} | ${user.tag} ~ ${buildLogMessage(interaction)}`);
 
-    if (command.defer) {
+    if (command.defer !== false) {
       await interaction.deferReply();
     }
 
