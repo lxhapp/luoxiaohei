@@ -17,26 +17,27 @@ export const data = new SlashCommandBuilder()
     uk: "Закодувати або декодувати текст за допомогою base64",
     ja: "base64を使用してテキストをエンコードまたはデコードする",
   })
-  .addStringOption((option) =>
-    option
-      .setName("action")
-      .setDescription("Choose to encode or decode")
-      .setDescriptionLocalizations({
-        ru: "Выберите, чтобы закодировать или декодировать",
-        uk: "Виберіть, щоб закодувати або декодувати",
-        ja: "エンコードまたはデコードする",
-      })
-      .setRequired(true)
-      .addChoices(
-        { name: "Encode", value: "encode" },
-        { name: "Decode", value: "decode" }
+  .addSubcommand((subcommand) =>
+    subcommand
+      .setName("encode")
+      .setDescription("Encode text to base64")
+      .addStringOption((option) =>
+        option
+          .setName("text")
+          .setDescription("Text to encode")
+          .setRequired(true)
       )
   )
-  .addStringOption((option) =>
-    option
-      .setName("text")
-      .setDescription("Text to encode/decode")
-      .setRequired(true)
+  .addSubcommand((subcommand) =>
+    subcommand
+      .setName("decode")
+      .setDescription("Decode base64 to text")
+      .addStringOption((option) =>
+        option
+          .setName("text")
+          .setDescription("Text to decode")
+          .setRequired(true)
+      )
   )
   .setContexts(
     InteractionContextType.Guild,
@@ -71,10 +72,10 @@ async function processBase64(action: string, text: string) {
 
 export async function run({ interaction, client }) {
   const { locale } = interaction;
-  const action = interaction.options.getString("action");
+  const subcommand = interaction.options.getSubcommand();
   const text = interaction.options.getString("text");
 
-  const result = await processBase64(action, text);
+  const result = await processBase64(subcommand, text);
 
   if (!result) {
     const errorEmbed = new EmbedBuilder()
@@ -86,8 +87,8 @@ export async function run({ interaction, client }) {
     return interaction.editReply({ embeds: [errorEmbed] });
   }
 
-  const resultText = action === "encode" ? result.encoded : result.decoded;
-  const fileName = `${action}d_text.txt`;
+  const resultText = subcommand === "encode" ? result.encoded : result.decoded;
+  const fileName = `${subcommand}d_text.txt`;
 
   const resultEmbed = new EmbedBuilder()
     .setColor(client.embedColor)

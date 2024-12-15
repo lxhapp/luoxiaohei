@@ -130,9 +130,14 @@ export async function run({ interaction, client }) {
 }
 
 async function checkBotPermissions(guild: any, interaction: any, client: any) {
-  if (
-    !guild.members.me.permissions.has(PermissionsBitField.Flags.ManageGuild)
-  ) {
+  if (!guild) {
+    await sendResponse(interaction, client, "errors.guildOnly");
+    return false;
+  }
+
+  const botMember = await guild.members.fetch(client.user.id);
+
+  if (!botMember?.permissions.has(PermissionsBitField.Flags.ManageGuild)) {
     await sendResponse(interaction, client, "errors.noPermission");
     return false;
   }
