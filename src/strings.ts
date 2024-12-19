@@ -7,10 +7,10 @@ export default {
       ja: "<:dev:1297262773826486382> このコマンドは現在ベータ版で、開発者のみが利用できます",
     },
     cooldown: {
-      en: "<:cross:1281580669373382686> Please wait, you're on cooldown for `{{{command}}}`. You can use it again in {{time}}",
-      ru: "<:cross:1281580669373382686> Пожалуйста, подождите, у вас перезарядка команды `{{command}}`. Вы сможете использовать её снова через {{time}}",
-      uk: "<:cross:1281580669373382686> Будь ласка, зачекайте, у вас перезарядка команди `{{command}}`. Ви зможете використовувати її знову через {{time}}",
-      ja: "<:cross:1281580669373382686> クールダウン中です。`{{command}}`は{{time}}後に再度使用できます",
+      en: "<:cross:1281580669373382686> Oh hey, take a relax before using **/{{command}}**. You can use your energy in {{time}}.",
+      ru: "<:cross:1281580669373382686> Ой, пожалуйста, отдохните перед использованием **/{{command}}**. Вы можете использовать свою энергию через {{time}}.",
+      uk: "<:cross:1281580669373382686> Ой, будь ласка, відпочивайте перед використанням **/{{command}}**. Ви можете використовувати свою енергію через {{time}}.",
+      ja: "<:cross:1281580669373382686> ああ、**/{{command}}** を使用する前にリラックスしてください。{{time}} でエネルギーを使用できます。",
     },
     error: {
       command_not_found: {
@@ -445,61 +445,79 @@ export default {
   },
 
   work: {
-    modal_title: {
-      en: "Math Problem",
-      ru: "Математическая Задача",
-      uk: "Математична Задача",
-      jp: "数学の問題",
-    },
-    job: {
-      en: "Math Teacher",
-      ru: "Учитель Математики",
-      uk: "Вчитель Математики",
-      jp: "数学教師",
-    },
-    difficulty: {
-      easy: {
-        en: "Elementary School",
-        ru: "Начальная Школа",
-        uk: "Початкова Школа",
-        jp: "小学校",
+    fish: {
+      title: {
+        en: "🎣 Fishing Time!",
+        ru: "🎣 Время рыбалки!",
+        uk: "🎣 Час рибалки!",
+        ja: "🎣 釣りの時間！",
       },
-      medium: {
-        en: "Middle School",
-        ru: "Средняя Школа",
-        uk: "Середня Школа",
-        jp: "中学校",
+      start: {
+        en: "Time to go fishing! Catch {{caught}}/{{required}} fish",
+        ru: "Пора на рыбалку! Поймано {{caught}}/{{required}} рыб",
+        uk: "Час рибалити! Спіймано {{caught}}/{{required}} риб",
+        ja: "釣りの時間です！ {{caught}}/{{required}} 匹の魚を捕まえました",
       },
-      hard: {
-        en: "High School",
-        ru: "Старшая Школа",
-        uk: "Старша Школа",
-        jp: "高校",
+      cast: {
+        en: "Cast Line",
+        ru: "Закинуть удочку",
+        uk: "Закинути вудку",
+        ja: "釣り糸を投げる",
       },
-      extreme: {
-        en: "University",
-        ru: "Университет",
-        uk: "Університет",
-        jp: "大学",
+      caught: {
+        en: "You caught a {{fish}}!",
+        ru: "Вы поймали {{fish}}!",
+        uk: "Ви спіймали {{fish}}!",
+        ja: "{{fish}}を捕まえました！",
       },
-    },
-    correct: {
-      en: "<:check:1281579844089675810> Great job! You solved the {{difficulty}} problem and earned {{amount}}¥",
-      ru: "<:check:1281579844089675810> Отличная работа! Вы решили задачу {{difficulty}} и заработали {{amount}}¥",
-      uk: "<:check:1281579844089675810> Чудова робота! Ви вирішили задачу {{difficulty}} і заробили {{amount}}¥",
-      jp: "<:check:1281579844089675810> よくできました！{{difficulty}}の問題を解いて{{amount}}¥を獲得しました",
-    },
-    wrong: {
-      en: "<:cross:1281580669373382686> That's incorrect. The answer was {{answer}}. Try another problem!",
-      ru: "<:cross:1281580669373382686> Это неверно. Ответ был {{answer}}. Попробуйте другую задачу!",
-      uk: "<:cross:1281580669373382686> Це неправильно. Відповідь була {{answer}}. Спробуйте іншу задачу!",
-      jp: "<:cross:1281580669373382686> 不正解です。答えは{{answer}}でした。他の問題を試してみてください！",
-    },
-    timeout: {
-      en: "⏰ Time's up! The answer was {{answer}}",
-      ru: "⏰ Время вышло! Ответ был {{answer}}",
-      uk: "⏰ Час вийшов! Відповідь була {{answer}}",
-      jp: "⏰ タイムアップ！答えは{{answer}}でした",
+      missed: {
+        en: "The fish got away...",
+        ru: "Рыба ушла...",
+        uk: "Риба пішла...",
+        ja: "魚が逃げました...",
+      },
+      progress: {
+        en: "Progress",
+        ru: "Прогресс",
+        uk: "Прогрес",
+        ja: "進捗",
+      },
+      difficulty: {
+        en: "Difficulty",
+        ru: "Сложность",
+        uk: "Складність",
+        ja: "難易度",
+      },
+      footer: {
+        en: "Click the button to fish!",
+        ru: "Нажмите кнопку, чтобы рыбачить!",
+        uk: "Натисніть кнопку, щоб рибалити!",
+        ja: "ボタンを押して釣りをしましょう！",
+      },
+      success: {
+        en: "Fishing Complete!",
+        ru: "Рыбалка завершена!",
+        uk: "Рибалка завершена!",
+        ja: "釣りが完了しました！",
+      },
+      reward: {
+        en: "You earned {{amount}} yen from selling your fish!",
+        ru: "Вы заработали {{amount}} йен от продажи рыбы!",
+        uk: "Ви заробили {{amount}} єн від продажу риби!",
+        ja: "魚を売って{{amount}}円を稼ぎました！",
+      },
+      timeout_title: {
+        en: "Time's Up!",
+        ru: "Время вышло!",
+        uk: "Час вийшов!",
+        ja: "時間切れ！",
+      },
+      timeout: {
+        en: "You didn't catch enough fish in time.",
+        ru: "Вы не поймали достаточно рыбы вовремя.",
+        uk: "Ви не спіймали достатньо риби вчасно.",
+        ja: "時間内に十分な魚を捕まえられませんでした。",
+      },
     },
   },
 
@@ -1267,7 +1285,7 @@ export default {
       ja: "<:check:1281579844089675810> ASCIIアートができました！",
     },
   },
-  
+
   base64: {
     error: {
       en: "Failed to process the text. Please try again.",

@@ -41,8 +41,8 @@ async function executeCommandWithTimeout(interaction: any, command: any) {
     interaction,
     client: interaction.client,
   });
-  const timeoutPromise = new Promise(
-    (_, reject) => setTimeout(() => reject(new Error("Command timeout")), 60000)
+  const timeoutPromise = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error("Command timeout")), 60000)
   );
 
   try {
@@ -164,8 +164,8 @@ async function checkCooldown(interaction: any, command: any) {
 }
 
 async function handleCommandError(interaction: any) {
-  console.warn("Error executing command: " + interaction.error?.message);
-  console.error(interaction.error);
+  const commandName = interaction.commandName;
+  console.error(`Error in command ${commandName}:`, interaction.error);
 
   const embed = new EmbedBuilder()
     .setColor(interaction.client.embedColor)
@@ -176,10 +176,14 @@ async function handleCommandError(interaction: any) {
       )
     );
 
-  if (interaction.replied || interaction.deferred) {
-    await interaction.followUp({ embeds: [embed], ephemeral: true });
-  } else {
-    await interaction.editReply({ embeds: [embed], ephemeral: true });
+  try {
+    if (interaction.replied || interaction.deferred) {
+      await interaction.editReply({ embeds: [embed], ephemeral: true });
+    } else {
+      await interaction.reply({ embeds: [embed], ephemeral: true });
+    }
+  } catch (error) {
+    console.error("Failed to send error message:", error);
   }
 }
 

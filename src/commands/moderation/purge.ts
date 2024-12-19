@@ -31,12 +31,25 @@ export const data = new SlashCommandBuilder()
   .setContexts(InteractionContextType.Guild)
   .setDefaultMemberPermissions(PermissionsBitField.Flags.ManageMessages);
 export async function run({ interaction, client }) {
-  const { locale } = interaction;
+  const { locale, channel, guild } = interaction;
   const embed = new EmbedBuilder().setColor(client.embedColor);
   const requiredPermissions = [
     PermissionsBitField.Flags.ManageMessages,
     PermissionsBitField.Flags.ViewChannel,
   ];
+
+  if (
+    !channel
+      .permissionsFor(guild.members.me)
+      .has([
+        PermissionsBitField.Flags.ManageMessages,
+        PermissionsBitField.Flags.ViewChannel,
+        PermissionsBitField.Flags.SendMessages,
+      ])
+  ) {
+    embed.setDescription(client.getLocale(locale, "purge.noperms"));
+    return await interaction.editReply({ embeds: [embed] });
+  }
 
   const missingPermissions = requiredPermissions.filter(
     (perm) => !interaction.guild.members.me.permissions.has(perm)

@@ -2,15 +2,14 @@ import {
   SlashCommandBuilder,
   InteractionContextType,
   EmbedBuilder,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
+  ButtonBuilder,
+  ButtonStyle,
   ActionRowBuilder,
+  ComponentType,
 } from "discord.js";
 
 export const beta = false;
-export const defer = false;
-export const cooldown = 120;
+export const cooldown = 60;
 export const data = new SlashCommandBuilder()
   .setName("work")
   .setDescription("Work to earn some yen")
@@ -22,13 +21,18 @@ export const data = new SlashCommandBuilder()
   .addStringOption((option) =>
     option
       .setName("difficulty")
-      .setDescription("Choose your work difficulty")
+      .setDescription("Choose your fishing difficulty")
+      .setDescriptionLocalizations({
+        ru: "Выберите сложность вашей рыбалки",
+        uk: "Виберіть складність вашої рибалки",
+        ja: "釣りの難易度を選択してください",
+      })
       .setRequired(true)
       .addChoices(
-        { name: "Easy", value: "easy" },
-        { name: "Medium", value: "medium" },
-        { name: "Hard", value: "hard" },
-        { name: "Extreme", value: "extreme" }
+        { name: "Easy (1x reward)", value: "easy" },
+        { name: "Medium (2x reward)", value: "medium" },
+        { name: "Hard (3x reward)", value: "hard" },
+        { name: "Extreme (5x reward)", value: "extreme" }
       )
   )
   .setContexts(
@@ -38,181 +42,130 @@ export const data = new SlashCommandBuilder()
   )
   .setIntegrationTypes([0, 1]);
 
-function generateMathProblem(difficulty: string): {
-  question: string;
-  answer: number;
-} {
-  switch (difficulty) {
-    case "easy":
-      return generateChainedCalculation("easy", 2, 3, 1, 20);
+const difficultyMultipliers = {
+  easy: 1,
+  medium: 2,
+  hard: 3,
+  extreme: 5,
+};
 
-    case "medium":
-      return generateChainedCalculation("medium", 3, 4, 1, 50);
+const fishEmojis = ["🐟", "🐠", "🐡", "🦈", "🐋", "🐳"];
 
-    case "hard":
-      return generateChainedCalculation("hard", 4, 5, 1, 100);
+export async function run({ interaction, client }) {
+  const { locale, user } = interaction;
+  const difficulty = interaction.options.getString("difficulty");
+  let fishCaught = 0;
+  const requiredFish = 12;
 
-    case "extreme":
-      return generateChainedCalculation("extreme", 5, 7, 1, 1000);
-  }
-}
+  const button = new ButtonBuilder()
+    .setCustomId("fish_button")
+    .setLabel(client.getLocale(locale, "work.fish.cast"))
+    .setEmoji("🎣")
+    .setStyle(ButtonStyle.Primary);
 
-function generateChainedCalculation(
-  difficulty: string,
-  minOps: number,
-  maxOps: number,
-  minNum: number,
-  maxNum: number
-) {
-  let question: string;
-  let numbers: number[] = [];
-  let operators: string[] = [];
+  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
 
-  do {
-    numbers = [];
-    operators = [];
-    const operationCount =
-      Math.floor(Math.random() * (maxOps - minOps + 1)) + minOps;
+  const progressEmbed = new EmbedBuilder()
+    .setColor(client.embedColor)
+    .setTitle(client.getLocale(locale, "work.fish.title"))
+    .setDescription(
+      client
+        .getLocale(locale, "work.fish.start")
+        .replace("{{caught}}", fishCaught.toString())
+        .replace("{{required}}", requiredFish.toString())
+    )
+    .addFields({
+      name: client.getLocale(locale, "work.fish.difficulty"),
+      value: difficulty.toUpperCase(),
+      inline: true,
+    })
+    .setFooter({ text: client.getLocale(locale, "work.fish.footer") })
+    .setTimestamp();
 
-    numbers.push(Math.floor(Math.random() * (maxNum - minNum)) + minNum);
+  const response = await interaction.editReply({
+    embeds: [progressEmbed],
+    components: [row],
+  });
 
-    for (let i = 0; i < operationCount; i++) {
-      const nextNum =
-        Math.floor(Math.random() * (maxNum / 2 - minNum)) + minNum;
-      numbers.push(nextNum);
+  const collector = response.createMessageComponentCollector({
+    componentType: ComponentType.Button,
+    time: 120000,
+  });
 
-      let possibleOperators = ["+", "-"];
-      if (difficulty !== "easy") possibleOperators.push("*");
-      if (difficulty === "hard" || difficulty === "extreme")
-        possibleOperators.push("/");
+  collector.on("collect", async (i) => {
+    if (i.user.id !== user.id) return;
 
-      operators.push(
-        possibleOperators[Math.floor(Math.random() * possibleOperators.length)]
+    const catchChance = Math.random();
+    const difficultyThreshold = {
+      easy: 0.8,
+      medium: 0.6,
+      hard: 0.4,
+      extreme: 0.25,
+    }[difficulty];
+
+    if (catchChance > difficultyThreshold) {
+      fishCaught++;
+      const randomFish =
+        fishEmojis[Math.floor(Math.random() * fishEmojis.length)];
+
+      progressEmbed
+        .setDescription(
+          client
+            .getLocale(locale, "work.fish.caught")
+            .replace("{{fish}}", randomFish)
+        )
+        .setFields({
+          name: client.getLocale(locale, "work.fish.progress"),
+          value: `${fishCaught}/${requiredFish}`,
+          inline: true,
+        });
+    } else {
+      progressEmbed.setDescription(
+        client.getLocale(locale, "work.fish.missed")
       );
     }
 
-    question =
-      numbers.reduce((acc, num, i) => {
-        if (i === 0) return num.toString();
-        return `${acc} ${operators[i - 1]} ${num}`;
-      }, "") + " = ?";
-  } while (question.length > 45);
+    await i.update({
+      embeds: [progressEmbed],
+      components: [row],
+    });
 
-  let answer = numbers[0];
-  for (let i = 0; i < operators.length; i++) {
-    switch (operators[i]) {
-      case "+":
-        answer += numbers[i + 1];
-        break;
-      case "-":
-        answer -= numbers[i + 1];
-        break;
-      case "*":
-        answer *= numbers[i + 1];
-        break;
-      case "/":
-        answer = Math.round(answer / numbers[i + 1]);
-        break;
+    if (fishCaught >= requiredFish) {
+      collector.stop("success");
     }
-  }
+  });
 
-  return {
-    question,
-    answer: Math.round(answer),
-  };
-}
+  collector.on("end", async (collected, reason) => {
+    if (reason === "success") {
+      const baseReward = Math.floor(Math.random() * 10) + 5;
+      const finalReward = baseReward * difficultyMultipliers[difficulty];
+      await client.addBalance(user.id, finalReward);
 
-function getReward(difficulty: string): number {
-  const rewards = {
-    easy: { min: 1, max: 5 },
-    medium: { min: 5, max: 15 },
-    hard: { min: 15, max: 30 },
-    extreme: { min: 30, max: 100 },
-  };
+      const successEmbed = new EmbedBuilder()
+        .setColor(client.embedColor)
+        .setTitle(client.getLocale(locale, "work.fish.success"))
+        .setDescription(
+          client
+            .getLocale(locale, "work.fish.reward")
+            .replace("{{amount}}", finalReward.toString())
+        )
+        .setTimestamp();
 
-  const { min, max } = rewards[difficulty];
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
+      await interaction.editReply({
+        embeds: [successEmbed],
+        components: [],
+      });
+    } else {
+      const timeoutEmbed = new EmbedBuilder()
+        .setColor(client.embedColor)
+        .setTitle(client.getLocale(locale, "work.fish.timeout_title"))
+        .setDescription(client.getLocale(locale, "work.fish.timeout"))
+        .setTimestamp();
 
-export async function run({ interaction, client }) {
-  const { locale } = interaction;
-  const difficulty = interaction.options.getString("difficulty");
-  const problem = generateMathProblem(difficulty);
-
-  const modal = new ModalBuilder()
-    .setCustomId(`math_${difficulty}_${problem.answer}`)
-    .setTitle(client.getLocale(locale, "work.modal_title"));
-
-  const answerInput = new TextInputBuilder()
-    .setCustomId("answer")
-    .setLabel(problem.question)
-    .setStyle(TextInputStyle.Short)
-    .setRequired(true);
-
-  const actionRow = new ActionRowBuilder<TextInputBuilder>().addComponents(
-    answerInput
-  );
-  modal.addComponents(actionRow);
-
-  await interaction.showModal(modal);
-
-  return new Promise((resolve) => {
-    interaction
-      .awaitModalSubmit({
-        filter: (i: { customId: string; user: { id: any } }) =>
-          i.customId === `math_${difficulty}_${problem.answer}` &&
-          i.user.id === interaction.user.id,
-        time: 120000,
-      })
-      .then(
-        async (modalSubmit: {
-          fields: { getTextInputValue: (arg0: string) => string };
-          reply: (arg0: { embeds: EmbedBuilder[] }) => any;
-        }) => {
-          if (!modalSubmit) {
-            resolve(true);
-            return;
-          }
-
-          const userAnswer = parseInt(
-            modalSubmit.fields.getTextInputValue("answer")
-          );
-
-          if (userAnswer === problem.answer) {
-            const earned = getReward(difficulty);
-            await client.addBalance(interaction.user.id, earned);
-
-            const successEmbed = new EmbedBuilder()
-              .setColor(client.embedColor)
-              .setTitle(client.getLocale(locale, "work.job"))
-              .setDescription(
-                client
-                  .getLocale(locale, "work.correct")
-                  .replace(
-                    "{{difficulty}}",
-                    client.getLocale(locale, `work.difficulty.${difficulty}`)
-                  )
-                  .replace("{{amount}}", earned.toString())
-              )
-              .setTimestamp();
-
-            await modalSubmit.reply({ embeds: [successEmbed] });
-          } else {
-            const failEmbed = new EmbedBuilder()
-              .setColor(client.embedColor)
-              .setTitle(client.getLocale(locale, "work.job"))
-              .setDescription(
-                client
-                  .getLocale(locale, "work.wrong")
-                  .replace("{{answer}}", problem.answer.toString())
-              )
-              .setTimestamp();
-
-            await modalSubmit.reply({ embeds: [failEmbed] });
-          }
-          resolve(true);
-        }
-      )
-      .catch(() => resolve(true));
+      await interaction.editReply({
+        embeds: [timeoutEmbed],
+        components: [],
+      });
+    }
   });
 }
