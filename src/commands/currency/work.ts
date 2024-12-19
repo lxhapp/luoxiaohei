@@ -42,11 +42,31 @@ export const data = new SlashCommandBuilder()
   )
   .setIntegrationTypes([0, 1]);
 
-const difficultyMultipliers = {
-  easy: 1,
-  medium: 2,
-  hard: 3,
-  extreme: 5,
+const difficultySettings = {
+  easy: {
+    requiredFish: 8,
+    catchChance: 0.4,
+    multiplier: 1,
+    cooldown: 2000,
+  },
+  medium: {
+    requiredFish: 12,
+    catchChance: 0.25,
+    multiplier: 2,
+    cooldown: 1500,
+  },
+  hard: {
+    requiredFish: 15,
+    catchChance: 0.15,
+    multiplier: 3,
+    cooldown: 1000,
+  },
+  extreme: {
+    requiredFish: 20,
+    catchChance: 0.08,
+    multiplier: 5,
+    cooldown: 800,
+  },
 };
 
 const fishEmojis = ["🐟", "🐠", "🐡", "🦈", "🐋", "🐳"];
@@ -55,7 +75,8 @@ export async function run({ interaction, client }) {
   const { locale, user } = interaction;
   const difficulty = interaction.options.getString("difficulty");
   let fishCaught = 0;
-  const requiredFish = 12;
+  const settings = difficultySettings[difficulty];
+  const requiredFish = settings.requiredFish;
 
   const button = new ButtonBuilder()
     .setCustomId("fish_button")
@@ -92,18 +113,24 @@ export async function run({ interaction, client }) {
     time: 120000,
   });
 
+  let lastCatch = 0;
+
   collector.on("collect", async (i) => {
     if (i.user.id !== user.id) return;
 
-    const catchChance = Math.random();
-    const difficultyThreshold = {
-      easy: 0.8,
-      medium: 0.6,
-      hard: 0.4,
-      extreme: 0.25,
-    }[difficulty];
+    const now = Date.now();
+    if (now - lastCatch < settings.cooldown) {
+      progressEmbed.setDescription(
+        client.getLocale(locale, "work.fish.too_fast")
+      );
+      await i.update({ embeds: [progressEmbed], components: [row] });
+      return;
+    }
 
-    if (catchChance > difficultyThreshold) {
+    lastCatch = now;
+    const catchChance = Math.random();
+
+    if (catchChance < settings.catchChance) {
       fishCaught++;
       const randomFish =
         fishEmojis[Math.floor(Math.random() * fishEmojis.length)];
@@ -135,10 +162,10 @@ export async function run({ interaction, client }) {
     }
   });
 
-  collector.on("end", async (collected, reason) => {
+  collector.on("end", async (collected: any, reason: string) => {
     if (reason === "success") {
       const baseReward = Math.floor(Math.random() * 10) + 5;
-      const finalReward = baseReward * difficultyMultipliers[difficulty];
+      const finalReward = baseReward * settings.multiplier;
       await client.addBalance(user.id, finalReward);
 
       const successEmbed = new EmbedBuilder()
