@@ -8,8 +8,66 @@ import {
   ComponentType,
 } from "discord.js";
 
+const WEATHER_EFFECTS = {
+  sunny: { catchBonus: 0.05, emoji: "☀️" },
+  rainy: { catchBonus: 0.1, emoji: "🌧️" },
+  stormy: { catchBonus: -0.03, emoji: "⛈️" },
+  perfect: { catchBonus: 0.15, emoji: "🌈" },
+};
+
+const LOCATIONS = {
+  pond: {
+    fish: ["🐟", "🐠", "🐡"],
+    baseChanceBonus: 0,
+    emoji: "🏊",
+  },
+  river: {
+    fish: ["🐟", "🐠", "🐳", "🦈"],
+    baseChanceBonus: 0.02,
+    emoji: "🌊",
+  },
+  ocean: {
+    fish: ["🐋", "🐳", "🦈", "🐡"],
+    baseChanceBonus: 0.05,
+    emoji: "🌊",
+  },
+};
+
+const RARE_FISH = {
+  "🐉": { chance: 0.01, reward: 50 },
+  "🦄": { chance: 0.02, reward: 30 },
+  "✨": { chance: 0.05, reward: 20 },
+};
+
+const difficultySettings = {
+  easy: {
+    requiredFish: 9,
+    catchChance: 0.4,
+    multiplier: 1,
+    cooldown: 2000,
+  },
+  medium: {
+    requiredFish: 13,
+    catchChance: 0.25,
+    multiplier: 2,
+    cooldown: 1500,
+  },
+  hard: {
+    requiredFish: 17,
+    catchChance: 0.15,
+    multiplier: 3,
+    cooldown: 1000,
+  },
+  extreme: {
+    requiredFish: 22,
+    catchChance: 0.08,
+    multiplier: 5,
+    cooldown: 800,
+  },
+};
+
 export const beta = false;
-export const cooldown = 60;
+export const cooldown = 300;
 export const data = new SlashCommandBuilder()
   .setName("work")
   .setDescription("Work to earn some yen")
@@ -22,11 +80,6 @@ export const data = new SlashCommandBuilder()
     option
       .setName("difficulty")
       .setDescription("Choose your fishing difficulty")
-      .setDescriptionLocalizations({
-        ru: "Выберите сложность вашей рыбалки",
-        uk: "Виберіть складність вашої рибалки",
-        ja: "釣りの難易度を選択してください",
-      })
       .setRequired(true)
       .addChoices(
         { name: "Easy (1x reward)", value: "easy" },
@@ -42,41 +95,33 @@ export const data = new SlashCommandBuilder()
   )
   .setIntegrationTypes([0, 1]);
 
-const difficultySettings = {
-  easy: {
-    requiredFish: 8,
-    catchChance: 0.4,
-    multiplier: 1,
-    cooldown: 2000,
-  },
-  medium: {
-    requiredFish: 12,
-    catchChance: 0.25,
-    multiplier: 2,
-    cooldown: 1500,
-  },
-  hard: {
-    requiredFish: 15,
-    catchChance: 0.15,
-    multiplier: 3,
-    cooldown: 1000,
-  },
-  extreme: {
-    requiredFish: 20,
-    catchChance: 0.08,
-    multiplier: 5,
-    cooldown: 800,
-  },
-};
+function getCurrentWeather(): keyof typeof WEATHER_EFFECTS {
+  const weathers = Object.keys(WEATHER_EFFECTS);
+  return weathers[
+    Math.floor(Math.random() * weathers.length)
+  ] as keyof typeof WEATHER_EFFECTS;
+}
 
-const fishEmojis = ["🐟", "🐠", "🐡", "🦈", "🐋", "🐳"];
+function getRandomLocation(): keyof typeof LOCATIONS {
+  const locations = Object.keys(LOCATIONS);
+  return locations[
+    Math.floor(Math.random() * locations.length)
+  ] as keyof typeof LOCATIONS;
+}
 
 export async function run({ interaction, client }) {
   const { locale, user } = interaction;
   const difficulty = interaction.options.getString("difficulty");
-  let fishCaught = 0;
   const settings = difficultySettings[difficulty];
+
+  let fishCaught = 0;
+  let streak = 0;
   let lastCatch = 0;
+  let totalBonus = 0;
+
+  const weather = getCurrentWeather();
+  const location = getRandomLocation();
+  const isGoldenHour = Math.random() < 0.1;
 
   const button = new ButtonBuilder()
     .setCustomId("fish_button")
@@ -85,21 +130,39 @@ export async function run({ interaction, client }) {
     .setStyle(ButtonStyle.Primary);
 
   const row = new ActionRowBuilder<ButtonBuilder>().addComponents(button);
+  const disabledRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    ButtonBuilder.from(button).setDisabled(true)
+  );
 
   const progressEmbed = new EmbedBuilder()
     .setColor(client.embedColor)
     .setTitle(client.getLocale(locale, "work.fish.title"))
     .setDescription(
-      client
+      `${WEATHER_EFFECTS[weather].emoji} ${LOCATIONS[location].emoji} ${
+        isGoldenHour ? "✨ " : ""
+      }${client
         .getLocale(locale, "work.fish.start")
-        .replace("{{caught}}", fishCaught.toString())
-        .replace("{{required}}", settings.requiredFish.toString())
+        .replace(
+          "{{weather}}",
+          client.getLocale(locale, `work.fish.weather.${weather}`)
+        )
+        .replace(
+          "{{location}}",
+          client.getLocale(locale, `work.fish.location.${location}`)
+        )}`
     )
-    .addFields({
-      name: client.getLocale(locale, "work.fish.progress"),
-      value: `${fishCaught}/${settings.requiredFish}`,
-      inline: true,
-    })
+    .addFields(
+      {
+        name: client.getLocale(locale, "work.fish.progress"),
+        value: `${fishCaught}/${settings.requiredFish}`,
+        inline: true,
+      },
+      {
+        name: client.getLocale(locale, "work.fish.streak"),
+        value: streak.toString(),
+        inline: true,
+      }
+    )
     .setTimestamp();
 
   const message = await interaction.editReply({
@@ -109,7 +172,7 @@ export async function run({ interaction, client }) {
 
   const collector = message.createMessageComponentCollector({
     componentType: ComponentType.Button,
-    time: 180000,
+    time: 30000,
   });
 
   collector.on(
@@ -123,44 +186,90 @@ export async function run({ interaction, client }) {
     }) => {
       if (i.user.id !== user.id) return;
 
+      if (Date.now() - collector.createdTimestamp >= 30000) {
+        await i.update({
+          embeds: [progressEmbed],
+          components: [disabledRow],
+        });
+        return;
+      }
+
       const now = Date.now();
       if (now - lastCatch < settings.cooldown) {
-        try {
-          progressEmbed.setDescription(
-            client.getLocale(locale, "work.fish.too_fast")
-          );
-          await i.update({ embeds: [progressEmbed], components: [row] });
-        } catch (error) {
-          return;
-        }
+        progressEmbed.setDescription(
+          client.getLocale(locale, "work.fish.too_fast")
+        );
+        await i.update({ embeds: [progressEmbed], components: [row] });
         return;
       }
 
       lastCatch = now;
-      const catchChance = Math.random();
+      let catchChance = settings.catchChance;
+      catchChance += WEATHER_EFFECTS[weather].catchBonus;
+      catchChance += LOCATIONS[location].baseChanceBonus;
+      if (isGoldenHour) catchChance += 0.1;
+      catchChance += streak * 0.01;
 
-      if (catchChance < settings.catchChance) {
+      if (Math.random() < catchChance) {
         fishCaught++;
-        const randomFish =
-          fishEmojis[Math.floor(Math.random() * fishEmojis.length)];
+        streak++;
 
-        try {
-          progressEmbed
-            .setDescription(
-              client
-                .getLocale(locale, "work.fish.caught")
-                .replace("{{fish}}", randomFish)
-            )
-            .setFields({
+        let caughtFish = "";
+        let bonusReward = 0;
+
+        for (const [fish, data] of Object.entries(RARE_FISH)) {
+          if (Math.random() < data.chance) {
+            caughtFish = fish;
+            bonusReward = data.reward;
+            break;
+          }
+        }
+
+        if (!caughtFish) {
+          const locationFish = LOCATIONS[location].fish;
+          caughtFish =
+            locationFish[Math.floor(Math.random() * locationFish.length)];
+        }
+
+        totalBonus += bonusReward;
+
+        progressEmbed
+          .setDescription(
+            `${WEATHER_EFFECTS[weather].emoji} ${LOCATIONS[location].emoji} ${
+              isGoldenHour ? "✨ " : ""
+            }${client
+              .getLocale(locale, "work.fish.caught")
+              .replace("{{fish}}", caughtFish)}`
+          )
+          .setFields(
+            {
               name: client.getLocale(locale, "work.fish.progress"),
               value: `${fishCaught}/${settings.requiredFish}`,
               inline: true,
-            });
-          await i.update({ embeds: [progressEmbed], components: [row] });
-        } catch (error) {
-          return;
-        }
+            },
+            {
+              name: client.getLocale(locale, "work.fish.streak"),
+              value: streak.toString(),
+              inline: true,
+            }
+          );
+      } else {
+        streak = 0;
+        progressEmbed.setFields(
+          {
+            name: client.getLocale(locale, "work.fish.progress"),
+            value: `${fishCaught}/${settings.requiredFish}`,
+            inline: true,
+          },
+          {
+            name: client.getLocale(locale, "work.fish.streak"),
+            value: streak.toString(),
+            inline: true,
+          }
+        );
       }
+
+      await i.update({ embeds: [progressEmbed], components: [row] });
 
       if (fishCaught >= settings.requiredFish) {
         collector.stop("success");
@@ -169,42 +278,67 @@ export async function run({ interaction, client }) {
   );
 
   collector.on("end", async (collected: any, reason: string) => {
-    try {
-      if (reason === "success") {
-        const baseReward = Math.floor(Math.random() * 10) + 5;
-        const finalReward = baseReward * settings.multiplier;
-        await client.addBalance(user.id, finalReward);
+    if (reason === "success") {
+      const baseReward = Math.floor(Math.random() * 10) + 5;
+      const streakBonus = Math.floor(streak * 0.5);
+      const weatherBonus = Math.floor(WEATHER_EFFECTS[weather].catchBonus * 10);
+      const goldenHourBonus = isGoldenHour ? 5 : 0;
 
-        const successEmbed = new EmbedBuilder()
-          .setColor(client.embedColor)
-          .setTitle(client.getLocale(locale, "work.fish.success"))
-          .setDescription(
-            client
-              .getLocale(locale, "work.fish.reward")
-              .replace("{{amount}}", finalReward.toString())
-          )
-          .setTimestamp();
+      const finalReward =
+        baseReward * settings.multiplier +
+        streakBonus +
+        weatherBonus +
+        goldenHourBonus +
+        totalBonus;
 
-        await interaction
-          .editReply({
-            embeds: [successEmbed],
-            components: [],
-          })
-          .catch(() => {});
-      } else {
-        const timeoutEmbed = new EmbedBuilder()
-          .setColor(client.embedColor)
-          .setTitle(client.getLocale(locale, "work.fish.timeout_title"))
-          .setDescription(client.getLocale(locale, "work.fish.timeout"))
-          .setTimestamp();
+      await client.addBalance(user.id, finalReward);
 
-        await interaction
-          .editReply({
-            embeds: [timeoutEmbed],
-            components: [],
-          })
-          .catch(() => {});
-      }
-    } catch {}
+      const successEmbed = new EmbedBuilder()
+        .setColor(client.embedColor)
+        .setTitle(client.getLocale(locale, "work.fish.success"))
+        .setDescription(
+          client
+            .getLocale(locale, "work.fish.reward")
+            .replace("{{amount}}", finalReward.toString())
+        )
+        .addFields(
+          {
+            name: client.getLocale(locale, "work.fish.bonus.streak"),
+            value: `+${streakBonus}`,
+            inline: true,
+          },
+          {
+            name: client.getLocale(locale, "work.fish.bonus.weather"),
+            value: `+${weatherBonus}`,
+            inline: true,
+          },
+          {
+            name: client.getLocale(locale, "work.fish.bonus.golden"),
+            value: `+${goldenHourBonus}`,
+            inline: true,
+          }
+        )
+        .setTimestamp();
+
+      await interaction
+        .editReply({
+          embeds: [successEmbed],
+          components: [disabledRow],
+        })
+        .catch(() => {});
+    } else {
+      const timeoutEmbed = new EmbedBuilder()
+        .setColor(client.embedColor)
+        .setTitle(client.getLocale(locale, "work.fish.timeout_title"))
+        .setDescription(client.getLocale(locale, "work.fish.timeout"))
+        .setTimestamp();
+
+      await interaction
+        .editReply({
+          embeds: [timeoutEmbed],
+          components: [disabledRow],
+        })
+        .catch(() => {});
+    }
   });
 }
