@@ -72,7 +72,6 @@ export async function run({ interaction, client }) {
     allowedMentions: {
       repliedUser: false,
     },
-    flags: [4096],
   });
   const collector = msg.createMessageComponentCollector({
     componentType: ComponentType.StringSelect,
@@ -94,7 +93,6 @@ export async function run({ interaction, client }) {
         allowedMentions: {
           repliedUser: false,
         },
-        flags: [4096],
       });
 
       msg.delete();

@@ -76,7 +76,7 @@ export async function run({ interaction, client }) {
   const difficulty = interaction.options.getString("difficulty");
   let fishCaught = 0;
   const settings = difficultySettings[difficulty];
-  const requiredFish = settings.requiredFish;
+  let lastCatch = 0;
 
   const button = new ButtonBuilder()
     .setCustomId("fish_button")
@@ -93,74 +93,80 @@ export async function run({ interaction, client }) {
       client
         .getLocale(locale, "work.fish.start")
         .replace("{{caught}}", fishCaught.toString())
-        .replace("{{required}}", requiredFish.toString())
+        .replace("{{required}}", settings.requiredFish.toString())
     )
     .addFields({
-      name: client.getLocale(locale, "work.fish.difficulty"),
-      value: difficulty.toUpperCase(),
+      name: client.getLocale(locale, "work.fish.progress"),
+      value: `${fishCaught}/${settings.requiredFish}`,
       inline: true,
     })
-    .setFooter({ text: client.getLocale(locale, "work.fish.footer") })
     .setTimestamp();
 
-  const response = await interaction.editReply({
+  const message = await interaction.editReply({
     embeds: [progressEmbed],
     components: [row],
   });
 
-  const collector = response.createMessageComponentCollector({
+  const collector = message.createMessageComponentCollector({
     componentType: ComponentType.Button,
-    time: 120000,
+    time: 180000,
   });
 
-  let lastCatch = 0;
+  collector.on(
+    "collect",
+    async (i: {
+      user: { id: any };
+      update: (arg0: {
+        embeds: EmbedBuilder[];
+        components: ActionRowBuilder<ButtonBuilder>[];
+      }) => any;
+    }) => {
+      if (i.user.id !== user.id) return;
 
-  collector.on("collect", async (i) => {
-    if (i.user.id !== user.id) return;
+      const now = Date.now();
+      if (now - lastCatch < settings.cooldown) {
+        try {
+          progressEmbed.setDescription(
+            client.getLocale(locale, "work.fish.too_fast")
+          );
+          await i.update({ embeds: [progressEmbed], components: [row] });
+        } catch (error) {
+          return;
+        }
+        return;
+      }
 
-    const now = Date.now();
-    if (now - lastCatch < settings.cooldown) {
-      progressEmbed.setDescription(
-        client.getLocale(locale, "work.fish.too_fast")
-      );
-      await i.update({ embeds: [progressEmbed], components: [row] });
-      return;
+      lastCatch = now;
+      const catchChance = Math.random();
+
+      if (catchChance < settings.catchChance) {
+        fishCaught++;
+        const randomFish =
+          fishEmojis[Math.floor(Math.random() * fishEmojis.length)];
+
+        try {
+          progressEmbed
+            .setDescription(
+              client
+                .getLocale(locale, "work.fish.caught")
+                .replace("{{fish}}", randomFish)
+            )
+            .setFields({
+              name: client.getLocale(locale, "work.fish.progress"),
+              value: `${fishCaught}/${settings.requiredFish}`,
+              inline: true,
+            });
+          await i.update({ embeds: [progressEmbed], components: [row] });
+        } catch (error) {
+          return;
+        }
+      }
+
+      if (fishCaught >= settings.requiredFish) {
+        collector.stop("success");
+      }
     }
-
-    lastCatch = now;
-    const catchChance = Math.random();
-
-    if (catchChance < settings.catchChance) {
-      fishCaught++;
-      const randomFish =
-        fishEmojis[Math.floor(Math.random() * fishEmojis.length)];
-
-      progressEmbed
-        .setDescription(
-          client
-            .getLocale(locale, "work.fish.caught")
-            .replace("{{fish}}", randomFish)
-        )
-        .setFields({
-          name: client.getLocale(locale, "work.fish.progress"),
-          value: `${fishCaught}/${requiredFish}`,
-          inline: true,
-        });
-    } else {
-      progressEmbed.setDescription(
-        client.getLocale(locale, "work.fish.missed")
-      );
-    }
-
-    await i.update({
-      embeds: [progressEmbed],
-      components: [row],
-    });
-
-    if (fishCaught >= requiredFish) {
-      collector.stop("success");
-    }
-  });
+  );
 
   collector.on("end", async (collected: any, reason: string) => {
     if (reason === "success") {
