@@ -169,36 +169,42 @@ export async function run({ interaction, client }) {
   );
 
   collector.on("end", async (collected: any, reason: string) => {
-    if (reason === "success") {
-      const baseReward = Math.floor(Math.random() * 10) + 5;
-      const finalReward = baseReward * settings.multiplier;
-      await client.addBalance(user.id, finalReward);
+    try {
+      if (reason === "success") {
+        const baseReward = Math.floor(Math.random() * 10) + 5;
+        const finalReward = baseReward * settings.multiplier;
+        await client.addBalance(user.id, finalReward);
 
-      const successEmbed = new EmbedBuilder()
-        .setColor(client.embedColor)
-        .setTitle(client.getLocale(locale, "work.fish.success"))
-        .setDescription(
-          client
-            .getLocale(locale, "work.fish.reward")
-            .replace("{{amount}}", finalReward.toString())
-        )
-        .setTimestamp();
+        const successEmbed = new EmbedBuilder()
+          .setColor(client.embedColor)
+          .setTitle(client.getLocale(locale, "work.fish.success"))
+          .setDescription(
+            client
+              .getLocale(locale, "work.fish.reward")
+              .replace("{{amount}}", finalReward.toString())
+          )
+          .setTimestamp();
 
-      await interaction.editReply({
-        embeds: [successEmbed],
-        components: [],
-      });
-    } else {
-      const timeoutEmbed = new EmbedBuilder()
-        .setColor(client.embedColor)
-        .setTitle(client.getLocale(locale, "work.fish.timeout_title"))
-        .setDescription(client.getLocale(locale, "work.fish.timeout"))
-        .setTimestamp();
+        await interaction
+          .editReply({
+            embeds: [successEmbed],
+            components: [],
+          })
+          .catch(() => {});
+      } else {
+        const timeoutEmbed = new EmbedBuilder()
+          .setColor(client.embedColor)
+          .setTitle(client.getLocale(locale, "work.fish.timeout_title"))
+          .setDescription(client.getLocale(locale, "work.fish.timeout"))
+          .setTimestamp();
 
-      await interaction.editReply({
-        embeds: [timeoutEmbed],
-        components: [],
-      });
-    }
+        await interaction
+          .editReply({
+            embeds: [timeoutEmbed],
+            components: [],
+          })
+          .catch(() => {});
+      }
+    } catch {}
   });
 }
