@@ -459,10 +459,10 @@ export default {
         ja: "{{location}}の天気は{{weather}}です！釣り糸を投げましょう！",
       },
       cast: {
-        en: "Cast Line 🎣",
-        ru: "Забросить 🎣",
-        uk: "Закинути 🎣",
-        ja: "投げる 🎣",
+        en: "Cast Line",
+        ru: "Забросить",
+        uk: "Закинути",
+        ja: "投げる",
       },
       caught: {
         en: "You caught a {{fish}}!",
@@ -470,11 +470,11 @@ export default {
         uk: "Ви впіймали {{fish}}!",
         ja: "{{fish}}を釣りました！",
       },
-      too_fast: {
-        en: "Whoa! Wait a moment before casting again!",
-        ru: "Подождите немного перед следующим забросом!",
-        uk: "Зачекайте трохи перед наступним закиданням!",
-        ja: "ちょっと待って！次の投げまで少し待ちましょう！",
+      missed: {
+        en: "Oh no! The {{fish}} got away!",
+        ru: "О нет! {{fish}} сорвалась с крючка!",
+        uk: "О ні! {{fish}} зірвалася з гачка!",
+        ja: "おっと！{{fish}}が逃げてしまいました！",
       },
       progress: {
         en: "Fish Caught",
