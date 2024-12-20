@@ -185,6 +185,7 @@ export async function run({ interaction, client }) {
       }) => any;
     }) => {
       if (i.user.id !== user.id) return;
+      if (collector.ended) return;
 
       if (Date.now() - collector.createdTimestamp >= 30000) {
         await i.update({
@@ -355,7 +356,7 @@ export async function run({ interaction, client }) {
       await interaction
         .editReply({
           embeds: [timeoutEmbed],
-          components: [disabledRow],
+          components: [],
         })
         .catch(() => {});
     }
