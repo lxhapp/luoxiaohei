@@ -64,7 +64,7 @@
         "@types/remove-markdown": "0.3.4",
         "@typescript-eslint/eslint-plugin": "^8.24.1",
         "@typescript-eslint/parser": "^8.24.1",
-        "eslint": "^8.57.1",
+        "eslint": "^9.20.1",
         "eslint-plugin-import": "^2.30.0",
         "eslint-plugin-unicorn": "^57.0.0",
         "prettier": "^3.3.3",
