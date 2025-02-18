@@ -57,7 +57,7 @@
         "remove-markdown": "0.6.0"
     },
     "devDependencies": {
-        "@types/express": "4.17.21",
+        "@types/express": "5.0.0",
         "@types/luxon": "3.4.2",
         "@types/node": "^22.7.3",
         "@types/node-schedule": "2.1.7",
