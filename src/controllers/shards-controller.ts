@@ -1,6 +1,5 @@
 import { ActivityType, ShardingManager } from 'discord.js';
 import { Request, Response, Router } from 'express';
-import router from 'express-promise-router';
 import { createRequire } from 'node:module';
 
 import { Controller } from './index.js';
@@ -20,7 +19,7 @@ let Logs = require('../../lang/logs.json');
 
 export class ShardsController implements Controller {
     public path = '/shards';
-    public router: Router = router();
+    public router: Router = Router();
     public authToken: string = Config.api.secret;
 
     constructor(private shardManager: ShardingManager) {}
@@ -33,49 +32,59 @@ export class ShardsController implements Controller {
     }
 
     private async getShards(req: Request, res: Response): Promise<void> {
-        let shardDatas = await Promise.all(
-            this.shardManager.shards.map(async shard => {
-                let shardInfo: ShardInfo = {
-                    id: shard.id,
-                    ready: shard.ready,
-                    error: false,
-                };
+        try {
+            let shardDatas = await Promise.all(
+                this.shardManager.shards.map(async shard => {
+                    let shardInfo: ShardInfo = {
+                        id: shard.id,
+                        ready: shard.ready,
+                        error: false,
+                    };
 
-                try {
-                    let uptime = (await shard.fetchClientValue('uptime')) as number;
-                    shardInfo.uptimeSecs = Math.floor(uptime / 1000);
-                } catch (error) {
-                    Logger.error(Logs.error.managerShardInfo, error);
-                    shardInfo.error = true;
-                }
+                    try {
+                        let uptime = (await shard.fetchClientValue('uptime')) as number;
+                        shardInfo.uptimeSecs = Math.floor(uptime / 1000);
+                    } catch (error) {
+                        Logger.error(Logs.error.managerShardInfo, error);
+                        shardInfo.error = true;
+                    }
 
-                return shardInfo;
-            })
-        );
+                    return shardInfo;
+                })
+            );
 
-        let stats: ShardStats = {
-            shardCount: this.shardManager.shards.size,
-            uptimeSecs: Math.floor(process.uptime()),
-        };
+            let stats: ShardStats = {
+                shardCount: this.shardManager.shards.size,
+                uptimeSecs: Math.floor(process.uptime()),
+            };
 
-        let resBody: GetShardsResponse = {
-            shards: shardDatas,
-            stats,
-        };
-        res.status(200).json(resBody);
+            let resBody: GetShardsResponse = {
+                shards: shardDatas,
+                stats,
+            };
+            res.status(200).json(resBody);
+        } catch (error) {
+            Logger.error(Logs.error.managerShardInfo, error);
+            res.status(500).json({ error: 'An error occurred while fetching shard information' });
+        }
     }
 
     private async setShardPresences(req: Request, res: Response): Promise<void> {
-        let reqBody: SetShardPresencesRequest = res.locals.input;
+        try {
+            let reqBody: SetShardPresencesRequest = res.locals.input;
 
-        await this.shardManager.broadcastEval(
-            (client, context) => {
-                let customClient = client as CustomClient;
-                return customClient.setPresence(context.type, context.name, context.url);
-            },
-            { context: { type: ActivityType[reqBody.type], name: reqBody.name, url: reqBody.url } }
-        );
+            await this.shardManager.broadcastEval(
+                (client, context) => {
+                    let customClient = client as CustomClient;
+                    return customClient.setPresence(context.type, context.name, context.url);
+                },
+                { context: { type: ActivityType[reqBody.type], name: reqBody.name, url: reqBody.url } }
+            );
 
-        res.sendStatus(200);
+            res.sendStatus(200);
+        } catch (error) {
+            Logger.error(Logs.error.managerSetPresence, error);
+            res.status(500).json({ error: 'An error occurred while setting shard presences' });
+        }
     }
 }
