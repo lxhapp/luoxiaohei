@@ -1,0 +1,558 @@
+{
+    "commands": {
+        "currency": {
+            "name": "currency",
+            "description": "Currency related commands",
+            "subcommands": {
+                "balance": {
+                    "name": "balance",
+                    "description": "View your current balance, or someone's balance",
+                    "options": {
+                        "user": {
+                            "name": "user",
+                            "description": "[Optional] The user you want to view their balance"
+                        }
+                    },
+                    "strings": {
+                        "balanceSelf": "<:wallet:1297262403691745280> Your balance: **{{BALANCE}}¥**",
+                        "balanceOther": "<:wallet:1297262403691745280> Balance of <@{{USERID}}>: **{{BALANCE}}¥**",
+                        "balanceApp": "<:fail:1335182303705563146> *Huh?* You selected an **application** instead of a user? *Why would you do that..?*",
+                        "balanceLuo": "<:fail:1335182303705563146> *Uhm...* Are you trying to **view** my balance? *I'm just an application, not a real user.*"
+                    }
+                },
+                "backpack": {
+                    "name": "backpack",
+                    "description": "Check their backpack (or your own)",
+                    "options": {
+                        "user": {
+                            "name": "user",
+                            "description": "The user to check the backpack of"
+                        }
+                    },
+                    "strings": {
+                        "error": "<:fail:1335182303705563146> *Oops!* Something went wrong while looking the backpack...",
+                        "empty": "<:fail:1335182303705563146> This backpack is empty!",
+                        "title": "<:backpack:1335179244095144038> {user}'s Backpack",
+                        "size": "Size",
+                        "slotsAvailable": "slots available"
+                    }
+                },
+                "leaderboard": {
+                    "name": "leaderboard",
+                    "description": "Who is the richest?",
+                    "subsubcommands": {
+                        "list": {
+                            "name": "list",
+                            "description": "Show the leaderboard"
+                        },
+                        "anonymous": {
+                            "name": "anonymous",
+                            "description": "Toggle your visibility on the leaderboard"
+                        }
+                    },
+                    "strings": {
+                        "error": "<:fail:1335182303705563146> An error occurred while fetching the leaderboard.",
+                        "noUsersFound": "<:fail:1335182303705563146> No users found on the leaderboard.",
+                        "title": "Leaderboard",
+                        "description": "Top 10 richest users",
+                        "errors": {
+                            "create_user": "<:fail:1335182303705563146> An error occurred while creating your user profile.",
+                            "fetch_data": "<:fail:1335182303705563146> An error occurred while fetching your data.",
+                            "update_data": "<:fail:1335182303705563146> An error occurred while updating your settings."
+                        },
+                        "anonymous": {
+                            "enabled": "<:success:1335181909751365673> You are now anonymous on the leaderboard.",
+                            "disabled": "<:success:1335181909751365673> You are now visible on the leaderboard."
+                        }
+                    }
+                },
+                "sell": {
+                    "name": "sell",
+                    "description": "Sell items from your backpack",
+                    "strings": {
+                        "database": {
+                            "error": "<:fail:1335182303705563146> *Oops!* Something went wrong while fetching your backpack..."
+                        },
+                        "backpack": {
+                            "empty": "<:fail:1335182303705563146> *Hmm...* Your backpack is empty!"
+                        },
+                        "selectPlaceholder": "Select an item to sell",
+                        "selectItemToSell": "<:success:1335181909751365673> *Alright!* Select an item you want to sell.",
+                        "available": "available",
+                        "selectQuantityPreset": "How many **{{ITEM}}** would you like to sell? (Price: **{{PRICE}}¥** each)",
+                        "one": "1",
+                        "five": "5",
+                        "ten": "10",
+                        "max": "All",
+                        "skip": "Skip",
+                        "cancel": "Cancel",
+                        "more": "Sell More",
+                        "finish": "Done",
+                        "itemSoldAskMore": "<:success:1335181909751365673> You sold **{{AMOUNT}}x {{ITEM}}** for **{{PRICE}}¥**! Would you like to sell more items?",
+                        "complete": "<:success:1335181909751365673> *Great!* Thanks for selling!",
+                        "cancelled": "<:success:1335181909751365673> *Alright!* Sale cancelled.",
+                        "error": "<:fail:1335182303705563146> *Oops!* Something went wrong during the sale...",
+                        "timeout": "<:fail:1335182303705563146> *Time's up!* The sell menu has expired."
+                    }
+                },
+                "shop": {
+                    "name": "shop",
+                    "description": "Browse and purchase items from the shop",
+                    "strings": {
+                        "error": "<:fail:1335182303705563146> *Oops!* Something went wrong...",
+                        "empty": "<:fail:1335182303705563146> *Hmm...* The shop is empty!",
+                        "selectPlaceholder": "Select an item to buy",
+                        "selectItemToBuy": "<:success:1335181909751365673> *Alright!* Select an item you want to buy.",
+                        "selectQuantityPreset": "How many **{{ITEM}}** would you like to buy? (Cost: **{{COST}}¥** each)",
+                        "one": "1",
+                        "five": "5",
+                        "ten": "10",
+                        "max": "Max",
+                        "cancel": "Cancel",
+                        "more": "Buy More",
+                        "finish": "Done",
+                        "itemPurchasedAskMore": "<:success:1335181909751365673> You bought **{{QUANTITY}}x {{ITEM}}**! Would you like to buy more items?",
+                        "complete": "<:success:1335181909751365673> *Great!* Thanks for shopping!",
+                        "cancelled": "<:success:1335181909751365673> *Okay!* Purchase cancelled.",
+                        "backpackFull": "<:fail:1335182303705563146> *Oops!* Your backpack is full!",
+                        "notEnoughBalance": "<:fail:1335182303705563146> *Sorry!* You don't have enough money for this purchase.",
+                        "purchaseError": "<:fail:1335182303705563146> *Oops!* Something went wrong with the purchase...",
+                        "timeout": "<:fail:1335182303705563146> *Time's up!* The shop menu has expired."
+                    }
+                },
+                "transfer": {
+                    "name": "transfer",
+                    "description": "Transfer your balance to another user",
+                    "options": {
+                        "user": {
+                            "name": "user",
+                            "description": "The user to transfer the balance to"
+                        },
+                        "amount": {
+                            "name": "amount",
+                            "description": "The amount of balance to transfer"
+                        }
+                    },
+                    "strings": {
+                        "app": "<:fail:1335182303705563146> *Huh?* You can't transfer money to apps!",
+                        "sameUser": "<:fail:1335182303705563146> *Really?* You can't transfer money to yourself!",
+                        "error": "<:fail:1335182303705563146> *Oops!* Something went wrong with the transfer...",
+                        "insufficientBalance": "<:fail:1335182303705563146> *Sorry!* You don't have enough money for this transfer.",
+                        "confirmTitle": "Confirm Transfer",
+                        "confirmDescription": "Are you sure you want to transfer **{{AMOUNT}}¥** to {{USER}}?",
+                        "yes": "Yes",
+                        "no": "No",
+                        "success": "<:success:1335181909751365673> Successfully transferred **{{AMOUNT}}¥** to {{USER}}!",
+                        "cancelled": "<:success:1335181909751365673> *Okay!* Transfer cancelled.",
+                        "timeout": "<:fail:1335182303705563146> *Time's up!* Transfer cancelled."
+                    }
+                },
+                "work": {
+                    "name": "work",
+                    "description": "Start working, and earn Yenaras!",
+                    "strings": {
+                        "guessTitle": "Number Guessing Game",
+                        "guessStart": "I'm thinking of a number between 1 and 100!",
+                        "startGuess": "Start Guessing",
+                        "guessModalTitle": "Make Your Guess!",
+                        "guessPrompt": "Enter your guess ({{ATTEMPTS}} attempts left):",
+                        "guessInvalid": "<:fail:1335182303705563146> Please enter a valid number between 1 and 100!",
+                        "guessWin": "<:success:1335182267368230982> Correct! You earned {{REWARD}}¥",
+                        "guessLower": "Lower!",
+                        "guessHigher": "Higher!",
+                        "guessRemaining": "You have {{ATTEMPTS}} attempts remaining.",
+                        "guessLose": "Game Over! The number was {{NUMBER}}",
+                        "guessTimeout": "Well, it's been a minute, so the game is ended."
+                    }
+                }
+            }
+        },
+        "fun": {
+            "name": "fun",
+            "description": "Fun commands to play with",
+            "subcommands": {
+                "demotivator": {
+                    "name": "demotivator",
+                    "description": "Create a demotivational poster",
+                    "options": {
+                        "text": {
+                            "name": "text",
+                            "description": "Main text for the demotivator"
+                        },
+                        "subtext": {
+                            "name": "subtext",
+                            "description": "Secondary text for the demotivator"
+                        },
+                        "image": {
+                            "name": "image",
+                            "description": "Image to demotivate"
+                        }
+                    },
+                    "strings": {
+                        "invalidImage": "<:fail:1335182303705563146> *Oops!* That's not a valid image!",
+                        "success": "<:success:1335181909751365673> Here's your demotivational poster!",
+                        "error": "<:fail:1335182303705563146> *Oops!* Something went wrong while creating your demotivator..."
+                    }
+                },
+                "fact": {
+                    "name": "fact",
+                    "description": "Get a random interesting english fact",
+                    "strings": {
+                        "error": "<:fail:1335182303705563146> *Oops!* Failed to fetch a fact. Try again?"
+                    }
+                },
+                "meme": {
+                    "name": "meme",
+                    "description": "Get a random meme from Reddit",
+                    "strings": {
+                        "nsfwContent": "<:fail:1335182303705563146> *Oops!* This meme is NSFW, let me get another one...",
+                        "description": "Posted by u/{{AUTHOR}} in r/{{SUBREDDIT}}",
+                        "footer": "<:like:1335195386800771104> {{UPVOTES}} upvotes",
+                        "error": "<:fail:1335182303705563146> *Oops!* Failed to fetch a meme. Try again?"
+                    }
+                }
+            }
+        },
+        "info": {
+            "name": "info",
+            "description": "Get information about a server, a user, or get a picture!",
+            "subcommands": {
+                "guild": {
+                    "name": "guild",
+                    "description": "Get guild's information"
+                },
+                "user": {
+                    "name": "user",
+                    "description": "Get user's information",
+                    "options": {
+                        "user": {
+                            "name": "user",
+                            "description": "A user to get the information"
+                        }
+                    }
+                },
+                "avatar": {
+                    "name": "avatar",
+                    "description": "Get user's profile picture",
+                    "options": {
+                        "user": {
+                            "name": "user",
+                            "description": "A user to get it's profile picture"
+                        }
+                    }
+                },
+                "icon": {
+                    "name": "icon",
+                    "description": "Get guild's icon picture"
+                }
+            },
+            "strings": {
+                "roles": "Roles",
+                "joinedDate": "Joined",
+                "createdDate": "Created",
+                "registered": "Registered?",
+                "verified": "Verified?",
+                "balance": "Balance",
+                "noGuildIcon": "<:fail:1335182303705563146> *Image Print is failing...* This Guild seems doesn't have it's icon.",
+                "name": "Name",
+                "creation": "Creation Date",
+                "owner": "Owner",
+                "members": "Members",
+                "emojis": "Emojis",
+                "verifylvl": "Verification Level",
+                "boosts": "Boosts",
+                "none": "None",
+                "low": "Low",
+                "mid": "Medium",
+                "high": "High",
+                "veryhigh": "Very High"
+            }
+        },
+        "encode": {
+            "name": "encode",
+            "description": "Encode text using various methods",
+            "subcommands": {
+                "atbash": {
+                    "name": "atbash",
+                    "description": "Encode text using Atbash cipher"
+                },
+                "base64": {
+                    "name": "base64",
+                    "description": "Encode text to Base64"
+                },
+                "binary": {
+                    "name": "binary",
+                    "description": "Convert text to binary"
+                },
+                "caesar": {
+                    "name": "caesar",
+                    "description": "Encode text using Caesar cipher"
+                },
+                "hex": {
+                    "name": "hex",
+                    "description": "Convert text to hexadecimal"
+                },
+                "leet": {
+                    "name": "leet",
+                    "description": "Convert text to 1337 speak"
+                },
+                "morse": {
+                    "name": "morse",
+                    "description": "Convert text to Morse code"
+                },
+                "nato": {
+                    "name": "nato",
+                    "description": "Convert text to NATO phonetic alphabet"
+                },
+                "piglatin": {
+                    "name": "piglatin",
+                    "description": "Convert text to Pig Latin"
+                },
+                "railfence": {
+                    "name": "railfence",
+                    "description": "Encode text using Rail Fence cipher"
+                },
+                "reverse": {
+                    "name": "reverse",
+                    "description": "Reverse text in different ways"
+                },
+                "rot13": {
+                    "name": "rot13",
+                    "description": "Encode text using ROT13 cipher"
+                },
+                "rot47": {
+                    "name": "rot47",
+                    "description": "Encode text using ROT47 cipher"
+                },
+                "url": {
+                    "name": "url",
+                    "description": "Encode text for URLs"
+                },
+                "vigenere": {
+                    "name": "vigenere",
+                    "description": "Encode text using Vigenère cipher"
+                }
+            },
+            "options": {
+                "text": {
+                    "name": "text",
+                    "description": "The text to encode"
+                },
+                "shift": {
+                    "name": "shift",
+                    "description": "Number of positions to shift (1-25)"
+                },
+                "rails": {
+                    "name": "rails",
+                    "description": "Number of rails to use (2-10)"
+                },
+                "mode": {
+                    "name": "mode",
+                    "description": "How to reverse the text",
+                    "choices": {
+                        "full": "Full text reverse",
+                        "words": "Reverse word order",
+                        "letters": "Reverse letters in each word"
+                    }
+                },
+                "key": {
+                    "name": "key",
+                    "description": "The encryption key to use"
+                }
+            },
+            "strings": {
+                "encodeSuccess": "<:success:1335181909751365673> *Success!* Here's your encoded text:",
+                "encodeResult": "Result",
+                "encodeError": "<:fail:1335182303705563146> *Oops!* Something went wrong while encoding your text..."
+            }
+        },
+        "decode": {
+            "name": "decode",
+            "description": "Decode text using various methods",
+            "subcommands": {
+                "base64": {
+                    "name": "base64",
+                    "description": "Decode text from Base64"
+                },
+                "binary": {
+                    "name": "binary",
+                    "description": "Convert binary to text"
+                },
+                "caesar": {
+                    "name": "caesar",
+                    "description": "Decode text from Caesar cipher"
+                },
+                "hex": {
+                    "name": "hex",
+                    "description": "Convert hexadecimal to text"
+                },
+                "morse": {
+                    "name": "morse",
+                    "description": "Convert Morse code to text"
+                },
+                "piglatin": {
+                    "name": "piglatin",
+                    "description": "Convert Pig Latin to text"
+                },
+                "railfence": {
+                    "name": "railfence",
+                    "description": "Decode text from Rail Fence cipher"
+                },
+                "url": {
+                    "name": "url",
+                    "description": "Decode URL-encoded text"
+                },
+                "vigenere": {
+                    "name": "vigenere",
+                    "description": "Decode text from Vigenère cipher"
+                }
+            },
+            "options": {
+                "text": {
+                    "name": "text",
+                    "description": "The text to decode"
+                },
+                "shift": {
+                    "name": "shift",
+                    "description": "Number of positions to shift (1-25)"
+                },
+                "rails": {
+                    "name": "rails",
+                    "description": "Number of rails to use (2-10)"
+                },
+                "key": {
+                    "name": "key",
+                    "description": "The decryption key to use"
+                }
+            },
+            "strings": {
+                "decodeSuccess": "<:success:1335181909751365673> *Success!* Here's your decoded text:",
+                "decodeResult": "Result",
+                "decodeError": "<:fail:1335182303705563146> *Oops!* Something went wrong while decoding your text..."
+            }
+        },
+        "utility": {
+            "name": "utility",
+            "description": "Utility commands for various purposes.",
+            "subcommands": {
+                "ben": {
+                    "name": "ben",
+                    "description": "Your Talking Ben!",
+                    "options": {
+                        "question": {
+                            "name": "question",
+                            "description": "Ask anything!"
+                        }
+                    },
+                    "strings": {
+                        "name": "Ben",
+                        "yes": "Yes",
+                        "no": "No",
+                        "eugh": "Eugh",
+                        "laugh": "Ho-ho-ho...."
+                    }
+                },
+                "cat": {
+                    "name": "cat",
+                    "description": "Generates a random cat image",
+                    "strings": {
+                        "title": "Random Cat Image 🐱",
+                        "error": "<:fail:1335182303705563146> Failed to fetch a cat image. Please try again later."
+                    }
+                },
+                "dog": {
+                    "name": "dog",
+                    "description": "Generates a random dog image",
+                    "strings": {
+                        "title": "Random Dog Image 🐶",
+                        "error": "<:fail:1335182303705563146> Failed to fetch a dog image. Please try again later."
+                    }
+                },
+                "luck": {
+                    "name": "luck",
+                    "description": "Test your luck by random",
+                    "options": {
+                        "1": {
+                            "name": "first",
+                            "description": "The first number"
+                        },
+                        "2": {
+                            "name": "second",
+                            "description": "The second number"
+                        }
+                    },
+                    "strings": {
+                        "random": "Random Number",
+                        "result": "Your Result",
+                        "lucky": "🎉 Congratulations! You got lucky!",
+                        "unlucky": "😢 Better luck next time!"
+                    }
+                }
+            }
+        }
+    },
+    "permissions": {
+        "AddReactions": "Add Reactions",
+        "Administrator": "Administrator",
+        "AttachFiles": "Attach Files",
+        "BanMembers": "Ban Members",
+        "ChangeNickname": "Change Nickname",
+        "Connect": "Connect",
+        "CreateEvents": "Create Events",
+        "CreateGuildExpressions": "Create Expressions",
+        "CreateInstantInvite": "Create Invite",
+        "CreatePrivateThreads": "Create Private Threads",
+        "CreatePublicThreads": "Create Public Threads",
+        "DeafenMembers": "Deafen Members",
+        "EmbedLinks": "Embed Links",
+        "KickMembers": "Kick Members",
+        "ManageChannels": "Manage Channel(s)",
+        "ManageEmojisAndStickers": "Manage Emoji and Stickers",
+        "ManageEvents": "Manage Events",
+        "ManageGuild": "Manage Server",
+        "ManageGuildExpressions": "Manage Expressions",
+        "ManageMessages": "Manage Messages",
+        "ManageNicknames": "Manage Nicknames",
+        "ManageRoles": "Manage Roles / Permissions",
+        "ManageThreads": "Manage Threads / Posts",
+        "ManageWebhooks": "Manage Webhooks",
+        "MentionEveryone": "Mention Everyone, Here, and All Roles",
+        "ModerateMembers": "Timeout Members",
+        "MoveMembers": "Move Members",
+        "MuteMembers": "Mute Members",
+        "PrioritySpeaker": "Priority Speaker",
+        "ReadMessageHistory": "Read Message History",
+        "RequestToSpeak": "Request to Speak",
+        "SendMessages": "Send Messages / Create Posts",
+        "SendMessagesInThreads": "Send Messages in Threads / Posts",
+        "SendPolls": "Create Polls",
+        "SendTTSMessages": "Send Text-to-Speech Messages",
+        "SendVoiceMessages": "Send Voice Messages",
+        "Speak": "Speak",
+        "Stream": "Video",
+        "UseApplicationCommands": "Use Application Commands",
+        "UseEmbeddedActivities": "Use Activities",
+        "UseExternalApps": "Use External Apps",
+        "UseExternalEmojis": "Use External Emoji",
+        "UseExternalSounds": "Use External Sounds",
+        "UseExternalStickers": "Use External Stickers",
+        "UseSoundboard": "Use Soundboard",
+        "UseVAD": "Use Voice Activity",
+        "ViewAuditLog": "View Audit Log",
+        "ViewChannel": "View Channel(s)",
+        "ViewCreatorMonetizationAnalytics": "View Server Subscription Insights",
+        "ViewGuildInsights": "View Server Insights"
+    },
+    "other": {
+        "na": "N/A",
+        "devOnly": "<:dev:1297262773826486382> *Hmm...* This action can only be done by developers.",
+        "intError": "<:fail:1335182303705563146> *Dang...* Something just went wrong...",
+        "errorCode": "Error Code",
+        "guildId": "Guild ID",
+        "shardId": "Shard ID",
+        "reportError": "Report the error with our guild!",
+        "cooldownHit": "<:fail:1335182303705563146> *Woah!* You can only run this command {{AMOUNT}} time(s) every {{INTERVAL}}. Please wait before attempting this command again.",
+        "missingClientPerms": "<:fail:1335182303705563146> Oh, I don't have all permissions required to run that command here! Please check the server and channel permissions to make sure I have the following permissions.*",
+        "missingClientPerms2": "Required permissions: {{PERMISSIONS}}"
+    }
+}
