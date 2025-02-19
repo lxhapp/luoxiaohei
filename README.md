@@ -49,7 +49,7 @@ Here are the npm scripts you can use:
 - `npm run commands:clear`: Clear all commands.
 
 ### Starting the Application 🚀
-- `npm run start`: Starts the application.
+- `npm start`: Starts the application.
 - `npm run start:app`: Builds and starts the application.
 - `npm run start:manager`: Builds and starts the manager.
 - `npm run start:pm2`: Builds and starts the application using PM2.
